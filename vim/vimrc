@@ -671,8 +671,8 @@ function! SessionFreeze() " {{{2
   execute "silent mksession! " . g:session_dir . l:name
 
   " create a symbolic link to this session for quick restore
-  execute "silent !rm -f " . g:session_dir . "_latest"
-  execute "silent !ln -s " . g:session_dir . l:name . " " . g:session_dir . "_latest"
+  execute "silent !rm -f " . g:session_dir . "_lastsaved"
+  execute "silent !ln -s " . g:session_dir . l:name . " " . g:session_dir . "_lastsaved"
 endfunction
 
 function! SessionRestore() " {{{2
