@@ -1,0 +1,828 @@
+" mbadran's vimrc <http://disentangled.net>
+
+let loaded_quickfixsigns = 1
+
+" bundles {{{1
+try
+  " source vundle
+  set runtimepath+=$HOME/.vim/bundle/vundle/
+
+  call vundle#rc()
+
+  " let vundle manage vundle
+  Bundle 'gmarik/vundle'
+
+  " install vim-scripts repos
+  " TODO: do pull requests for any fixes (don't think there are many)
+  Bundle 'Conque-Shell'
+  Bundle 'matrix.vim--Yang'
+  Bundle 'trailing-whitespace'
+  Bundle 'pydoc.vim'
+  Bundle 'The-NERD-tree'
+  Bundle 'The-NERD-Commenter'
+  Bundle 'fugitive.vim'
+  Bundle 'Color-Sampler-Pack'
+  Bundle 'SearchComplete'
+  Bundle 'SuperTab-continued.'
+  Bundle 'xmledit'
+  Bundle 'delimitMate.vim'
+  Bundle 'Solarized'
+  Bundle 'Gundo'
+  Bundle 'Syntastic'
+  "Bundle 'netrw.vim'
+  Bundle 'taskpaper.vim'
+  Bundle 'Markdown'
+  Bundle 'quickfixsigns'
+  "Bundle 'jpythonfold.vim'
+  Bundle 'Tagbar'
+  Bundle 'ack.vim'
+  Bundle 'camelcasemotion'
+  Bundle 'surround.vim'
+  Bundle 'repeat.vim'
+  Bundle 'easytags.vim'
+  Bundle 'capslock.vim'
+  Bundle 'unimpaired.vim'
+	Bundle 'endwise.vim'
+
+  " install other repos
+  "Bundle 'reinh/vim-makegreen'
+  Bundle 'robgleeson/hammer.vim'
+  Bundle 'mrchrisadams/vim-peepopen'
+  Bundle 'klen/rope-vim'
+  " the new snipmate and prerequisites
+	Bundle 'MarcWeber/vim-addon-mw-utils'
+	Bundle 'tomtom/tlib_vim'
+	Bundle 'honza/snipmate-snippets'
+	Bundle 'garbas/vim-snipmate'
+catch /E117/
+  " no vundle
+endtry
+
+" install my plugins (cutting edge)
+" these need to be synced by dropbox for automated propagation on other
+" accounts
+set runtimepath+=$HOME/.vim/bundle0/headlights/
+set runtimepath+=$HOME/.vim/bundle0/vimroom/
+set runtimepath+=$HOME/.vim/bundle0/instaruler/
+set runtimepath+=$HOME/.vim/bundle0/findinfiles/
+set runtimepath+=$HOME/.vim/bundle0/snide/
+"set runtimepath+=$HOME/.vim/bundle0/taglist_45/
+
+" jpython fold doesn't conform TODO: fork!
+set runtimepath+=$HOME/.vim/bundle0/jpythonfold.vim/
+
+" settings {{{1
+let g:mapleader = ','
+
+filetype indent plugin on
+
+" enable syntax highlighting
+syntax on
+
+" enable case insensitive search when using lowercase letters
+set ignorecase
+set smartcase
+
+" enable case insensitive keyword completion when ignorecase is on
+set infercase
+
+" allow backspacing over autoindent, line breaks, and start of insert action
+set backspace=indent,eol,start
+
+" go to the first non-blank of the line instead of the start (where possible)
+set nostartofline
+
+" always display the status line
+set laststatus=2
+
+" don't fail commands because of unsaved changes
+set confirm
+
+" don't beep or flash
+set visualbell
+set t_vb=
+
+" enable the mouse in all modes
+set mouse=a
+
+" avoid most prompts to continue
+set cmdheight=3
+
+" quickly time out on keycodes, but never time out on mappings
+" ok, time out on mappings too!
+"set notimeout
+set timeout
+"set timeoutlen=100
+set ttimeout
+set ttimeoutlen=200
+
+" allow the use of multiple buffers
+" i use tabs, so hidden doesn't matter as much -- TODO: test for a while
+"set hidden
+
+" enhance command line completion
+set wildmenu
+
+" show partial commands at the bottom
+set showcmd
+
+" highlight search matches
+set hlsearch
+
+" set a fancy statusline
+set statusline=%{GetStatusLine()}
+
+" hide the intro message on startup
+set shortmess+=I
+
+" keep the cursor in the middle of the window
+set scrolloff=999
+
+" put new :vsplit windows on the right
+set splitright
+
+" put new :split windows below
+set splitbelow
+
+" search as you type
+set incsearch
+
+" jump to matching brackets
+set showmatch
+
+" highlight the line the cursor is on
+set cursorline
+
+" use these file formats when reading and creating files
+set fileformats=unix,dos,mac
+
+" wrap long lines
+set linebreak
+
+" update open files when they're changed externally
+set autoread
+
+" automatically save before certain commands
+set autowrite
+
+" let h and l traverse lines too
+set whichwrap+=h,l
+
+" search globally by default (use /g flag for first match only)
+set gdefault
+
+if v:version > 702
+  " show line numbers relative to the cursor position
+  set relativenumber
+
+  " change to dir of the current file automatically
+  set autochdir
+
+  " allow persistent undos across sessions
+  set undofile
+  " save undo files far away (put the full dir path in the filename)
+  set undodir=$TEMP//,$TMP//,$TMPDIR//,.
+endif
+
+" save swap files far away (put the full dir path in the filename)
+" // expands to full dir path, not just filename (doesn't work on windows)
+set directory=$TEMP//,$TMP//,$TMPDIR//,.
+
+" don't create ~ backup files
+set nowritebackup
+"set backupdir=$TEMP//,$TMP//,$TMPDIR//,.
+
+" list all matches and complete till longest common string
+" (tab twice to cycle through)
+set wildmode=list:longest,list:full
+
+" specify the symbols for unprintable chars
+set listchars=tab:▸\ ,eol:¬,trail:·,nbsp:○,extends:→,precedes:←
+
+" specify the language for spelling corrections
+set spelllang=en_au
+
+" TODO: set a mapping, or integrate into supertab
+" specify the dictionary files for keyword completion
+set dictionary+=/usr/share/dict/words
+
+" specify the fill characters
+set fillchars=vert:\\,fold:·
+
+" add only one space when joining lines
+set nojoinspaces
+
+" stop cursor from blinking in normal mode
+set guicursor+=n:blinkon0
+
+" use the system clipboard as the default register
+set clipboard=unnamed
+
+" only save tabs and folds when making sessions
+set sessionoptions=tabpages,folds
+
+" limit the number of menu items for omnicompletion (temporary hack)
+set pumheight=17
+
+" let the cursor move past the end of the line (helps with b movements)
+set virtualedit=onemore
+
+" show more information while completing tags
+set showfulltag
+
+" always report number of lines changed
+set report=0
+
+" retain more history items
+set history=1000
+
+" indentation {{{1
+" default indentation settings
+" match the current indent for new lines
+set autoindent
+
+" insert spaces instead of tabs
+set expandtab
+
+" indent/outdent to nearest tabstops
+set shiftround
+
+" filetypes {{{1
+" TODO: move these into ftplugins like marcweber's thing (when you
+" switch to github dotfiles)
+if has('autocmd')
+  augroup vimrc
+		" reset all autocmds for quick re-sourcing
+		autocmd!
+
+    " all {{{2
+    autocmd BufReadPost * call GoToLastPosition()
+
+    " enable omnicompletion by default
+    autocmd FileType * if &omnifunc == '' | setlocal omnifunc=syntaxcomplete#Complete | endif
+
+    " automatically close the preview window
+    autocmd CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
+
+    "autocmd BufEnter * call QuickfixsignsUpdate()
+    "autocmd CursorHold * call QuickfixsignsUpdate()
+    "autocmd CursorHoldI * call QuickfixsignsUpdate()
+
+    if v:version < 703
+      " change to dir of current file automatically
+      autocmd BufEnter * lcd %:p:h
+    endif
+
+    " vim {{{2
+    autocmd FileType vim setlocal tabstop=2 softtabstop=2 shiftwidth=2 noexpandtab
+    autocmd FileType vim setlocal foldmethod=marker
+
+    " show help for the word under the cursor
+    autocmd FileType vim noremap <F1> :help <C-r><C-w><CR>
+
+    " automatically source the vimrc file after saving
+    autocmd BufWritePost .vimrc,_vimrc source $MYVIMRC
+    autocmd BufWritePost .gvimrc,_gvimrc source $MYGVIMRC
+
+    " quickfix {{{2
+    autocmd filetype qf setlocal nonumber norelativenumber
+    "autocmd filetype qf setlocal statusline=%=%q%50P\ 
+    "autocmd filetype qf setlocal guitablabel=%q%13N
+    "autocmd filetype qf setlocal statusline=\ %{exists('w:quickfix_title')?\ w:quickfix_title\ :\ ''}%=%t%40(%l\ of\ %L%)\ 
+    "autocmd filetype qf setlocal statusline=\ %{exists('w:quickfix_title')?\ w:quickfix_title\ :\ ''}%=%t%40(%l\ of\ %L%)\ 
+    autocmd filetype qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%l\ of\ %L%)\ 
+    autocmd filetype qf let b:noquickfixsigns = 1
+
+    " preview {{{2
+    " TODO: doesn't work, find out why
+    "autocmd FileType preview setlocal statusline=%50w
+    "autocmd filetype preview setlocal guitablabel=%w%13N
+
+    " java (sucks) {{{2
+    autocmd filetype java setlocal tabstop=3 shiftwidth=3 softtabstop=3 expandtab foldnestmax=2
+    autocmd filetype java setlocal foldmethod=syntax foldnestmax=2
+
+    " TODO: these are probably broken
+    " use ant to make, using a build file above this (src) one
+    "autocmd BufRead *.java let b:makeprgvar='ant\ -f\ ' . expand('%:p:h") . '/../build.xml'
+    ""autocmd filetype .java let b:makeprgvar='ant\ -f\ ' . '..\build.xml'
+    "autocmd filetype *.java execute ':setlocal makeprg=' . b:makeprgvar
+    "autocmd filetype *.java execute ":setlocal makeprg=" . b:makeprgvar
+
+    " xml {{{2
+    autocmd filetype xml setlocal tabstop=2 shiftwidth=2
+    autocmd filetype xml iabbrev %cd <![CDATA[<CR><CR>]]><Esc>-i<Tab>
+
+    " python {{{2
+    " PEP8 settings (minus textwidth=79)
+    autocmd filetype python setlocal tabstop=4 softtabstop=4 shiftwidth=4 expandtab
+    autocmd filetype python setlocal keywordprg=pydoc " iskeyword+=.
+    "autocmd filetype python set foldmethod=indent foldlevel=99
+    autocmd filetype python execute ":setlocal makeprg=python\\ ./" . expand('%:t')
+    "autocmd filetype python setlocal keywordprg=pydoc " iskeyword+=.
+    " TODO: make this support a range as well, for when you don't want the whole
+    " module (needs visual mode support)
+    autocmd filetype python nnoremap <F1> :Pydoc <C-r><C-w><CR>
+    "autocmd filetype python nnoremap % :call FixPythonMatch()
+    autocmd filetype python iabbrev ;;l % locals()
+    autocmd filetype python iabbrev ;;b #! /usr/bin/env python
+    autocmd filetype python iabbrev ;;i import 
+    autocmd filetype python iabbrev ;;s self.
+
+    " gitcommit {{{2
+    " first line should be <= 50 chars, detail should be <= 72 char per line
+    " (according to tpope)
+    autocmd filetype gitcommit setlocal cursorcolumn colorcolumn=72
+    autocmd filetype gitcommit highlight colorcolumn ctermbg=grey guibg=#101010
+
+    autocmd filetype gitcommit let b:noquickfixsigns = 1
+
+    " nerdtree {{{2
+    "autocmd filetype nerdtree setlocal guitablabel=[tree]%13N
+    autocmd FileType nerdtree let b:noquickfixsigns = 1
+
+    " tagbar {{{2
+    autocmd FileType tagbar setlocal statusline=\ 
+    autocmd FileType tagbar noremap <buffer> <Space> :
+    "autocmd filetype tagbar setlocal guitablabel=[tags]%13N
+    autocmd FileType tagbar let b:noquickfixsigns = 1
+
+    " help {{{2
+    "autocmd filetype help setlocal statusline=\ help:\ %{expand('%:r')}%=%P\ 
+    "autocmd filetype help setlocal statusline=\ help:\ %{expand('%:r')}\ [%{try|split(@:)[1]|catch //|endtry}\]%=%P\ 
+    "autocmd FileType help setlocal statusline=\ %h\ %{expand('%:r')}\ \(%{@:}\)%=%P\ 
+    autocmd FileType help setlocal statusline=\ :%{@:}%=%h\ %{expand('%:r')}%40P\ 
+    autocmd FileType help setlocal statusline=\ %{GetDocTitle('help')}%=%h\ %{expand('%:r')}%40P\ 
+    "autocmd filetype help setlocal guitablabel=%h%13N
+
+    " man {{{2
+    "autocmd FileType man setlocal statusline=\ [Man]\ %{expand('%:r')}%='%{@:}\'%40P\ 
+    "autocmd FileType man setlocal statusline=\ :%{@:}%=[Man]\ %{expand('%:r')}%40P\ 
+    autocmd FileType man setlocal statusline=\ %{GetDocTitle('Man')}%=[Man]\ %{expand('%:r')}%40P\ 
+    "autocmd FileType man setlocal statusline=\ [Man]\ %t%='%{@:}'\ 
+    "autocmd FileType man setlocal statusline=\ [Man]\ %{expand('%:r')}%='%{@:}'\ 
+
+    " make {{{2
+    autocmd filetype make setlocal noexpandtab
+
+  augroup END
+endif
+
+" mappings {{{1
+" normal {{{2
+" make Y behave like D and C, not yy
+nnoremap Y y$
+
+"nnoremap % :call FixPythonMatch()
+nnoremap <silent> <Esc> <Esc>:nohlsearch<CR>
+
+" swap the default movements on wrapped lines
+nnoremap j gj
+nnoremap k gk
+nnoremap 0 g0
+nnoremap $ g$
+nnoremap gj j
+nnoremap gk k
+nnoremap g0 0
+nnoremap g$ $
+
+" simplify window operations
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" invoke command mode with one key
+nnoremap <Space> :
+
+" swap mark commands (remember to unswap for movement commands)
+"nnoremap ' `
+"nnoremap ` '
+
+" TODO: add a mapping for toggling whitespace highlight (should be on by
+" default)
+nnoremap <silent> <leader>fs :FixWhitespace<CR>
+nnoremap <silent> <leader>Fs :call TrailingWhitespace_Toggle()<CR>
+nnoremap <silent> <leader>fw :call FixWindows()<CR>
+
+" TODO: map leader space and leader leader to something juicy
+"nnoremap <leader><Space> (SOMETHING)
+
+nnoremap <silent> <leader>vv :tabedit $MYVIMRC<CR>
+nnoremap <silent> <leader>vg :tabedit $MYGVIMRC<CR>
+"nnoremap <silent> <leader>vs :source $MYVIMRC<CR>
+nnoremap <silent> <leader>vs :up<CR>:source %<CR>
+
+"nnoremap <silent> <leader>b :buffers<CR>
+
+nnoremap <leader>h :help<Space>
+"nnoremap <leader>H :helpgrep<Space>
+nnoremap <silent> <leader>H :call GrepHelp()<CR>
+
+nnoremap <silent> <leader>l :call ToggleListChars()<CR>
+
+" git and gist mappings
+" TODO: improve, and install gist
+nnoremap <silent> <leader>gc :Gcommit %<CR>
+nnoremap <silent> <leader>gp :Git push<CR>
+nnoremap <silent> <leader>gi :Git<CR>
+nnoremap <silent> <leader>gl :Glog<CR>
+nnoremap <silent> <leader>gd :Gdiff<CR>
+nnoremap <silent> <leader>gs :Gstatus<CR>
+nnoremap <silent> <leader>gb :Gblame<CR>
+"nnoremap <leader>gt :Gist
+"nnoremap <leader>gp :Gist -p
+
+" toggle between paste and nopaste modes
+nnoremap <leader>p :setlocal invpaste paste?<CR>
+
+" TODO: fix this so you can map ,cn and ,cp for next and previous items (do
+" the same for ,ln and ,lp)
+" TODO: consider using unimpaired for these
+nnoremap <silent> <leader>cn :cnext<CR>
+nnoremap <silent> <leader>cp :cprevious<CR>
+nnoremap <silent> <leader>ln :lnext<CR>
+nnoremap <silent> <leader>lp :lprevious<CR>
+
+" TODO: use <plug> format for setting your scripts' mappings (see nerdcommenter)
+
+nnoremap <silent> <leader>vf :call SessionFreeze()<CR>
+nnoremap <silent> <leader>vr :call SessionRestore()<CR>
+nnoremap <silent> <leader>vl :call SessionRestoreLastSaved()<CR>
+
+" TODO: i have no need for H, L, and M, since i use scrolloff. find a mapping for them.
+" (actually, M seems complementary in scrolloff)
+nnoremap H ge
+"nnoremap L gE
+"nnoremap M gE
+
+" TODO: revise these
+nnoremap <leader>d :close<CR>
+"nnoremap <leader>w :call WipeoutBuffer()<CR>
+"nnoremap <leader>u :call UpdateBuffer()<CR>
+
+" visual {{{2
+" reselect after an indent action (to facilitate repeat actions)
+vnoremap > >gv
+vnoremap < <gv
+
+" command {{{2
+" do a sudo write
+cnoremap w!! w !sudo tee % > /dev/null
+
+" fix searches
+cnoremap %s/ %s/\v
+cnoremap %g/ %g/\v
+
+" TODO: set up more mappings for nerd commenter -- comment, uncomment, minimal
+" comment, etc.
+"
+" TODO: set up visual mappings as well as normal ones for your plugins
+
+" insert path of the current file into the command line TODO: do i even need this?
+"cnoremap %% <C-r>=expand("%:p:h") . "/" <CR>
+
+" insert {{{2
+inoremap <C-S-Space> <C-x><C-o>
+
+" abbreviations {{{1
+" TODO: add some more!
+"cabbrev %% <C-r>=expand("%:p:h") . "/" <CR>
+cabbrev <expr> ;;p expand("%:p:h") . "/"
+" plugins {{{1
+" runtime {{{2
+runtime! macros/matchit.vim
+runtime! ftplugin/man.vim
+
+" peepopen {{{2
+" TODO:fork peepopen so it does the hasmapto thing instead of using
+" <unique>and producing an error
+" disable default mapping so we can reuse it
+"nnoremap <nop> <Plug>PeepOpen
+
+" nerdcommenter {{{2
+" disable default mapping so we can reuse it
+map <nop> <Plug>NERDCommenterNest
+
+" headlights {{{2
+"let g:headlights_use_plugin_menu = 1
+"let g:headlights_debug_mode = 1
+let g:headlights_files = 1
+"let g:headlights_commands = 0
+let g:headlights_mappings = 1
+let g:headlights_abbreviations = 1
+let g:headlights_functions = 1
+
+" syntastic {{{2
+"let g:syntastic_auto_loc_list = 1
+let g:syntastic_enable_signs = 1
+
+" supertab {{{2
+"let g:SuperTabDefaultCompletionType = "context"
+"let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
+"let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
+
+"let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
+"let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
+"
+"let g:SuperTabRetainCompletionDuration = "session"
+
+" easytags {{{2
+" TODO: change colour of tags (see highlight groups defined by easytags (ref.
+" help), as well as jellybeans stuff
+"let g:easytags_file = '$HOME/.vim/tags'
+
+" console {{{1
+if !has('gui_running')
+  " TODO: find out why stuff flashes in terminal
+  colorscheme zellner
+  set background=dark
+  set nocursorline
+  set t_Co=256
+  set title
+  if v:version > 702
+    set cursorcolumn
+    set colorcolumn=80
+    highlight colorcolumn ctermbg=lightgrey guibg=lightgrey
+  endif
+endif
+
+" functions {{{1
+function! GetCurrentTag() " {{{2
+  if exists('g:loaded_taglist')
+    let l:tagname = Tlist_Get_Tagname_By_Line()
+    if !empty(l:tagname)
+      return l:tagname . '()'
+    endif
+  endif
+  return ''
+endfunction
+
+function! GetCurrentBranch() " {{{2
+  if exists('g:loaded_fugitive')
+    let l:branch = matchstr(fugitive#statusline(), '(\zs.*\ze)')
+    if !empty(l:branch)
+      return '[' . l:branch . ']'
+    endif
+  endif
+  return ''
+endfunction
+
+function! GetFileFormat() " {{{2
+  if !match(&fileformat , 'unix' == 0)
+    return toupper(&fileformat)
+  endif
+  return ''
+endfunction
+
+function! GetCWD() " {{{2
+  let l:cwd = substitute(getcwd(), $HOME . '\ze.*$', '~', '')
+  if strlen(l:cwd) > 50
+    return strpart(l:cwd, 0, 50) . '>'
+  endif
+  return l:cwd
+endfunction
+
+function! GetStatusLine() " {{{2
+  "set statusline=\ \ \ \ \ %#MoreMsg#%H%M%R%*                           " file flags
+  "set statusline+=\ %<%f                                                " file tail
+  "set statusline+=\ %#StatusLineNC#
+  setlocal statusline=\ \ \ \ %{GetCWD()}                                         " current dir
+  "set statusline+=\ %*
+  "set statusline+=%{empty(&ft)==1?'':&ft.',\ '}                         " filetype (if exists)
+  setlocal statusline+=%=                                                   " right divider
+  "set statusline+=%{empty(&ft)==1?'':&ft}                         " filetype (if exists)
+  setlocal statusline+=%-7{&filetype}                         " filetype (if exists)
+  "set statusline+=\ %{match(&ff,'unix')==0?'':'('.toupper(&ff).'!)'}     " fileformat
+  "set statusline+=\ %-7{match(&ff,'unix')==0?'':'\ '.toupper(&ff).'!'}     " fileformat
+  setlocal statusline+=\ %-7{GetFileFormat()}                                      " fileformat
+  setlocal statusline+=\ %-5{GetCurrentBranch()}                                   " show git branch
+  "set statusline+=\ %-5{GetCurrentTag()}                                  " current tag
+  "set statusline+=\ %-{GetCurrentBranch()}                                   " show git branch
+  "set statusline+=\ %-{GetCurrentTag()}                                  " current tag
+  "set statusline+=\ %{GetCurrentTag()}                                  " current tag
+  "set statusline+=%{match(&ff,'unix')==0?&ff:toupper(&ff)}              " fileformat
+  "set statusline+=,\ %{&enc}                                            " file encoding
+  " don't actually care for buffers anymore
+  "set statusline+=%20(%n\/%{len(filter(range(1,bufnr('$')),'buflisted(v:val)'))}%)                                       " buffer number and total
+  "set statusline+=\ %20(%#StatusLineNC#\ %l:%c%V\ %*%)                  " lines and columns
+  "set statusline+=\ %P\ of\ %L                                          " position in file
+  "set statusline+=%50(%P\ of\ %L%)                                     " position in file
+  "set statusline+=%50(\ x%-4l·y%-4c%)                                          " lines and columns
+  "set statusline+=%30(%#StatusLineV#%l%*\ of\ %L%)                              " current line and total lines
+  "set statusline+=%30(%#StatusLine#%l%*\ of\ %L%)                              " current line and total lines
+  setlocal statusline+=%30(%7v%*%)                                          " current column, and virtual column if applicable
+  setlocal statusline+=%15(%l%*\ of\ %L%)\                               " current line and total lines
+  "set statusline+=%10(%#StatusLineV#%7(%c%V%)%*%)\                                           " current column, and virtual column if applicable
+  "set statusline+=%10(%#StatusLine#%7(%c%V%)%*%)\                                           " current column, and virtual column if applicable
+  "setlocal statusline+=%10(%7(%c%V%)%*%)\                                           " current column, and virtual column if applicable
+  "set statusline+=\ \ ·\ \ %10(%P\ of\ %L%)                                     " column
+  "set statusline+=%50(%3l:%3c%)\                                           " lines and columns
+  "set statusline+=%5(%L%)                                     " position in file
+  "set statusline+=\ %P\ of\ %L                                          " position in file
+  "set statusline+=%L\                                      " position in file
+  "set statusline+=%P\                                      " position in file
+endfunction
+
+function! FixWindows() " {{{2
+  set fileformat=unix
+  s///e
+endfunction
+
+function! ToggleListChars() " {{{2
+   if exists('w:ListChars')
+     highlight NonText guifg=#151515 guibg=#151515
+     highlight SpecialKey guifg=#151515 guibg=#151515
+     set nolist
+     unlet w:ListChars
+   else
+     let w:ListChars = 1
+     highlight Nontext guifg=#993333 guibg=#151515
+     highlight SpecialKey guifg=#993333 guibg=#151515
+     set list
+   endif
+endfun
+
+function! GrepHelp() " {{{2
+  "let l:topic = inputdialog('Help topic? ')
+  let l:topic = input('Help topic? ')
+  execute 'helpgrep ' . l:topic
+  copen
+endfunction
+
+" TODO: find out why this isn't working for .gvimrc
+function! GoToLastPosition() " {{{2
+  "if line("'\"") > 0 && line("'\"") <= line("$")
+  if line("'\"") > 0 && line("'\"") <= line('$')
+  "if line('\'"') > 0 && line('\'"') <= line('$')
+    execute "normal g`\""
+  endif
+endfunction
+
+" TODO: move this functionality into a little plugin -- it's not really a
+" vimrc thing
+"let g:session_dir = "$HOME/.vim/sessions/"
+let g:session_dir = "$HOME/.vimsessions/"
+
+function! SessionFreeze() " {{{2
+  let l:name = expand('%:r')
+
+  " create the session with the name of the current file (sans extension)
+  execute "silent mksession! " . g:session_dir . l:name
+
+  " create a symbolic link to this session for quick restore
+  execute "silent !rm -f " . g:session_dir . "_latest"
+  execute "silent !ln -s " . g:session_dir . l:name . " " . g:session_dir . "_latest"
+endfunction
+
+function! SessionRestore() " {{{2
+  "let l:cwd = getcwd()
+	execute "lcd " . g:session_dir
+  "execute "silent source $HOME/.vim/sessions/" . l:name
+	call feedkeys(":source ")
+  "execute "lcd " . l:cwd
+endfunction
+
+function! SessionRestoreLastSaved() " {{{2
+  "silent source $HOME/.vim/sessions/_latest
+  execute "silent source " g:session_dir . "_latest"
+endfunction
+
+" TODO: test/polish this, very broken
+function! FixPythonMatch() " {{{2
+  "if !match(&fileformat , 'unix' == 0)
+	if &filetype == 'python'
+		" TODO: make this more robust, in case folding isn't enabled, or folds
+		" aren't defined for python
+    " TODO: add the condition -- this line starts with 'def' or 'class'
+    " TODO: how do you know if you're at the end of the fold or the beginning? just scrap this whole thing and use folds instead
+		normal ]z
+    " TODO: add the condition -- this line is empty or followed by an empty line
+    "[z
+	else
+		normal %
+  endif
+endfunction
+"vnoremap %
+
+function! GetDocTitle(command)
+  try
+    let l:title = matchstr(@:, '^' . a:command . '.*')
+    if !empty(l:title)
+      return ':' . l:title
+    endif
+  catch /E30/
+  endtry
+  return ''
+endfunction
+
+function! GetQuickFixTitle()
+  return exists('w:quickfix_title') ? w:quickfix_title : ''
+endfunction
+
+" cheatsheet {{{1
+" TODO: add cheatsheet items for everything you want to improve -- marks,
+" registers, etc. only way you'll learn if you have an immediate reference.
+" also: sessions, movement commands (as per the grok vim post), etc
+" also: c-r shortcuts in insert mode, refomratting, etc. see list in todos.
+
+" '. goes to previously edited line
+" `. goes to previous column on previously edited line
+" gi goes to previous column on previously edited line, putting you in insert
+" mode.
+"
+" <C-x><C-k> to invoke spelling dictionary
+" TODO: add more omnicomplete keywords here
+"
+" select the just pasted text: V`]
+"
+" W - beginning of next word defined by only space boundaries
+" E - end of current/next word defined by only space boundaries
+" B - beginning of current/previous defined by only space boundaries
+
+" ge goes to the end of the previous word (isn't be the same or faster?
+" gE goes to the end of the previous 'full' word
+" if you just want to go to the end of the previous word, ge or gE is the way
+" to go. otherwise, if you want to jump a few words, it's faster and easier to
+" just use 'b', then 'e' or 'E' once you reach the word you want.
+
+" http://henrik.nyh.se/2011/01/textmate-to-vim-with-training-wheels
+" 80i-<Esc>
+" YpVr=
+" das
+" dis
+" cas
+" cis
+" d(
+" d2(
+
+" g_ is to $ what ^ is to 0
+
+" g`" goes to the last cursor position in the file
+
+" gv - repeat the last selection
+
+" x is dl -- X is dh
+
+" folding
+"za toggles a fold opened and closed!
+"zf#j  creates a fold from the cursor down  #  lines.
+"zf/string creates a fold from the cursor to string .
+"zj moves the cursor to the next fold.
+"zk moves the cursor to the previous fold.
+"zo opens a fold at the cursor.
+"zO opens all folds at the cursor.
+"zm increases the foldlevel by one.
+"zM closes all open folds.
+"zr decreases the foldlevel by one.
+"zR decreases the foldlevel to zero -- all folds will be open.
+"zd deletes the fold at the cursor.
+"zE deletes all folds.
+"[z move to start of open fold.
+"]z move to end of open fold.
+
+" todo {{{1
+" TODO: find a plugin to make % work wit python
+" symlinked to vim dir's.
+" TODO: add <unique> and hasmapto to mappings in your scripts
+" TODO: use gq and reformat paragraphs more
+" TODO: fork the plugins you've modified (jellybeans, trailing whitespace,
+" etc) and use your versions from github instead
+" TODO: master undo trees (with potential visual plugin), registers,
+" folds, macros (flash cards)
+" TODO: use splits more
+" TODO: use marks more
+" TODO: use registers more
+" TODO: use snippets more
+" TODO: migrate your cheatsheet into flashcards
+" TODO: master completion mode (for eg. file completion, dictionary & others)
+" TODO: general philosophy: if a shortcut is a new feature (for eg. cmd-t), take
+"   liberty with changing it to whatever. if it's a built in vim feature, only
+"   change it if it's a pain in the arse.
+" TODO: raise a macvim feature request for gf go in the recent document
+" history natively. and ask him what recentFilesDummy macation does (search on
+" mailing list first).
+" TODO: finish commenting (functions, any stray stuff)
+" TODO: check out fuzzy finder over peep-open
+" TODO: use spelling more
+" TODO: use spelling completion and other completions more
+" TODO: try to edit files remotely from within macvim using ssh
+" TODO: add a bundle to rename a buffer and file on the filesystem (see https://github.com/jbe/.vim/blob/master/functions.vim)
+" TODO: read the full quickfix manual (lots of commands)
+" TODO: fix jellybeans colors for tagbar (consult tagbar doc too)
+"In order to make custom mappings easier and prevent overwritting existing
+"ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
+"for its mappings.
+"
+" TODO: report the omnicomplete glitch on the vim mailing list. steps to
+" reproduce:
+" 1. open a new window
+" 2. set ft=python omnifunc=pythoncomplete#Complete splitright
+" 4. vsplit anewsplit
+" 5. <c-w><c-h>
+" 6. i (to go into insert mode)
+" 7. type: list.<c-x><c-o>
+" 8. observe the completion options overlapping the omnicomplete description buffer (you may have to make your window smaller)
+"
+" the items should not overlap. this glitch doesn't occur in the right split,
+" which you can observe).

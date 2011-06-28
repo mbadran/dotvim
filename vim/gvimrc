@@ -1,0 +1,156 @@
+" mbadran's gvimrc <http://disentangled.net>
+
+" settings {{{1
+try
+  "colorscheme BClear
+  "set background=light
+  colorscheme Jellybeans
+  set background=dark
+catch /E185/
+  " ok, use the default color scheme
+endtry
+
+" remove the toolbar
+set guioptions-=T
+
+" remove the left scrollbar when multiple vsplits present (MAYBE enable with os x lion)
+set guioptions-=L
+
+" add a bottom scrollbar (enable with os x lion)
+"set guioptions+=b
+
+set cursorline
+
+" tab settings
+"set guitablabel=%M\ %-13.13t\ %N
+set guitablabel=%M\ %-13.t\ %N
+set guitabtooltip=%F\ (%n)
+
+" default indentation settings (these don't work in .vimrc, for some reason)
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+
+" (these don't work in .vimrc, for some reason)
+" make quickfix (and :sb* commands) switch to open windows and tabs
+" (this breaks :sbuffer -- use :vsp and :spl instead)
+set switchbuf=useopen,usetab
+" make quickfix open new tabs (splits in <7) instead of reusing the window
+set switchbuf+=split,newtab
+
+" macvim {{{1
+if has('gui_macvim')
+  set macmeta
+
+  set guifont=Meslo\ LG\ S\ DZ:h13'
+
+  " remove the legacy plugin menu
+  "try
+    "silent aunmenu Plugin
+  "catch /E329/
+    " (wasn't there)
+  "endtry
+
+  " show the filetypes by default
+  try
+    silent emenu Syntax.Show\ filetypes\ in\ menu
+  catch /E334/
+    " (already shown)
+  endtry
+
+  " mappings {{{2
+  nnoremap <D-1> 1gt
+  nnoremap <D-2> 2gt
+  nnoremap <D-3> 3gt
+  nnoremap <D-4> 4gt
+  nnoremap <D-5> 5gt
+  nnoremap <D-6> 6gt
+  nnoremap <D-7> 7gt
+  nnoremap <D-8> 8gt
+  nnoremap <D-9> 9gt
+
+  " quickly switch between buffers (alternative to C-^)
+  nnoremap <D-0> :b#<CR>
+
+  " indentation is broken in MacVim, fix paste mode behaviour
+  " TODO: mapping broken (ironically). get to the bottom of this issue.
+  " TODO: consider updating MacVim's menus.vim
+  "inoremap <D-v> <C-r>+
+  " repurpose cmd-v to fix paste behaviour (indentation is broken)
+  "macmenu Edit.Paste key=<D-M-v>
+
+  " repurpose cmd-o to use peepopen instead of the boring open dialog
+  "macmenu File.Open\.\.\. key=<D-S-o>
+  anoremenu <silent> .305 File.PeepOpen :PeepOpen<CR>
+  "macmenu File.PeepOpen key=<D-o>
+  macmenu File.PeepOpen key=<D-S-o>
+
+  " repurpose cmd-w to delete the buffer instead of just closing the window
+  macmenu File.Close key=<D-M-w>
+  anoremenu <silent> .328 File.Wipeout\ Buffer :call WipeoutBuffer()<CR>
+  macmenu File.Wipeout\ Buffer key=<D-w>
+
+  " repurpose cmd-s to :update instead of saving every single time
+  macmenu File.Save key=<nop>
+  anoremenu <silent> .339 File.Update :call UpdateBuffer()<CR>
+  macmenu File.Update key=<D-s>
+
+  " change go to file behaviour to go to a new tab, honouring MacVim's file
+  " opening preferences and registering with recent files history
+  nnoremap gf :!open -a MacVim <cfile><CR>
+
+" gvim {{{1
+elseif (match(v:progname, "gvim") ==? 0)
+  set guifont=Lucida_Console:h10:cANSI
+  "set lines=45
+  "set columns=140
+  nnoremap <C-tab> gt
+  nnoremap <C-S-tab> gT
+endif
+
+" mappings {{{1
+" fix searches (this doesn't work in .vimrc, for some reason)
+noremap / /\v
+" (this does, here for consistency only)
+noremap ? ?\v
+
+" (this doesn't work in .vimrc, for some reason)
+nnoremap <silent> gp :silent !open <cfile><cr>
+
+nnoremap <silent> gf :!open -a MacVim <cfile><cr>
+
+" plugins {{{1
+" vimroom {{{2
+let g:VimRoom_ShowStatusLine = 0
+let g:VimRoom_ZoomLevel = 2
+let g:VimRoom_Colorscheme = "DesertEx2"
+
+" headlights {{{2
+let g:headlights_debug = 0
+
+" functions {{{1
+" only save the buffer when there is something to save
+function! UpdateBuffer() " {{{2
+  try
+    update
+  catch /E32/
+    browse confirm saveas
+  endtry
+endfunction
+
+" don't leave buffers hanging around
+function! WipeoutBuffer() " {{{2
+  " don't do anything fancy in the command line window (q:)
+  if bufname('') == '[Command Line]'
+    exit
+  else
+    " if this is the only buffer in the only tab in the gui window, close the whole window
+    " TODO: understand and test this some more
+    if len(filter(range(1, bufnr('')), 'buflisted(v:val)')) == 1 && tabpagenr('$') == 1
+      quit
+    else
+      bwipeout
+    endif
+  endif
+endfunction
+
