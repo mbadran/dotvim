@@ -1,4 +1,4 @@
-" mbadran's gvimrc <http://disentangled.net>
+" mbadran's gvimrc <https://github.com/mbadran/dotfiles>
 
 " settings {{{1
 try
@@ -72,9 +72,8 @@ if has('gui_macvim')
   " quickly switch between buffers (alternative to C-^)
   nnoremap <D-0> :b#<CR>
 
-  " indentation is broken in MacVim, fix paste mode behaviour
-  " TODO: mapping broken (ironically). get to the bottom of this issue.
-  " TODO: consider updating MacVim's menus.vim
+  " autoindent (by filetype) on paste is broken in gvim, paste in insert mode
+  " instead using <C-r>+. TODO: fix this mapping to achieve that.
   "inoremap <D-v> <C-r>+
   " repurpose cmd-v to fix paste behaviour (indentation is broken)
   "macmenu Edit.Paste key=<D-M-v>
