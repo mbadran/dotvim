@@ -1,12 +1,9 @@
-" mbadran's vimrc <http://disentangled.net>
-
-let loaded_quickfixsigns = 1
+" mbadran's vimrc <https://github.com/mbadran/dotfiles>
 
 " bundles {{{1
 try
   " source vundle
   set runtimepath+=$HOME/.vim/bundle/vundle/
-
   call vundle#rc()
 
   " let vundle manage vundle
@@ -15,7 +12,6 @@ try
   " install vim-scripts repos
   Bundle 'Conque-Shell'
   Bundle 'matrix.vim--Yang'
-  "Bundle 'trailing-whitespace'
   Bundle 'pydoc.vim'
   Bundle 'The-NERD-tree'
   Bundle 'The-NERD-Commenter'
@@ -28,11 +24,9 @@ try
   Bundle 'Solarized'
   Bundle 'Gundo'
   Bundle 'Syntastic'
-  "Bundle 'netrw.vim'
   Bundle 'taskpaper.vim'
   Bundle 'Markdown'
   Bundle 'quickfixsigns'
-  "Bundle 'jpythonfold.vim'
   Bundle 'Tagbar'
   Bundle 'ack.vim'
   Bundle 'camelcasemotion'
@@ -42,29 +36,30 @@ try
   Bundle 'capslock.vim'
   Bundle 'unimpaired.vim'
   Bundle 'endwise.vim'
+  "Bundle 'netrw.vim'
 
   " install other repos
-  "Bundle 'reinh/vim-makegreen'
   Bundle 'robgleeson/hammer.vim'
   Bundle 'mrchrisadams/vim-peepopen'
   Bundle 'klen/rope-vim'
+  "Bundle 'reinh/vim-makegreen'
   " the new snipmate and prerequisites
-	Bundle 'MarcWeber/vim-addon-mw-utils'
-	Bundle 'tomtom/tlib_vim'
-	Bundle 'honza/snipmate-snippets'
-	Bundle 'garbas/vim-snipmate'
+  Bundle 'MarcWeber/vim-addon-mw-utils'
+  Bundle 'tomtom/tlib_vim'
+  Bundle 'honza/snipmate-snippets'
+  Bundle 'garbas/vim-snipmate'
 
-	" install my repos
-	Bundle 'mbadran/headlights'
-	Bundle 'mbadran/vimroom'
-	Bundle 'mbadran/instaruler'
-	Bundle 'mbadran/findinfiles'
-	Bundle 'mbadran/snide'
-	Bundle 'mbadran/sessionfridge'
-	Bundle 'mbadran/jpythonfold.vim'
-catch /E117/
-  " no vundle
-endtry
+  " install my repos
+  " NOTE: don't run BundleInstall! if you have any uncommitted changes here
+  Bundle 'mbadran/headlights'
+  Bundle 'mbadran/vimroom'
+  Bundle 'mbadran/instaruler'
+  Bundle 'mbadran/findinfiles'
+  Bundle 'mbadran/snide'
+  Bundle 'mbadran/sessionfridge'
+  Bundle 'mbadran/spacedebris'
+  Bundle 'mbadran/jpythonfold.vim'
+catch /E117/ | endtry    " no vundle
 
 " settings {{{1
 let g:mapleader = ','
@@ -226,7 +221,7 @@ set virtualedit=onemore
 set showfulltag
 
 " always report number of lines changed
-set report=0
+"set report=0
 
 " retain more history items
 set history=1000
@@ -247,8 +242,8 @@ set shiftround
 " switch to github dotfiles)
 if has('autocmd')
   augroup vimrc
-		" reset all autocmds for quick re-sourcing
-		autocmd!
+    " reset all autocmds for quick re-sourcing
+    autocmd!
 
     " all {{{2
     autocmd BufReadPost * call GoToLastPosition()
@@ -269,7 +264,7 @@ if has('autocmd')
     endif
 
     " vim {{{2
-    autocmd FileType vim setlocal tabstop=2 softtabstop=2 shiftwidth=2 noexpandtab
+    autocmd FileType vim setlocal tabstop=2 softtabstop=2 shiftwidth=2 expandtab
     autocmd FileType vim setlocal foldmethod=marker
 
     " show help for the word under the cursor
@@ -332,7 +327,7 @@ if has('autocmd')
 
     " tagbar {{{2
     autocmd FileType tagbar let b:noquickfixsigns = 1
-		" TODO: these seem to be overridden by tagbar
+    " TODO: these seem to be overridden by tagbar
     autocmd FileType tagbar setlocal statusline=\ 
     autocmd FileType tagbar noremap <buffer> <Space> :
 
@@ -382,17 +377,14 @@ nnoremap <Space> :
 "nnoremap ' `
 "nnoremap ` '
 
-" TODO: add a mapping for toggling whitespace highlight (should be on by
-" default)
-nnoremap <silent> <leader>fs :FixWhitespace<CR>
-nnoremap <silent> <leader>Fs :call TrailingWhitespace_Toggle()<CR>
 nnoremap <silent> <leader>fw :call UnWindows()<CR>
 
 " TODO: map to important things: leader space, leader leader, \\, H, L, and M
 "nnoremap <leader><Space> (SOMETHING)
 
-nnoremap <silent> <leader>vv :tabedit $MYVIMRC<CR>
-nnoremap <silent> <leader>vg :tabedit $MYGVIMRC<CR>
+" follow the symlinks so we can check in changes
+nnoremap <silent> <leader>vv :execute "tabedit " . resolve($MYVIMRC)<CR>
+nnoremap <silent> <leader>vg :execute "tabedit " . resolve($MYGVIMRC)<CR>
 "nnoremap <silent> <leader>vs :source $MYVIMRC<CR>
 nnoremap <silent> <leader>vs :up<CR>:source %<CR>
 
@@ -592,16 +584,16 @@ endfunction
 function! FixPythonMatch() " {{{2
 " TODO: this is a hack, find a plugin replacement
   "if !match(&fileformat , 'unix' == 0)
-	if &filetype == 'python'
-		" TODO: make this more robust, in case folding isn't enabled, or folds
-		" aren't defined for python
+  if &filetype == 'python'
+    " TODO: make this more robust, in case folding isn't enabled, or folds
+    " aren't defined for python
     " TODO: add the condition -- this line starts with 'def' or 'class'
     " TODO: how do you know if you're at the end of the fold or the beginning? just scrap this whole thing and use folds instead
-		normal ]z
+    normal ]z
     " TODO: add the condition -- this line is empty or followed by an empty line
     "[z
-	else
-		normal %
+  else
+    normal %
   endif
 endfunction
 
