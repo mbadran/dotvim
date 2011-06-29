@@ -13,10 +13,9 @@ try
   Bundle 'gmarik/vundle'
 
   " install vim-scripts repos
-  " TODO: do pull requests for any fixes (don't think there are many)
   Bundle 'Conque-Shell'
   Bundle 'matrix.vim--Yang'
-  Bundle 'trailing-whitespace'
+  "Bundle 'trailing-whitespace'
   Bundle 'pydoc.vim'
   Bundle 'The-NERD-tree'
   Bundle 'The-NERD-Commenter'
@@ -42,7 +41,7 @@ try
   Bundle 'easytags.vim'
   Bundle 'capslock.vim'
   Bundle 'unimpaired.vim'
-	Bundle 'endwise.vim'
+  Bundle 'endwise.vim'
 
   " install other repos
   "Bundle 'reinh/vim-makegreen'
@@ -54,22 +53,18 @@ try
 	Bundle 'tomtom/tlib_vim'
 	Bundle 'honza/snipmate-snippets'
 	Bundle 'garbas/vim-snipmate'
+
+	" install my repos
+	Bundle 'mbadran/headlights'
+	Bundle 'mbadran/vimroom'
+	Bundle 'mbadran/instaruler'
+	Bundle 'mbadran/findinfiles'
+	Bundle 'mbadran/snide'
+	Bundle 'mbadran/sessionfridge'
+	Bundle 'mbadran/jpythonfold.vim'
 catch /E117/
   " no vundle
 endtry
-
-" install my plugins (cutting edge)
-" these need to be synced by dropbox for automated propagation on other
-" accounts
-set runtimepath+=$HOME/.vim/bundle0/headlights/
-set runtimepath+=$HOME/.vim/bundle0/vimroom/
-set runtimepath+=$HOME/.vim/bundle0/instaruler/
-set runtimepath+=$HOME/.vim/bundle0/findinfiles/
-set runtimepath+=$HOME/.vim/bundle0/snide/
-"set runtimepath+=$HOME/.vim/bundle0/taglist_45/
-
-" jpython fold doesn't conform TODO: fork!
-set runtimepath+=$HOME/.vim/bundle0/jpythonfold.vim/
 
 " settings {{{1
 let g:mapleader = ','
@@ -446,10 +441,6 @@ nnoremap <silent> <leader>lp :lprevious<CR>
 
 " TODO: use <plug> format for setting your scripts' mappings (see nerdcommenter)
 
-nnoremap <silent> <leader>vf :call SessionFreeze()<CR>
-nnoremap <silent> <leader>vr :call SessionRestore()<CR>
-nnoremap <silent> <leader>vl :call SessionRestoreLastSaved()<CR>
-
 " TODO: i have no need for H, L, and M, since i use scrolloff. find a mapping for them.
 " (actually, M seems complementary in scrolloff)
 nnoremap H ge
@@ -664,29 +655,6 @@ endfunction
 "let g:session_dir = "$HOME/.vim/sessions/"
 let g:session_dir = "$HOME/.vimsessions/"
 
-function! SessionFreeze() " {{{2
-  let l:name = expand('%:r')
-
-  " create the session with the name of the current file (sans extension)
-  execute "silent mksession! " . g:session_dir . l:name
-
-  " create a symbolic link to this session for quick restore
-  execute "silent !rm -f " . g:session_dir . "_lastsaved"
-  execute "silent !ln -s " . g:session_dir . l:name . " " . g:session_dir . "_lastsaved"
-endfunction
-
-function! SessionRestore() " {{{2
-  "let l:cwd = getcwd()
-	execute "lcd " . g:session_dir
-  "execute "silent source $HOME/.vim/sessions/" . l:name
-	call feedkeys(":source ")
-  "execute "lcd " . l:cwd
-endfunction
-
-function! SessionRestoreLastSaved() " {{{2
-  "silent source $HOME/.vim/sessions/_latest
-  execute "silent source " g:session_dir . "_latest"
-endfunction
 
 " TODO: test/polish this, very broken
 function! FixPythonMatch() " {{{2
