@@ -133,7 +133,7 @@ set shortmess+=I
 " keep the cursor in the middle of the window
 set scrolloff=999
 
-" put new :vsplit windows on the right
+" put new :vsplits windows on the right
 set splitright
 
 " put new :split windows below
@@ -281,23 +281,18 @@ if has('autocmd')
 
     " quickfix {{{2
     autocmd filetype qf setlocal nonumber norelativenumber
-    "autocmd filetype qf setlocal statusline=%=%q%50P\ 
-    "autocmd filetype qf setlocal guitablabel=%q%13N
-    "autocmd filetype qf setlocal statusline=\ %{exists('w:quickfix_title')?\ w:quickfix_title\ :\ ''}%=%t%40(%l\ of\ %L%)\ 
-    "autocmd filetype qf setlocal statusline=\ %{exists('w:quickfix_title')?\ w:quickfix_title\ :\ ''}%=%t%40(%l\ of\ %L%)\ 
     autocmd filetype qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%l\ of\ %L%)\ 
     autocmd filetype qf let b:noquickfixsigns = 1
 
     " preview {{{2
     " TODO: doesn't work, find out why
     "autocmd FileType preview setlocal statusline=%50w
-    "autocmd filetype preview setlocal guitablabel=%w%13N
 
     " java (sucks) {{{2
     autocmd filetype java setlocal tabstop=3 shiftwidth=3 softtabstop=3 expandtab foldnestmax=2
     autocmd filetype java setlocal foldmethod=syntax foldnestmax=2
 
-    " TODO: these are probably broken
+    " TODO: these are probably broken, use a compiler instead
     " use ant to make, using a build file above this (src) one
     "autocmd BufRead *.java let b:makeprgvar='ant\ -f\ ' . expand('%:p:h") . '/../build.xml'
     ""autocmd filetype .java let b:makeprgvar='ant\ -f\ ' . '..\build.xml'
@@ -311,10 +306,9 @@ if has('autocmd')
     " python {{{2
     " PEP8 settings (minus textwidth=79)
     autocmd filetype python setlocal tabstop=4 softtabstop=4 shiftwidth=4 expandtab
-    autocmd filetype python setlocal keywordprg=pydoc " iskeyword+=.
-    "autocmd filetype python set foldmethod=indent foldlevel=99
+    autocmd filetype python setlocal keywordprg=pydoc
+    " TODO: use a compiler for this
     autocmd filetype python execute ":setlocal makeprg=python\\ ./" . expand('%:t')
-    "autocmd filetype python setlocal keywordprg=pydoc " iskeyword+=.
     " TODO: make this support a range as well, for when you don't want the whole
     " module (needs visual mode support)
     autocmd filetype python nnoremap <F1> :Pydoc <C-r><C-w><CR>
@@ -337,25 +331,17 @@ if has('autocmd')
     autocmd FileType nerdtree let b:noquickfixsigns = 1
 
     " tagbar {{{2
+    autocmd FileType tagbar let b:noquickfixsigns = 1
+		" TODO: these seem to be overridden by tagbar
     autocmd FileType tagbar setlocal statusline=\ 
     autocmd FileType tagbar noremap <buffer> <Space> :
-    "autocmd filetype tagbar setlocal guitablabel=[tags]%13N
-    autocmd FileType tagbar let b:noquickfixsigns = 1
 
     " help {{{2
-    "autocmd filetype help setlocal statusline=\ help:\ %{expand('%:r')}%=%P\ 
-    "autocmd filetype help setlocal statusline=\ help:\ %{expand('%:r')}\ [%{try|split(@:)[1]|catch //|endtry}\]%=%P\ 
-    "autocmd FileType help setlocal statusline=\ %h\ %{expand('%:r')}\ \(%{@:}\)%=%P\ 
     autocmd FileType help setlocal statusline=\ :%{@:}%=%h\ %{expand('%:r')}%40P\ 
     autocmd FileType help setlocal statusline=\ %{GetDocTitle('help')}%=%h\ %{expand('%:r')}%40P\ 
-    "autocmd filetype help setlocal guitablabel=%h%13N
 
     " man {{{2
-    "autocmd FileType man setlocal statusline=\ [Man]\ %{expand('%:r')}%='%{@:}\'%40P\ 
-    "autocmd FileType man setlocal statusline=\ :%{@:}%=[Man]\ %{expand('%:r')}%40P\ 
     autocmd FileType man setlocal statusline=\ %{GetDocTitle('Man')}%=[Man]\ %{expand('%:r')}%40P\ 
-    "autocmd FileType man setlocal statusline=\ [Man]\ %t%='%{@:}'\ 
-    "autocmd FileType man setlocal statusline=\ [Man]\ %{expand('%:r')}%='%{@:}'\ 
 
     " make {{{2
     autocmd filetype make setlocal noexpandtab
@@ -369,6 +355,8 @@ endif
 nnoremap Y y$
 
 "nnoremap % :call FixPythonMatch()
+
+" overload Esc to also clear search matches
 nnoremap <silent> <Esc> <Esc>:nohlsearch<CR>
 
 " swap the default movements on wrapped lines
@@ -398,9 +386,9 @@ nnoremap <Space> :
 " default)
 nnoremap <silent> <leader>fs :FixWhitespace<CR>
 nnoremap <silent> <leader>Fs :call TrailingWhitespace_Toggle()<CR>
-nnoremap <silent> <leader>fw :call FixWindows()<CR>
+nnoremap <silent> <leader>fw :call UnWindows()<CR>
 
-" TODO: map leader space and leader leader to something juicy
+" TODO: map to important things: leader space, leader leader, \\, H, L, and M
 "nnoremap <leader><Space> (SOMETHING)
 
 nnoremap <silent> <leader>vv :tabedit $MYVIMRC<CR>
@@ -411,8 +399,7 @@ nnoremap <silent> <leader>vs :up<CR>:source %<CR>
 "nnoremap <silent> <leader>b :buffers<CR>
 
 nnoremap <leader>h :help<Space>
-"nnoremap <leader>H :helpgrep<Space>
-nnoremap <silent> <leader>H :call GrepHelp()<CR>
+nnoremap <leader>H :helpgrep<Space>
 
 nnoremap <silent> <leader>l :call ToggleListChars()<CR>
 
@@ -448,7 +435,7 @@ nnoremap H ge
 "nnoremap M gE
 
 " TODO: revise these
-nnoremap <leader>d :close<CR>
+"nnoremap <leader>d :close<CR>
 "nnoremap <leader>w :call WipeoutBuffer()<CR>
 "nnoremap <leader>u :call UpdateBuffer()<CR>
 
@@ -493,7 +480,8 @@ runtime! ftplugin/man.vim
 
 " nerdcommenter {{{2
 " disable default mapping so we can reuse it
-map <nop> <Plug>NERDCommenterNest
+" TODO: test if this is required
+"map <nop> <Plug>NERDCommenterNest
 
 " headlights {{{2
 "let g:headlights_use_plugin_menu = 1
@@ -510,12 +498,7 @@ let g:syntastic_enable_signs = 1
 
 " supertab {{{2
 "let g:SuperTabDefaultCompletionType = "context"
-"let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
 "let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
-
-"let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
-"let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
-"
 "let g:SuperTabRetainCompletionDuration = "session"
 
 " easytags {{{2
@@ -552,112 +535,62 @@ endfunction
 function! GetCurrentBranch() " {{{2
   if exists('g:loaded_fugitive')
     let l:branch = matchstr(fugitive#statusline(), '(\zs.*\ze)')
-    if !empty(l:branch)
-      return '[' . l:branch . ']'
-    endif
+    return empty(l:branch) ? '' : '[' . l:branch . ']'
   endif
-  return ''
+  "return ''
 endfunction
 
 function! GetFileFormat() " {{{2
-  if !match(&fileformat , 'unix' == 0)
-    return toupper(&fileformat)
-  endif
-  return ''
+  return &fileformat == 'unix' ? '' : toupper(&fileformat)
 endfunction
 
 function! GetCWD() " {{{2
   let l:cwd = substitute(getcwd(), $HOME . '\ze.*$', '~', '')
-  if strlen(l:cwd) > 50
-    return strpart(l:cwd, 0, 50) . '>'
-  endif
-  return l:cwd
+  return strlen(l:cwd) > 50 ? strpart(l:cwd, 0, 50) . '>' : l:cwd
 endfunction
 
 function! GetStatusLine() " {{{2
-  "set statusline=\ \ \ \ \ %#MoreMsg#%H%M%R%*                           " file flags
-  "set statusline+=\ %<%f                                                " file tail
-  "set statusline+=\ %#StatusLineNC#
-  setlocal statusline=\ \ \ \ %{GetCWD()}                                         " current dir
-  "set statusline+=\ %*
-  "set statusline+=%{empty(&ft)==1?'':&ft.',\ '}                         " filetype (if exists)
-  setlocal statusline+=%=                                                   " right divider
-  "set statusline+=%{empty(&ft)==1?'':&ft}                         " filetype (if exists)
-  setlocal statusline+=%-7{&filetype}                         " filetype (if exists)
-  "set statusline+=\ %{match(&ff,'unix')==0?'':'('.toupper(&ff).'!)'}     " fileformat
-  "set statusline+=\ %-7{match(&ff,'unix')==0?'':'\ '.toupper(&ff).'!'}     " fileformat
-  setlocal statusline+=\ %-7{GetFileFormat()}                                      " fileformat
-  setlocal statusline+=\ %-5{GetCurrentBranch()}                                   " show git branch
-  "set statusline+=\ %-5{GetCurrentTag()}                                  " current tag
-  "set statusline+=\ %-{GetCurrentBranch()}                                   " show git branch
-  "set statusline+=\ %-{GetCurrentTag()}                                  " current tag
-  "set statusline+=\ %{GetCurrentTag()}                                  " current tag
-  "set statusline+=%{match(&ff,'unix')==0?&ff:toupper(&ff)}              " fileformat
-  "set statusline+=,\ %{&enc}                                            " file encoding
-  " don't actually care for buffers anymore
-  "set statusline+=%20(%n\/%{len(filter(range(1,bufnr('$')),'buflisted(v:val)'))}%)                                       " buffer number and total
-  "set statusline+=\ %20(%#StatusLineNC#\ %l:%c%V\ %*%)                  " lines and columns
-  "set statusline+=\ %P\ of\ %L                                          " position in file
-  "set statusline+=%50(%P\ of\ %L%)                                     " position in file
-  "set statusline+=%50(\ x%-4l·y%-4c%)                                          " lines and columns
-  "set statusline+=%30(%#StatusLineV#%l%*\ of\ %L%)                              " current line and total lines
-  "set statusline+=%30(%#StatusLine#%l%*\ of\ %L%)                              " current line and total lines
-  setlocal statusline+=%30(%7v%*%)                                          " current column, and virtual column if applicable
-  setlocal statusline+=%15(%l%*\ of\ %L%)\                               " current line and total lines
-  "set statusline+=%10(%#StatusLineV#%7(%c%V%)%*%)\                                           " current column, and virtual column if applicable
-  "set statusline+=%10(%#StatusLine#%7(%c%V%)%*%)\                                           " current column, and virtual column if applicable
-  "setlocal statusline+=%10(%7(%c%V%)%*%)\                                           " current column, and virtual column if applicable
-  "set statusline+=\ \ ·\ \ %10(%P\ of\ %L%)                                     " column
-  "set statusline+=%50(%3l:%3c%)\                                           " lines and columns
-  "set statusline+=%5(%L%)                                     " position in file
-  "set statusline+=\ %P\ of\ %L                                          " position in file
-  "set statusline+=%L\                                      " position in file
-  "set statusline+=%P\                                      " position in file
+  setlocal statusline=%5{GetCWD()}                      " current dir
+  " TODO: can put something else here, like syntastic status
+  setlocal statusline+=%=                               " right divider
+  setlocal statusline+=%-7{&filetype}                   " filetype (if exists)
+  setlocal statusline+=\ %-7{GetFileFormat()}           " fileformat
+  setlocal statusline+=\ %-5{GetCurrentBranch()}        " show git branch
+  setlocal statusline+=%30(%7v%*%)                      " current column or virtual column
+  setlocal statusline+=%15(%l%*\ of\ %L%)\              " current line and total lines
 endfunction
 
-function! FixWindows() " {{{2
+" TODO: move this into a mapping, no need for a function
+function! UnWindows() " {{{2
+  s/\r//e
   set fileformat=unix
-  s///e
 endfunction
 
 function! ToggleListChars() " {{{2
-   if exists('w:ListChars')
-     highlight NonText guifg=#151515 guibg=#151515
-     highlight SpecialKey guifg=#151515 guibg=#151515
-     set nolist
-     unlet w:ListChars
-   else
-     let w:ListChars = 1
-     highlight Nontext guifg=#993333 guibg=#151515
-     highlight SpecialKey guifg=#993333 guibg=#151515
-     set list
-   endif
+  " TODO: move this to the colorscheme script?
+  if exists('w:ListChars')
+    highlight NonText guifg=#151515 guibg=#151515
+    highlight SpecialKey guifg=#151515 guibg=#151515
+    set nolist
+    unlet w:ListChars
+  else
+    let w:ListChars = 1
+    highlight Nontext guifg=#993333 guibg=#151515
+    highlight SpecialKey guifg=#993333 guibg=#151515
+    set list
+  endif
 endfun
 
-function! GrepHelp() " {{{2
-  "let l:topic = inputdialog('Help topic? ')
-  let l:topic = input('Help topic? ')
-  execute 'helpgrep ' . l:topic
-  copen
-endfunction
 
 " TODO: find out why this isn't working for .gvimrc
 function! GoToLastPosition() " {{{2
-  "if line("'\"") > 0 && line("'\"") <= line("$")
   if line("'\"") > 0 && line("'\"") <= line('$')
-  "if line('\'"') > 0 && line('\'"') <= line('$')
     execute "normal g`\""
   endif
 endfunction
 
-" TODO: move this functionality into a little plugin -- it's not really a
-" vimrc thing
-"let g:session_dir = "$HOME/.vim/sessions/"
-let g:session_dir = "$HOME/.vimsessions/"
-
-
-" TODO: test/polish this, very broken
 function! FixPythonMatch() " {{{2
+" TODO: this is a hack, find a plugin replacement
   "if !match(&fileformat , 'unix' == 0)
 	if &filetype == 'python'
 		" TODO: make this more robust, in case folding isn't enabled, or folds
@@ -671,17 +604,14 @@ function! FixPythonMatch() " {{{2
 		normal %
   endif
 endfunction
-"vnoremap %
 
 function! GetDocTitle(command)
   try
     let l:title = matchstr(@:, '^' . a:command . '.*')
-    if !empty(l:title)
-      return ':' . l:title
-    endif
+    return empty(l:title) ? '' : ':' . l:title
   catch /E30/
+    "return ''
   endtry
-  return ''
 endfunction
 
 function! GetQuickFixTitle()
