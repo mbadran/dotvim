@@ -1,4 +1,4 @@
-" mbadran's vimrc <https://github.com/mbadran/dotfiles>
+" mbadran's vimrc <github.com/mbadran/dotfiles>
 
 " bundles {{{1
 try
@@ -51,15 +51,25 @@ try
 
   " install my repos
   " NOTE: don't run BundleInstall! if you have any uncommitted changes here
-  Bundle 'mbadran/headlights'
-  Bundle 'mbadran/vimroom'
-  Bundle 'mbadran/instaruler'
-  Bundle 'mbadran/findinfiles'
-  Bundle 'mbadran/snide'
-  Bundle 'mbadran/sessionfridge'
-  Bundle 'mbadran/spacedebris'
-  Bundle 'mbadran/jpythonfold.vim'
+  "Bundle 'mbadran/headlights'
+  "Bundle 'mbadran/vimroom'
+  "Bundle 'mbadran/instaruler'
+  "Bundle 'mbadran/findinfiles'
+  "Bundle 'mbadran/snide'
+  "Bundle 'mbadran/sessionfridge'
+  "Bundle 'mbadran/spacedebris'
+  "Bundle 'mbadran/jpythonfold.vim'
 catch /E117/ | endtry    " no vundle
+
+" source my repos
+set runtimepath+=$HOME/.vim/mundle/headlights
+set runtimepath+=$HOME/.vim/mundle/vimroom
+set runtimepath+=$HOME/.vim/mundle/instaruler
+set runtimepath+=$HOME/.vim/mundle/findinfiles
+set runtimepath+=$HOME/.vim/mundle/snide
+set runtimepath+=$HOME/.vim/mundle/sessionfridge
+set runtimepath+=$HOME/.vim/mundle/spacedebris
+set runtimepath+=$HOME/.vim/mundle/jpythonfold.vim
 
 " settings {{{1
 let g:mapleader = ','
@@ -209,7 +219,8 @@ set guicursor+=n:blinkon0
 set clipboard=unnamed
 
 " only save tabs and folds when making sessions
-set sessionoptions=tabpages,folds
+"set sessionoptions=tabpages,folds
+set sessionoptions=tabpages
 
 " limit the number of menu items for omnicompletion (temporary hack)
 set pumheight=17
@@ -238,8 +249,7 @@ set expandtab
 set shiftround
 
 " filetypes {{{1
-" TODO: move these into ftplugins like marcweber's thing (when you
-" switch to github dotfiles)
+" TODO: check out marcweber's ftplugins for more ideas
 if has('autocmd')
   augroup vimrc
     " reset all autocmds for quick re-sourcing
@@ -263,84 +273,10 @@ if has('autocmd')
       autocmd BufEnter * lcd %:p:h
     endif
 
-    " vim {{{2
-    autocmd FileType vim setlocal tabstop=2 softtabstop=2 shiftwidth=2 expandtab
-    autocmd FileType vim setlocal foldmethod=marker
-
-    " show help for the word under the cursor
-    autocmd FileType vim noremap <F1> :help <C-r><C-w><CR>
-
+    " TODO: see how/if this can be moved to the ftplugin
     " automatically source the vimrc file after saving
     autocmd BufWritePost .vimrc,_vimrc source $MYVIMRC
     autocmd BufWritePost .gvimrc,_gvimrc source $MYGVIMRC
-
-    " quickfix {{{2
-    autocmd filetype qf setlocal nonumber norelativenumber
-    autocmd filetype qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%l\ of\ %L%)\ 
-    autocmd filetype qf let b:noquickfixsigns = 1
-
-    " preview {{{2
-    " TODO: doesn't work, find out why
-    "autocmd FileType preview setlocal statusline=%50w
-
-    " java (sucks) {{{2
-    autocmd filetype java setlocal tabstop=3 shiftwidth=3 softtabstop=3 expandtab foldnestmax=2
-    autocmd filetype java setlocal foldmethod=syntax foldnestmax=2
-
-    " TODO: these are probably broken, use a compiler instead
-    " use ant to make, using a build file above this (src) one
-    "autocmd BufRead *.java let b:makeprgvar='ant\ -f\ ' . expand('%:p:h") . '/../build.xml'
-    ""autocmd filetype .java let b:makeprgvar='ant\ -f\ ' . '..\build.xml'
-    "autocmd filetype *.java execute ':setlocal makeprg=' . b:makeprgvar
-    "autocmd filetype *.java execute ":setlocal makeprg=" . b:makeprgvar
-
-    " xml {{{2
-    autocmd filetype xml setlocal tabstop=2 shiftwidth=2
-    autocmd filetype xml iabbrev %cd <![CDATA[<CR><CR>]]><Esc>-i<Tab>
-
-    " python {{{2
-    " PEP8 settings (minus textwidth=79)
-    autocmd filetype python setlocal tabstop=4 softtabstop=4 shiftwidth=4 expandtab
-    autocmd filetype python setlocal keywordprg=pydoc
-    " TODO: use a compiler for this
-    autocmd filetype python execute ":setlocal makeprg=python\\ ./" . expand('%:t')
-    " TODO: make this support a range as well, for when you don't want the whole
-    " module (needs visual mode support)
-    autocmd filetype python nnoremap <F1> :Pydoc <C-r><C-w><CR>
-    "autocmd filetype python nnoremap % :call FixPythonMatch()
-    autocmd filetype python iabbrev ;;l % locals()
-    autocmd filetype python iabbrev ;;b #! /usr/bin/env python
-    autocmd filetype python iabbrev ;;i import 
-    autocmd filetype python iabbrev ;;s self.
-
-    " gitcommit {{{2
-    " first line should be <= 50 chars, detail should be <= 72 char per line
-    " (according to tpope)
-    autocmd filetype gitcommit setlocal cursorcolumn colorcolumn=72
-    autocmd filetype gitcommit highlight colorcolumn ctermbg=grey guibg=#101010
-
-    autocmd filetype gitcommit let b:noquickfixsigns = 1
-
-    " nerdtree {{{2
-    "autocmd filetype nerdtree setlocal guitablabel=[tree]%13N
-    autocmd FileType nerdtree let b:noquickfixsigns = 1
-
-    " tagbar {{{2
-    autocmd FileType tagbar let b:noquickfixsigns = 1
-    " TODO: these seem to be overridden by tagbar
-    autocmd FileType tagbar setlocal statusline=\ 
-    autocmd FileType tagbar noremap <buffer> <Space> :
-
-    " help {{{2
-    autocmd FileType help setlocal statusline=\ :%{@:}%=%h\ %{expand('%:r')}%40P\ 
-    autocmd FileType help setlocal statusline=\ %{GetDocTitle('help')}%=%h\ %{expand('%:r')}%40P\ 
-
-    " man {{{2
-    autocmd FileType man setlocal statusline=\ %{GetDocTitle('Man')}%=[Man]\ %{expand('%:r')}%40P\ 
-
-    " make {{{2
-    autocmd filetype make setlocal noexpandtab
-
   augroup END
 endif
 
@@ -399,11 +335,12 @@ nnoremap <silent> <leader>l :call ToggleListChars()<CR>
 " TODO: improve, and install gist
 nnoremap <silent> <leader>gc :Gcommit %<CR>
 nnoremap <silent> <leader>gp :Git push<CR>
-nnoremap <silent> <leader>gi :Git<CR>
+nnoremap <leader>gi :Git<Space>
 nnoremap <silent> <leader>gl :Glog<CR>
-nnoremap <silent> <leader>gd :Gdiff<CR>
+nnoremap <silent> <leader>gd :silent only\|diffthis\|Gdiff<CR>
 nnoremap <silent> <leader>gs :Gstatus<CR>
 nnoremap <silent> <leader>gb :Gblame<CR>
+nnoremap <silent> <leader>gw :Gwrite<CR>
 "nnoremap <leader>gt :Gist
 "nnoremap <leader>gp :Gist -p
 
@@ -485,7 +422,7 @@ let g:headlights_abbreviations = 1
 let g:headlights_functions = 1
 
 " syntastic {{{2
-"let g:syntastic_auto_loc_list = 1
+" this needs to be set here (TODO: test)
 let g:syntastic_enable_signs = 1
 
 " supertab {{{2
@@ -542,14 +479,16 @@ function! GetCWD() " {{{2
 endfunction
 
 function! GetStatusLine() " {{{2
-  setlocal statusline=%5{GetCWD()}                      " current dir
-  " TODO: can put something else here, like syntastic status
-  setlocal statusline+=%=                               " right divider
-  setlocal statusline+=%-7{&filetype}                   " filetype (if exists)
-  setlocal statusline+=\ %-7{GetFileFormat()}           " fileformat
-  setlocal statusline+=\ %-5{GetCurrentBranch()}        " show git branch
-  setlocal statusline+=%30(%7v%*%)                      " current column or virtual column
-  setlocal statusline+=%15(%l%*\ of\ %L%)\              " current line and total lines
+  "setlocal statusline=%5{GetCWD()}                      " current dir
+  setlocal statusline=\ \ \ \ \ \ %{GetCWD()}            " current dir
+  setlocal statusline+=\ %{SyntasticStatuslineFlag()}    " syntastic errors (for quiet mode)
+  setlocal statusline+=%=                                " right divider
+  setlocal statusline+=%-7w                              " preview window tag (if applicable)
+  setlocal statusline+=\ %{&filetype}                    " filetype (if exists)
+  setlocal statusline+=\ %-7{GetFileFormat()}            " fileformat (if not unix)
+  setlocal statusline+=\ %-5{GetCurrentBranch()}         " git branch
+  setlocal statusline+=%30(%7v%*%)                       " current column or virtual column
+  setlocal statusline+=%15(%l%*\ of\ %L%)\               " current line and total lines
 endfunction
 
 " TODO: move this into a mapping, no need for a function
@@ -608,6 +547,10 @@ endfunction
 
 function! GetQuickFixTitle()
   return exists('w:quickfix_title') ? w:quickfix_title : ''
+endfunction
+
+function! GetPreviewTitle()
+  return &previewwindow ? '%w' : ''
 endfunction
 
 " cheatsheet {{{1
