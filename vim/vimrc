@@ -454,19 +454,15 @@ endif
 function! GetCurrentTag() " {{{2
   if exists('g:loaded_taglist')
     let l:tagname = Tlist_Get_Tagname_By_Line()
-    if !empty(l:tagname)
-      return l:tagname . '()'
-    endif
+    return empty(l:tagname) ? '' : l:tagname . '()'
   endif
-  return ''
 endfunction
 
 function! GetCurrentBranch() " {{{2
   if exists('g:loaded_fugitive')
     let l:branch = matchstr(fugitive#statusline(), '(\zs.*\ze)')
-    return empty(l:branch) ? '' : '[' . l:branch . ']'
+    return empty(l:branch) ? '' : '<' . l:branch . '>'
   endif
-  "return ''
 endfunction
 
 function! GetFileFormat() " {{{2
@@ -541,16 +537,11 @@ function! GetDocTitle(command)
     let l:title = matchstr(@:, '^' . a:command . '.*')
     return empty(l:title) ? '' : ':' . l:title
   catch /E30/
-    "return ''
   endtry
 endfunction
 
 function! GetQuickFixTitle()
   return exists('w:quickfix_title') ? w:quickfix_title : ''
-endfunction
-
-function! GetPreviewTitle()
-  return &previewwindow ? '%w' : ''
 endfunction
 
 " cheatsheet {{{1
