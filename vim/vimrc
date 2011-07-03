@@ -1,6 +1,7 @@
 " mbadran's vimrc <github.com/mbadran/dotfiles>
 
 " bundles {{{1
+
 try
   " source vundle
   set runtimepath+=$HOME/.vim/bundle/vundle/
@@ -36,29 +37,25 @@ try
   Bundle 'capslock.vim'
   Bundle 'unimpaired.vim'
   Bundle 'endwise.vim'
+  "Bundle 'python.vim'
+  Bundle 'python_match.vim'
+  "Bundle 'py_jump.vim'
+  Bundle '256-grayvim'
+  Bundle 'Python-2.x-Standard-Library-Reference'
+  Bundle 'Gist.vim'
+  Bundle 'utl.vim'
   "Bundle 'netrw.vim'
 
   " install other repos
   Bundle 'robgleeson/hammer.vim'
-  Bundle 'mrchrisadams/vim-peepopen'
+  Bundle 'shemerey/vim-peepopen'
   Bundle 'klen/rope-vim'
-  "Bundle 'reinh/vim-makegreen'
+  Bundle 'airblade/vim-rooter'
   " the new snipmate and prerequisites
   Bundle 'MarcWeber/vim-addon-mw-utils'
   Bundle 'tomtom/tlib_vim'
   Bundle 'honza/snipmate-snippets'
   Bundle 'garbas/vim-snipmate'
-
-  " install my repos
-  " NOTE: don't run BundleInstall! if you have any uncommitted changes here
-  "Bundle 'mbadran/headlights'
-  "Bundle 'mbadran/vimroom'
-  "Bundle 'mbadran/instaruler'
-  "Bundle 'mbadran/findinfiles'
-  "Bundle 'mbadran/snide'
-  "Bundle 'mbadran/sessionfridge'
-  "Bundle 'mbadran/spacedebris'
-  "Bundle 'mbadran/jpythonfold.vim'
 catch /E117/ | endtry    " no vundle
 
 " source my repos
@@ -72,6 +69,7 @@ set runtimepath+=$HOME/.vim/mundle/spacedebris
 set runtimepath+=$HOME/.vim/mundle/jpythonfold.vim
 
 " settings {{{1
+
 let g:mapleader = ','
 
 filetype indent plugin on
@@ -180,8 +178,12 @@ if v:version > 702
 
   " allow persistent undos across sessions
   set undofile
+
   " save undo files far away (put the full dir path in the filename)
   set undodir=$TEMP//,$TMP//,$TMPDIR//,.
+else
+  " change to dir of the current file automatically
+    lcd %:p:h
 endif
 
 " save swap files far away (put the full dir path in the filename)
@@ -232,12 +234,22 @@ set virtualedit=onemore
 set showfulltag
 
 " always report number of lines changed
-"set report=0
+set report=0
 
 " retain more history items
 set history=1000
 
+" don't repaint when scripts are running -- TODO: try for a while
+set lazyredraw
+
+" match angle brackets too
+set matchpairs+=<:>
+
+" don't make windows the same size
+set noequalalways
+
 " indentation {{{1
+
 " default indentation settings
 " match the current indent for new lines
 set autoindent
@@ -249,6 +261,7 @@ set expandtab
 set shiftround
 
 " filetypes {{{1
+
 " TODO: check out marcweber's ftplugins for more ideas
 if has('autocmd')
   augroup vimrc
@@ -256,6 +269,7 @@ if has('autocmd')
     autocmd!
 
     " all {{{2
+
     autocmd BufReadPost * call GoToLastPosition()
 
     " enable omnicompletion by default
@@ -264,24 +278,33 @@ if has('autocmd')
     " automatically close the preview window
     autocmd CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
 
-    "autocmd BufEnter * call QuickfixsignsUpdate()
-    "autocmd CursorHold * call QuickfixsignsUpdate()
-    "autocmd CursorHoldI * call QuickfixsignsUpdate()
+    " doing this manually for now, unfortunately. fork rooter and fix.
+    autocmd BufNew * lcd $HOME
+    "autocmd BufEnter * Rooter
+    autocmd BufEnter * call SetWD()
 
-    if v:version < 703
-      " change to dir of current file automatically
-      autocmd BufEnter * lcd %:p:h
-    endif
+    " don't show quickfix vcs signs
+    " TODO: find a better way to do this
+    call remove(g:quickfixsigns#vcsdiff#highlight, 'DEL')
+    call remove(g:quickfixsigns#vcsdiff#highlight, 'ADD')
+    call remove(g:quickfixsigns#vcsdiff#highlight, 'CHANGE')
 
     " TODO: see how/if this can be moved to the ftplugin
     " automatically source the vimrc file after saving
     autocmd BufWritePost .vimrc,_vimrc source $MYVIMRC
     autocmd BufWritePost .gvimrc,_gvimrc source $MYGVIMRC
+
+    " quickfix / location list {{{2
+    autocmd FileType qf setlocal nonumber norelativenumber
+    autocmd FileType qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%l\ of\ %L%)\ 
+    autocmd FileType qf let b:noquickfixsigns = 1
   augroup END
 endif
 
 " mappings {{{1
+
 " normal {{{2
+
 " make Y behave like D and C, not yy
 nnoremap Y y$
 
@@ -334,10 +357,11 @@ nnoremap <silent> <leader>l :call ToggleListChars()<CR>
 " git and gist mappings
 " TODO: improve, and install gist
 nnoremap <silent> <leader>gc :Gcommit %<CR>
-nnoremap <silent> <leader>gp :Git push<CR>
+nnoremap <silent> <leader>gp :Git push<Bar>silent only<Bar>TagbarOpen<CR>
 nnoremap <leader>gi :Git<Space>
 nnoremap <silent> <leader>gl :Glog<CR>
-nnoremap <silent> <leader>gd :silent only\|diffthis\|Gdiff<CR>
+"nnoremap <silent> <leader>gd :silent only\|diffthis\|Gdiff<CR>
+nnoremap <silent> <leader>gd :silent only<Bar>diffthis<Bar>Gdiff<CR>
 nnoremap <silent> <leader>gs :Gstatus<CR>
 nnoremap <silent> <leader>gb :Gblame<CR>
 nnoremap <silent> <leader>gw :Gwrite<CR>
@@ -345,7 +369,7 @@ nnoremap <silent> <leader>gw :Gwrite<CR>
 "nnoremap <leader>gp :Gist -p
 
 " toggle between paste and nopaste modes
-nnoremap <leader>p :setlocal invpaste paste?<CR>
+nnoremap <leader>P :setlocal invpaste paste?<CR>
 
 " TODO: fix this so you can map ,cn and ,cp for next and previous items (do
 " the same for ,ln and ,lp)
@@ -369,11 +393,13 @@ nnoremap H ge
 "nnoremap <leader>u :call UpdateBuffer()<CR>
 
 " visual {{{2
+
 " reselect after an indent action (to facilitate repeat actions)
 vnoremap > >gv
 vnoremap < <gv
 
 " command {{{2
+
 " do a sudo write
 cnoremap w!! w !sudo tee % > /dev/null
 
@@ -390,52 +416,71 @@ cnoremap %g/ %g/\v
 "cnoremap %% <C-r>=expand("%:p:h") . "/" <CR>
 
 " insert {{{2
+
 inoremap <C-S-Space> <C-x><C-o>
 
 " abbreviations {{{1
+
 " TODO: add some more!
-"cabbrev %% <C-r>=expand("%:p:h") . "/" <CR>
-cabbrev <expr> ;;p expand("%:p:h") . "/"
+"cnoreabbrev %% <C-r>=expand("%:p:h") . "/" <CR>
+cnoreabbrev <expr> ;;p expand("%:p:h") . "/"
+"cnoreabbrev <buffer> ;;g expand("%:p:h") . "/"
 " plugins {{{1
+
 " runtime {{{2
+
 runtime! macros/matchit.vim
 runtime! ftplugin/man.vim
 
 " peepopen {{{2
+
 " TODO:fork peepopen so it does the hasmapto thing instead of using
 " <unique>and producing an error
 " disable default mapping so we can reuse it
 "nnoremap <nop> <Plug>PeepOpen
 
 " nerdcommenter {{{2
+
 " disable default mapping so we can reuse it
 " TODO: test if this is required
 "map <nop> <Plug>NERDCommenterNest
 
 " headlights {{{2
+
 "let g:headlights_use_plugin_menu = 1
 "let g:headlights_debug_mode = 1
-let g:headlights_files = 1
-"let g:headlights_commands = 0
-let g:headlights_mappings = 1
-let g:headlights_abbreviations = 1
-let g:headlights_functions = 1
+let g:headlights_show_files = 1
+"let g:headlights_show_commands = 0
+"let g:headlights_show_mappings = 0
+let g:headlights_show_abbreviations = 1
+let g:headlights_show_functions = 1
 
 " syntastic {{{2
+
 " this needs to be set here (TODO: test)
 let g:syntastic_enable_signs = 1
 
 " supertab {{{2
+
 "let g:SuperTabDefaultCompletionType = "context"
 "let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
 "let g:SuperTabRetainCompletionDuration = "session"
 
 " easytags {{{2
+
 " TODO: change colour of tags (see highlight groups defined by easytags (ref.
 " help), as well as jellybeans stuff
 "let g:easytags_file = '$HOME/.vim/tags'
 
+" hammer {{{2
+" TODO: move this to snide, and make it \p maybe
+nnoremap <leader>p :Hammer<CR>
+
+" rooter {{{2
+let g:rooter_use_lcd = 1
+
 " console {{{1
+
 if !has('gui_running')
   " TODO: find out why stuff flashes in terminal
   colorscheme zellner
@@ -450,31 +495,39 @@ if !has('gui_running')
   endif
 endif
 
-" functions {{{1
-function! GetCurrentTag() " {{{2
+function! GetCurrentTag() " {{{1
   if exists('g:loaded_taglist')
     let l:tagname = Tlist_Get_Tagname_By_Line()
     return empty(l:tagname) ? '' : l:tagname . '()'
   endif
 endfunction
 
-function! GetCurrentBranch() " {{{2
+function! GetCurrentBranch() " {{{1
   if exists('g:loaded_fugitive')
     let l:branch = matchstr(fugitive#statusline(), '(\zs.*\ze)')
     return empty(l:branch) ? '' : '<' . l:branch . '>'
   endif
 endfunction
 
-function! GetFileFormat() " {{{2
+function! GetFileFormat() " {{{1
   return &fileformat == 'unix' ? '' : toupper(&fileformat)
 endfunction
 
-function! GetCWD() " {{{2
+function! GetCWD() " {{{1
   let l:cwd = substitute(getcwd(), $HOME . '\ze.*$', '~', '')
   return strlen(l:cwd) > 50 ? strpart(l:cwd, 0, 50) . '>' : l:cwd
 endfunction
 
-function! GetStatusLine() " {{{2
+" change to dir of project root
+function! SetWD() " {{{1
+  if match(expand("%:p"), "/Documents/projects/") > -1
+    Rooter
+  else
+    lcd %:p:h
+  endif
+endfunction
+
+function! GetStatusLine() " {{{1
   "setlocal statusline=%5{GetCWD()}                      " current dir
   setlocal statusline=\ \ \ \ \ \ %{GetCWD()}            " current dir
   setlocal statusline+=\ %{SyntasticStatuslineFlag()}    " syntastic errors (for quiet mode)
@@ -488,12 +541,12 @@ function! GetStatusLine() " {{{2
 endfunction
 
 " TODO: move this into a mapping, no need for a function
-function! UnWindows() " {{{2
+function! UnWindows() " {{{1
   s/\r//e
   set fileformat=unix
 endfunction
 
-function! ToggleListChars() " {{{2
+function! ToggleListChars() " {{{1
   " TODO: move this to the colorscheme script?
   if exists('w:ListChars')
     highlight NonText guifg=#151515 guibg=#151515
@@ -508,31 +561,14 @@ function! ToggleListChars() " {{{2
   endif
 endfun
 
-
 " TODO: find out why this isn't working for .gvimrc
-function! GoToLastPosition() " {{{2
+function! GoToLastPosition() " {{{1
   if line("'\"") > 0 && line("'\"") <= line('$')
     execute "normal g`\""
   endif
 endfunction
 
-function! FixPythonMatch() " {{{2
-" TODO: this is a hack, find a plugin replacement
-  "if !match(&fileformat , 'unix' == 0)
-  if &filetype == 'python'
-    " TODO: make this more robust, in case folding isn't enabled, or folds
-    " aren't defined for python
-    " TODO: add the condition -- this line starts with 'def' or 'class'
-    " TODO: how do you know if you're at the end of the fold or the beginning? just scrap this whole thing and use folds instead
-    normal ]z
-    " TODO: add the condition -- this line is empty or followed by an empty line
-    "[z
-  else
-    normal %
-  endif
-endfunction
-
-function! GetDocTitle(command)
+function! GetDocTitle(command) " {{{1
   try
     let l:title = matchstr(@:, '^' . a:command . '.*')
     return empty(l:title) ? '' : ':' . l:title
@@ -540,11 +576,12 @@ function! GetDocTitle(command)
   endtry
 endfunction
 
-function! GetQuickFixTitle()
+function! GetQuickFixTitle() " {{{1
   return exists('w:quickfix_title') ? w:quickfix_title : ''
 endfunction
 
 " cheatsheet {{{1
+
 " TODO: add cheatsheet items for everything you want to improve -- marks,
 " registers, etc. only way you'll learn if you have an immediate reference.
 " also: sessions, movement commands (as per the grok vim post), etc
@@ -606,6 +643,7 @@ endfunction
 "]z move to end of open fold.
 
 " todo {{{1
+
 " TODO: find a plugin to make % work wit python
 " symlinked to vim dir's.
 " TODO: add <unique> and hasmapto to mappings in your scripts
@@ -633,6 +671,9 @@ endfunction
 " TODO: try to edit files remotely from within macvim using ssh
 " TODO: add a bundle to rename a buffer and file on the filesystem (see https://github.com/jbe/.vim/blob/master/functions.vim)
 " TODO: read the full quickfix manual (lots of commands)
+" TODO: add compilers for ftplugins instead of various hacks
+" TODO: reconsider abbrev's vs mappings for commandline mode (mappings are
+" looking better at this stage)
 " TODO: fix jellybeans colors for tagbar (consult tagbar doc too)
 "In order to make custom mappings easier and prevent overwritting existing
 "ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
