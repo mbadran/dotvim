@@ -1,6 +1,7 @@
 " mbadran's gvimrc <github.com/mbadran/dotfiles>
 
 " settings {{{1
+
 try
   "colorscheme BClear
   "set background=light
@@ -22,8 +23,7 @@ set guioptions-=L
 set cursorline
 
 " tab settings
-"set guitablabel=%M\ %-13.13t\ %N
-set guitablabel=%M\ %-13.t\ %N
+set guitablabel=%M\ %-13.13t\ %N
 set guitabtooltip=%F\ (%n)
 
 " default indentation settings (these don't work in .vimrc, for some reason)
@@ -38,12 +38,17 @@ set switchbuf=useopen,usetab
 " make quickfix open new tabs (splits in <7) instead of reusing the window
 set switchbuf+=split,newtab
 
+" always show the tab bar
+"set showtabline=2
+
 " macvim {{{1
+
 if has('gui_macvim')
   set macmeta
 
   set guifont=Meslo\ LG\ S\ DZ:h13'
 
+  let no_plugin_menus = 1
   " remove the legacy plugin menu
   "try
     "silent aunmenu Plugin
@@ -52,11 +57,11 @@ if has('gui_macvim')
   "endtry
 
   " show the filetypes by default
-  try
-    silent emenu Syntax.Show\ filetypes\ in\ menu
-  catch /E334/
+  "try
+    "silent emenu Syntax.Show\ filetypes\ in\ menu
+  "catch /E334/
     " (already shown)
-  endtry
+  "endtry
 
   " mappings {{{2
   nnoremap <D-1> 1gt
@@ -69,7 +74,8 @@ if has('gui_macvim')
   nnoremap <D-8> 8gt
   nnoremap <D-9> 9gt
 
-  " quickly switch between buffers (alternative to C-^)
+  " quickly switch between buffers (alternative to C-^) (shouldn't have to
+  " do this)
   nnoremap <D-0> :b#<CR>
 
   " autoindent (by filetype) on paste is broken in gvim, paste in insert mode
@@ -78,16 +84,17 @@ if has('gui_macvim')
   " repurpose cmd-v to fix paste behaviour (indentation is broken)
   "macmenu Edit.Paste key=<D-M-v>
 
-  " repurpose cmd-o to use peepopen instead of the boring open dialog
-  "macmenu File.Open\.\.\. key=<D-S-o>
+  " repurpose cmd-o to use peepopen instead of the open dialog
+  macmenu File.Open\.\.\. key=<D-S-o>
   anoremenu <silent> .305 File.PeepOpen :PeepOpen<CR>
   "macmenu File.PeepOpen key=<D-o>
-  macmenu File.PeepOpen key=<D-S-o>
+  "macmenu File.PeepOpen key=<D-S-o>
+  map <silent> <D-o> <Plug>PeepOpen
 
   " repurpose cmd-w to delete the buffer instead of just closing the window
-  macmenu File.Close key=<D-M-w>
-  anoremenu <silent> .328 File.Wipeout\ Buffer :call WipeoutBuffer()<CR>
-  macmenu File.Wipeout\ Buffer key=<D-w>
+  "macmenu File.Close key=<D-M-w>
+  "anoremenu <silent> .328 File.Wipeout\ Buffer :call WipeoutBuffer()<CR>
+  "macmenu File.Wipeout\ Buffer key=<D-w>
 
   " repurpose cmd-s to :update instead of saving every single time
   macmenu File.Save key=<nop>
@@ -98,7 +105,11 @@ if has('gui_macvim')
   " opening preferences and registering with recent files history
   nnoremap gf :!open -a MacVim <cfile><CR>
 
+  " TODO: change this mapping, ,w? ,c?
+  nnoremap <A-w> :close<CR>
+
 " gvim {{{1
+
 elseif (match(v:progname, "gvim") ==? 0)
   set guifont=Lucida_Console:h10:cANSI
   "set lines=45
@@ -108,6 +119,7 @@ elseif (match(v:progname, "gvim") ==? 0)
 endif
 
 " mappings {{{1
+
 " fix searches (this doesn't work in .vimrc, for some reason)
 noremap / /\v
 " (this does, here for consistency only)
@@ -119,17 +131,19 @@ nnoremap <silent> gp :silent !open <cfile><cr>
 nnoremap <silent> gf :!open -a MacVim <cfile><cr>
 
 " plugins {{{1
+
 " vimroom {{{2
 let g:VimRoom_ShowStatusLine = 0
 let g:VimRoom_ZoomLevel = 2
 let g:VimRoom_Colorscheme = "DesertEx2"
 
-" headlights {{{2
-let g:headlights_debug = 0
+" autocmds {{{1
 
-" functions {{{1
+" move tabs to the end for new, single buffers (exclude splits)
+autocmd BufNew * if winnr('$') == 1 | tabmove99 | endif
+
+function! UpdateBuffer() " {{{1
 " only save the buffer when there is something to save
-function! UpdateBuffer() " {{{2
   try
     update
   catch /E32/
@@ -137,19 +151,20 @@ function! UpdateBuffer() " {{{2
   endtry
 endfunction
 
+function! WipeoutBuffer() " {{{1
 " don't leave buffers hanging around
-function! WipeoutBuffer() " {{{2
   " don't do anything fancy in the command line window (q:)
   if bufname('') == '[Command Line]'
-    exit
+    "return
+    finish
   else
     " if this is the only buffer in the only tab in the gui window, close the whole window
     " TODO: understand and test this some more
     if len(filter(range(1, bufnr('')), 'buflisted(v:val)')) == 1 && tabpagenr('$') == 1
       quit
     else
-      bwipeout
+      "bwipeout
+      close
     endif
   endif
 endfunction
-
