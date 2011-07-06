@@ -19,7 +19,16 @@ nnoremap <F1> :Pydoc <C-r><C-w><CR>
 " TODO: add a mapping to run the python script
 
 " abbreviations {{{1
-iabbrev <buffer> ;;l % locals()
-iabbrev <buffer> ;;b #! /usr/bin/env python
-iabbrev <buffer> ;;i import 
-iabbrev <buffer> ;;s self.
+inoreabbrev <buffer> ;;l % locals()
+inoreabbrev <buffer> ;;b #! /usr/bin/env python
+inoreabbrev <buffer> ;;i import 
+inoreabbrev <buffer> ;;s self.
+
+"noreabbrev <expr> c resolve("%:p:h") . "/"
+"inoreabbrev <expr> ;;k resolve("%:p:h") . "/"
+"inoreabbrev <buffer> ;;l resolve("%:p:h") . "/"
+"inoreabbrev <buffer> <expr> ;;m resolve("%:p:h") . "/"
+"inoreabbrev <buffer> ;;n hello there
+"iabbrev <expr> ;;o hi there
+"inoreabbrev <script> ;;y gday there
+"inoreabbrev <script> <buffer> ;;z yo there
