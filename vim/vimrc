@@ -1,16 +1,18 @@
 " mbadran's vimrc <github.com/mbadran/dotfiles>
 
-" bundles {{{1
+" (nocompatible is automatically set when vim starts up and sources this file)
+
+" bundles: vim-scripts {{{1
+
+" first, source vundle
+set runtimepath+=$HOME/.vim/bundle/vundle/
 
 try
-  " source vundle
-  set runtimepath+=$HOME/.vim/bundle/vundle/
   call vundle#rc()
 
-  " let vundle manage vundle
+  " (let vundle manage vundle)
   Bundle 'gmarik/vundle'
 
-  " install vim-scripts repos
   Bundle 'Conque-Shell'
   Bundle 'matrix.vim--Yang'
   Bundle 'pydoc.vim'
@@ -30,6 +32,7 @@ try
   Bundle 'quickfixsigns'
   Bundle 'Tagbar'
   Bundle 'ack.vim'
+  " TODO: test
   Bundle 'camelcasemotion'
   Bundle 'surround.vim'
   Bundle 'repeat.vim'
@@ -37,28 +40,35 @@ try
   Bundle 'capslock.vim'
   Bundle 'unimpaired.vim'
   Bundle 'endwise.vim'
-  "Bundle 'python.vim'
-  Bundle 'python_match.vim'
+  Bundle 'python.vim'
+  "Bundle 'python_match.vim'
   "Bundle 'py_jump.vim'
   Bundle '256-grayvim'
-  Bundle 'Python-2.x-Standard-Library-Reference'
+  "Bundle 'Python-2.x-Standard-Library-Reference'
   Bundle 'Gist.vim'
   Bundle 'utl.vim'
+  Bundle 'Pydiction'
   "Bundle 'netrw.vim'
 
-  " install other repos
+  " bundles: github {{{1
+
   Bundle 'robgleeson/hammer.vim'
   Bundle 'shemerey/vim-peepopen'
   Bundle 'klen/rope-vim'
-  Bundle 'airblade/vim-rooter'
-  " the new snipmate and prerequisites
+  " snipmate {{{2
   Bundle 'MarcWeber/vim-addon-mw-utils'
   Bundle 'tomtom/tlib_vim'
   Bundle 'honza/snipmate-snippets'
   Bundle 'garbas/vim-snipmate'
+  "}}}
+  Bundle 'airblade/vim-rooter'
+  Bundle 'sessionman.vim'
+  Bundle 'renamer.vim'
+  Bundle 'skammer/vim-css-color'
 catch /E117/ | endtry    " no vundle
 
-" source my repos
+" bundles: mine {{{1
+
 set runtimepath+=$HOME/.vim/mundle/headlights
 set runtimepath+=$HOME/.vim/mundle/vimroom
 set runtimepath+=$HOME/.vim/mundle/instaruler
@@ -106,17 +116,16 @@ set mouse=a
 " avoid most prompts to continue
 set cmdheight=3
 
-" quickly time out on keycodes, but never time out on mappings
-" ok, time out on mappings too!
-"set notimeout
+" time out quickly on mappings
 set timeout
-"set timeoutlen=100
+set timeoutlen=500
+
+" time out even more quickly on keycodes
 set ttimeout
 set ttimeoutlen=200
 
-" allow the use of multiple buffers
-" i use tabs, so hidden doesn't matter as much -- TODO: test for a while
-"set hidden
+" keep all modified buffers visible
+"set nohidden
 
 " enhance command line completion
 set wildmenu
@@ -234,19 +243,39 @@ set virtualedit=onemore
 set showfulltag
 
 " always report number of lines changed
-set report=0
+" setting to 1 for now -- too much noise
+set report=1
 
 " retain more history items
 set history=1000
-
-" don't repaint when scripts are running -- TODO: try for a while
-set lazyredraw
 
 " match angle brackets too
 set matchpairs+=<:>
 
 " don't make windows the same size
 set noequalalways
+
+" speed up background operations
+set updatetime=1000
+
+"TODO: make this a toggleable function, cos i don't care about it most of the
+"time. have a configurable column width, with 78 as default.
+"set colorcolumn=80
+" TODO: move this to the colorscheme
+"highlight colorcolumn ctermbg=grey guibg=#1c1c1c
+
+" unset these as word delimiters
+set iskeyword+=$,%,#
+
+" set these as word delimiters
+set iskeyword-=_
+
+" don't immediately clear changed text
+set cpoptions+=$
+
+" set grep options
+"set grepprg=grep\ -nHi $* /dev/null
+set grepprg=grep\ -nHi\ $*
 
 " indentation {{{1
 
@@ -260,7 +289,10 @@ set expandtab
 " indent/outdent to nearest tabstops
 set shiftround
 
-" filetypes {{{1
+"set suffixes+=.class,.exe,.o,.obj,.dat,.dll,.aux,.pdf,.gch
+set suffixes+=.pdf
+
+" filetype: general {{{1
 
 " TODO: check out marcweber's ftplugins for more ideas
 if has('autocmd')
@@ -268,47 +300,55 @@ if has('autocmd')
     " reset all autocmds for quick re-sourcing
     autocmd!
 
-    " all {{{2
-
-    autocmd BufReadPost * call GoToLastPosition()
-
     " enable omnicompletion by default
     autocmd FileType * if &omnifunc == '' | setlocal omnifunc=syntaxcomplete#Complete | endif
 
     " automatically close the preview window
     autocmd CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
 
-    " doing this manually for now, unfortunately. fork rooter and fix.
+    " doing this manually for now. TODO: fork rooter and fix.
     autocmd BufNew * lcd $HOME
     "autocmd BufEnter * Rooter
     autocmd BufEnter * call SetWD()
 
-    " don't show quickfix vcs signs
-    " TODO: find a better way to do this
-    call remove(g:quickfixsigns#vcsdiff#highlight, 'DEL')
-    call remove(g:quickfixsigns#vcsdiff#highlight, 'ADD')
-    call remove(g:quickfixsigns#vcsdiff#highlight, 'CHANGE')
+    autocmd BufReadPost * call GoToLastPosition()
 
-    " TODO: see how/if this can be moved to the ftplugin
-    " automatically source the vimrc file after saving
-    autocmd BufWritePost .vimrc,_vimrc source $MYVIMRC
-    autocmd BufWritePost .gvimrc,_gvimrc source $MYGVIMRC
+    " new files should be txt by default. TODO: doesn't work, fix.
+    "autocmd BufNew * set filetype=txt
 
-    " quickfix / location list {{{2
+    " remember folding (TODO: test)
+    "autocmd BufWinLeave * if bufname('.') | mkview! | endif
+    "autocmd BufWinEnter * if bufname('.') | silent loadview | endif
+    "autocmd BufWinEnter * if bufname('.') | loadview | endif
+
+    " filetype: vimrc {{{1
+    " automatically source vimrc and gvimrc saving
+    autocmd BufWritePost vimrc,gvimrc source %
+
+    " filetype: txt {{{1
+    " define txt extensions
+    autocmd BufRead README,INSTALL,*.txt set filetype=txt
+
+    " filetype: quickfix/location {{{1
+    " (misbehaving as an ftplugin)
     autocmd FileType qf setlocal nonumber norelativenumber
     autocmd FileType qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%l\ of\ %L%)\ 
     autocmd FileType qf let b:noquickfixsigns = 1
+
+    " filetype: man {{{1
+    " (misbehaving as an ftplugin)
+    autocmd FileType man setlocal statusline=\ %{GetDocTitle('Man')}%=[Man]\ %{expand('%:r')}%40P\ 
+    autocmd FileType man let b:noquickfixsigns = 1
+
+    " filetype: commandline {{{1
+    autocmd FileType * if bufname('') == '[Command Line]' | setlocal statusline=%=%{bufname('')}%40P\  | endif
   augroup END
 endif
 
-" mappings {{{1
-
-" normal {{{2
+" mappings: normal {{{1
 
 " make Y behave like D and C, not yy
 nnoremap Y y$
-
-"nnoremap % :call FixPythonMatch()
 
 " overload Esc to also clear search matches
 nnoremap <silent> <Esc> <Esc>:nohlsearch<CR>
@@ -329,33 +369,52 @@ nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
-" invoke command mode with one key
+" invoke command line mode with one key
 nnoremap <Space> :
 
 " swap mark commands (remember to unswap for movement commands)
 "nnoremap ' `
 "nnoremap ` '
 
-nnoremap <silent> <leader>fw :call UnWindows()<CR>
+" unwindows
+nnoremap <silent> <leader>vw :%s/\r//e<Bar>set fileformat=unix<CR>
 
 " TODO: map to important things: leader space, leader leader, \\, H, L, and M
-"nnoremap <leader><Space> (SOMETHING)
 
 " follow the symlinks so we can check in changes
 nnoremap <silent> <leader>vv :execute "tabedit " . resolve($MYVIMRC)<CR>
 nnoremap <silent> <leader>vg :execute "tabedit " . resolve($MYGVIMRC)<CR>
-"nnoremap <silent> <leader>vs :source $MYVIMRC<CR>
-nnoremap <silent> <leader>vs :up<CR>:source %<CR>
+nnoremap <silent> <leader>vs :update<CR>:source %<CR>
 
-"nnoremap <silent> <leader>b :buffers<CR>
+nnoremap <silent> <leader>b :buffers<CR>
 
-nnoremap <leader>h :help<Space>
-nnoremap <leader>H :helpgrep<Space>
+nnoremap <leader>h :tab help<Space>
+"nnoremap <leader>H :tab helpgrep<Space>
+nnoremap <leader>H :call GrepHelp()<CR>
+
+" don't use ex mode, do formatting instead
+nnoremap Q gqap
+vnoremap Q gq
+
+" TODO: move this into snide
+function! GrepHelp()
+  let l:subject = input("Help subject? ")
+
+  try
+    execute "tab helpgrep " . l:subject
+    botright copen 15
+  catch /E480/
+    echohl ErrorMsg
+    echomsg("Try Google.")
+    echohl None
+  catch /E471/    " cancelled
+  endtry
+endfunction
 
 nnoremap <silent> <leader>l :call ToggleListChars()<CR>
 
 " git and gist mappings
-" TODO: improve, and install gist
+" TODO: improve mappings including gist
 nnoremap <silent> <leader>gc :Gcommit %<CR>
 nnoremap <silent> <leader>gp :Git push<Bar>silent only<Bar>TagbarOpen<CR>
 nnoremap <leader>gi :Git<Space>
@@ -371,34 +430,18 @@ nnoremap <silent> <leader>gw :Gwrite<CR>
 " toggle between paste and nopaste modes
 nnoremap <leader>P :setlocal invpaste paste?<CR>
 
-" TODO: fix this so you can map ,cn and ,cp for next and previous items (do
-" the same for ,ln and ,lp)
-" TODO: consider using unimpaired for these
-nnoremap <silent> <leader>cn :cnext<CR>
-nnoremap <silent> <leader>cp :cprevious<CR>
-nnoremap <silent> <leader>ln :lnext<CR>
-nnoremap <silent> <leader>lp :lprevious<CR>
+" toggle wrap
+nnoremap <leader>w :setlocal invwrap wrap?
 
-" TODO: use <plug> format for setting your scripts' mappings (see nerdcommenter)
+nnoremap <leader>r :registers<CR>
 
-" TODO: i have no need for H, L, and M, since i use scrolloff. find a mapping for them.
-" (actually, M seems complementary in scrolloff)
-nnoremap H ge
-"nnoremap L gE
-"nnoremap M gE
-
-" TODO: revise these
-"nnoremap <leader>d :close<CR>
-"nnoremap <leader>w :call WipeoutBuffer()<CR>
-"nnoremap <leader>u :call UpdateBuffer()<CR>
-
-" visual {{{2
+" mappings: visual {{{1
 
 " reselect after an indent action (to facilitate repeat actions)
 vnoremap > >gv
 vnoremap < <gv
 
-" command {{{2
+" mappings: command {{{1
 
 " do a sudo write
 cnoremap w!! w !sudo tee % > /dev/null
@@ -412,9 +455,6 @@ cnoremap %g/ %g/\v
 "
 " TODO: set up visual mappings as well as normal ones for your plugins
 
-" insert path of the current file into the command line TODO: do i even need this?
-"cnoremap %% <C-r>=expand("%:p:h") . "/" <CR>
-
 " insert {{{2
 
 inoremap <C-S-Space> <C-x><C-o>
@@ -425,64 +465,71 @@ inoremap <C-S-Space> <C-x><C-o>
 "cnoreabbrev %% <C-r>=expand("%:p:h") . "/" <CR>
 cnoreabbrev <expr> ;;p expand("%:p:h") . "/"
 "cnoreabbrev <buffer> ;;g expand("%:p:h") . "/"
-" plugins {{{1
 
-" runtime {{{2
+" commands {{{1
+command! DiffOrig vert new | set buftype=nofile | r # | 0d_ | diffthis
+	 	\ | wincmd p | diffthis
+
+" plugin: runtime {{{2
 
 runtime! macros/matchit.vim
 runtime! ftplugin/man.vim
 
-" peepopen {{{2
+" plugin: peepopen {{{2
 
 " TODO:fork peepopen so it does the hasmapto thing instead of using
 " <unique>and producing an error
-" disable default mapping so we can reuse it
-"nnoremap <nop> <Plug>PeepOpen
+"disable default mapping so we can reuse it
+map <nop> <Plug>PeepOpen
 
-" nerdcommenter {{{2
+" plugin: nerdcommenter {{{2
 
 " disable default mapping so we can reuse it
 " TODO: test if this is required
 "map <nop> <Plug>NERDCommenterNest
 
-" headlights {{{2
+" plugin: headlights {{{2
 
 "let g:headlights_use_plugin_menu = 1
-"let g:headlights_debug_mode = 1
+let g:headlights_debug_mode = 1
 let g:headlights_show_files = 1
 "let g:headlights_show_commands = 0
 "let g:headlights_show_mappings = 0
 let g:headlights_show_abbreviations = 1
 let g:headlights_show_functions = 1
 
-" syntastic {{{2
+" plugin: syntastic {{{2
 
 " this needs to be set here (TODO: test)
 let g:syntastic_enable_signs = 1
 
-" supertab {{{2
+" plugin: supertab {{{2
 
 "let g:SuperTabDefaultCompletionType = "context"
 "let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
 "let g:SuperTabRetainCompletionDuration = "session"
 
-" easytags {{{2
+" plugin: easytags {{{2
 
 " TODO: change colour of tags (see highlight groups defined by easytags (ref.
 " help), as well as jellybeans stuff
 "let g:easytags_file = '$HOME/.vim/tags'
 
-" hammer {{{2
-" TODO: move this to snide, and make it \p maybe
+" plugin: hammer {{{2
 nnoremap <leader>p :Hammer<CR>
 
-" rooter {{{2
+" plugin: rooter {{{2
 let g:rooter_use_lcd = 1
 
-" console {{{1
+" plugin: quickfixsigns {{{2
+" don't show quickfix vcsdiff signs
+let g:quickfixsigns_classes = ['qfl', 'loc', 'marks', 'breakpoints']
+
+" terminal {{{1
 
 if !has('gui_running')
-  " TODO: find out why stuff flashes in terminal
+  " TODO: find out why stuff flashes in terminal (could be terminal theme or
+  " vim)
   colorscheme zellner
   set background=dark
   set nocursorline
@@ -507,6 +554,7 @@ function! GetCurrentBranch() " {{{1
     let l:branch = matchstr(fugitive#statusline(), '(\zs.*\ze)')
     return empty(l:branch) ? '' : '<' . l:branch . '>'
   endif
+  return ''
 endfunction
 
 function! GetFileFormat() " {{{1
@@ -528,9 +576,11 @@ function! SetWD() " {{{1
 endfunction
 
 function! GetStatusLine() " {{{1
+  " TODO: implement a different statusline with custom text for inactive
+  " buffers
   "setlocal statusline=%5{GetCWD()}                      " current dir
-  setlocal statusline=\ \ \ \ \ \ %{GetCWD()}            " current dir
-  setlocal statusline+=\ %{SyntasticStatuslineFlag()}    " syntastic errors (for quiet mode)
+  setlocal statusline=\ \ \ \ \ \ %{GetCWD()}            " current dir (always force 6 leading spaces)
+  setlocal statusline+=\ %{GetNextError()}               " syntastic errors (for quiet mode)
   setlocal statusline+=%=                                " right divider
   setlocal statusline+=%-7w                              " preview window tag (if applicable)
   setlocal statusline+=\ %{&filetype}                    " filetype (if exists)
@@ -538,12 +588,6 @@ function! GetStatusLine() " {{{1
   setlocal statusline+=\ %-5{GetCurrentBranch()}         " git branch
   setlocal statusline+=%30(%7v%*%)                       " current column or virtual column
   setlocal statusline+=%15(%l%*\ of\ %L%)\               " current line and total lines
-endfunction
-
-" TODO: move this into a mapping, no need for a function
-function! UnWindows() " {{{1
-  s/\r//e
-  set fileformat=unix
 endfunction
 
 function! ToggleListChars() " {{{1
@@ -561,8 +605,8 @@ function! ToggleListChars() " {{{1
   endif
 endfun
 
-" TODO: find out why this isn't working for .gvimrc
 function! GoToLastPosition() " {{{1
+" TODO: find out why this isn't working for .gvimrc
   if line("'\"") > 0 && line("'\"") <= line('$')
     execute "normal g`\""
   endif
@@ -573,11 +617,19 @@ function! GetDocTitle(command) " {{{1
     let l:title = matchstr(@:, '^' . a:command . '.*')
     return empty(l:title) ? '' : ':' . l:title
   catch /E30/
+    return ''
   endtry
 endfunction
 
 function! GetQuickFixTitle() " {{{1
   return exists('w:quickfix_title') ? w:quickfix_title : ''
+endfunction
+ 
+function! GetNextError()
+  if exists('g:loaded_syntastic_plugin')
+    return SyntasticStatuslineFlag()
+  endif
+  return ''
 endfunction
 
 " cheatsheet {{{1
@@ -591,6 +643,10 @@ endfunction
 " `. goes to previous column on previously edited line
 " gi goes to previous column on previously edited line, putting you in insert
 " mode.
+"
+" U -- undo all changes on the line
+" ctrl-w ] will open the tag/function/method in a split -- better than jumping
+" back and forth, especially when you still want to see the invoking code
 "
 " <C-x><C-k> to invoke spelling dictionary
 " TODO: add more omnicomplete keywords here
@@ -644,8 +700,6 @@ endfunction
 
 " todo {{{1
 
-" TODO: find a plugin to make % work wit python
-" symlinked to vim dir's.
 " TODO: add <unique> and hasmapto to mappings in your scripts
 " TODO: use gq and reformat paragraphs more
 " TODO: fork the plugins you've modified (jellybeans, trailing whitespace,
@@ -674,10 +728,26 @@ endfunction
 " TODO: add compilers for ftplugins instead of various hacks
 " TODO: reconsider abbrev's vs mappings for commandline mode (mappings are
 " looking better at this stage)
-" TODO: fix jellybeans colors for tagbar (consult tagbar doc too)
+"
 "In order to make custom mappings easier and prevent overwritting existing
 "ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
 "for its mappings.
+"
+" TODO: write a snide function to pull a word under cursor and vimgrep it.
+" also conisder vimgrep vs grep vs ack. and add an optional word input
+" variant.
+
+" TODO: i have no need for H, L, and M, since i use scrolloff. find a mapping for them.
+" (actually, M seems complementary in scrolloff)
+nnoremap H ge
+"nnoremap L gE
+"nnoremap M gE
+
+" TODO: revise these
+"nnoremap <leader>d :close<CR>
+"nnoremap <leader>w :call WipeoutBuffer()<CR>
+
+" TODO: make scratch buffer say [Scratch]
 "
 " TODO: report the omnicomplete glitch on the vim mailing list. steps to
 " reproduce:
