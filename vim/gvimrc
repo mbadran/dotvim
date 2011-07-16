@@ -41,7 +41,7 @@ set switchbuf+=split,newtab
 " always show the tab bar
 "set showtabline=2
 
-" macvim {{{1
+" macvim: settings {{{1
 
 if has('gui_macvim')
   set macmeta
@@ -63,7 +63,7 @@ if has('gui_macvim')
     " (already shown)
   "endtry
 
-  " mappings {{{2
+  " macvim: mappings {{{1
   nnoremap <D-1> 1gt
   nnoremap <D-2> 2gt
   nnoremap <D-3> 3gt
@@ -130,9 +130,9 @@ nnoremap <silent> gp :silent !open <cfile><cr>
 
 nnoremap <silent> gf :!open -a MacVim <cfile><cr>
 
-" plugins {{{1
+nnoremap <leader>t :tabclose<CR>
 
-" vimroom {{{2
+" plugin: vimroom {{{1
 let g:VimRoom_ShowStatusLine = 0
 let g:VimRoom_ZoomLevel = 2
 let g:VimRoom_Colorscheme = "DesertEx2"
@@ -155,8 +155,7 @@ function! WipeoutBuffer() " {{{1
 " don't leave buffers hanging around
   " don't do anything fancy in the command line window (q:)
   if bufname('') == '[Command Line]'
-    "return
-    finish
+    return
   else
     " if this is the only buffer in the only tab in the gui window, close the whole window
     " TODO: understand and test this some more
