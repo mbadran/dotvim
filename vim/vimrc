@@ -1,7 +1,5 @@
 " mbadran's vimrc <github.com/mbadran/dotfiles>
 
-" (nocompatible is automatically set when vim starts up and sources this file)
-
 " bundles: vim-scripts {{{1
 
 " first, source vundle
@@ -136,8 +134,8 @@ set showcmd
 " highlight search matches
 set hlsearch
 
-" set a fancy statusline
-set statusline=%{GetStatusLine()}
+" set a more useful statusline
+set statusline=%{SetStatusline()}
 
 " hide the intro message on startup
 set shortmess+=I
@@ -271,7 +269,7 @@ set iskeyword+=$,%,#
 set iskeyword-=_
 
 " don't immediately clear changed text
-set cpoptions+=$
+"set cpoptions+=$
 
 " set grep options
 "set grepprg=grep\ -nHi $* /dev/null
@@ -292,9 +290,8 @@ set shiftround
 "set suffixes+=.class,.exe,.o,.obj,.dat,.dll,.aux,.pdf,.gch
 set suffixes+=.pdf
 
-" filetype: general {{{1
+" autocmds {{{1
 
-" TODO: check out marcweber's ftplugins for more ideas
 if has('autocmd')
   augroup vimrc
     " reset all autocmds for quick re-sourcing
@@ -313,6 +310,11 @@ if has('autocmd')
 
     autocmd BufReadPost * call GoToLastPosition()
 
+    autocmd BufEnter,BufLeave,BufWrite * call SetCurrentBranch()
+
+    autocmd WinEnter * call SetStatusline()
+    autocmd WinLeave * call SetStatuslineNC()
+
     " new files should be txt by default. TODO: doesn't work, fix.
     "autocmd BufNew * set filetype=txt
 
@@ -322,28 +324,68 @@ if has('autocmd')
     "autocmd BufWinEnter * if bufname('.') | loadview | endif
 
     " filetype: vimrc {{{1
+
     " automatically source vimrc and gvimrc saving
     autocmd BufWritePost vimrc,gvimrc source %
 
     " filetype: txt {{{1
+
     " define txt extensions
     autocmd BufRead README,INSTALL,*.txt set filetype=txt
 
     " filetype: quickfix/location {{{1
+
     " (misbehaving as an ftplugin)
-    autocmd FileType qf setlocal nonumber norelativenumber
+    autocmd FileType qf setlocal number
     autocmd FileType qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%l\ of\ %L%)\ 
-    autocmd FileType qf let b:noquickfixsigns = 1
+    autocmd FileType qf let b:noquickfixsigns = 1 | call QuickfixsignsUpdate()
 
     " filetype: man {{{1
+
     " (misbehaving as an ftplugin)
     autocmd FileType man setlocal statusline=\ %{GetDocTitle('Man')}%=[Man]\ %{expand('%:r')}%40P\ 
     autocmd FileType man let b:noquickfixsigns = 1
 
     " filetype: commandline {{{1
+
     autocmd FileType * if bufname('') == '[Command Line]' | setlocal statusline=%=%{bufname('')}%40P\  | endif
+
+    " filetype: tagbar {{{1
+
+    " hide the statusline at the nearest opportunity TODO: fork and fix
+    autocmd BufEnter __Tagbar__ setlocal statusline=\ 
   augroup END
 endif
+
+" mappings: all {{{1
+
+" go to end of previous word with a single key
+noremap M ge
+
+" go to beginning and end of line more easily (see associated text-objects)
+noremap H 0
+noremap L $
+
+" calculator TODO: move
+inoremap <C-B> <C-O>yiW<End>=<C-R>=<C-R>0<CR>
+
+" toggle folds more easily
+noremap <CR> za
+noremap <silent> <S-CR> :silent call ToggleAllFolds()<CR>
+
+" swap mark commands
+noremap ' `
+noremap ` '
+
+" swap the default movements on wrapped lines
+noremap j gj
+noremap k gk
+noremap 0 g0
+noremap $ g$
+noremap gj j
+noremap gk k
+noremap g0 0
+noremap g$ $
 
 " mappings: normal {{{1
 
@@ -352,16 +394,6 @@ nnoremap Y y$
 
 " overload Esc to also clear search matches
 nnoremap <silent> <Esc> <Esc>:nohlsearch<CR>
-
-" swap the default movements on wrapped lines
-nnoremap j gj
-nnoremap k gk
-nnoremap 0 g0
-nnoremap $ g$
-nnoremap gj j
-nnoremap gk k
-nnoremap g0 0
-nnoremap g$ $
 
 " simplify window operations
 nnoremap <C-h> <C-w>h
@@ -372,28 +404,29 @@ nnoremap <C-l> <C-w>l
 " invoke command line mode with one key
 nnoremap <Space> :
 
-" swap mark commands (remember to unswap for movement commands)
-"nnoremap ' `
-"nnoremap ` '
-
 " unwindows
 nnoremap <silent> <leader>vw :%s/\r//e<Bar>set fileformat=unix<CR>
 
-" TODO: map to important things: leader space, leader leader, \\, H, L, and M
+" TODO: map to important things: leader space, leader leader, leader tab, \\, H, L, and M
+" TODO: add a mapping for Gundo
 
 " follow the symlinks so we can check in changes
 nnoremap <silent> <leader>vv :execute "tabedit " . resolve($MYVIMRC)<CR>
 nnoremap <silent> <leader>vg :execute "tabedit " . resolve($MYGVIMRC)<CR>
-nnoremap <silent> <leader>vs :update<CR>:source %<CR>
+nnoremap <silent> <leader>vs :update<Bar>source %<CR>
 
 nnoremap <silent> <leader>b :buffers<CR>
 
-nnoremap <leader>h :tab help<Space>
+"nnoremap <leader>h :tab help<Space>
+nnoremap <leader>h :help<Space>
 "nnoremap <leader>H :tab helpgrep<Space>
 nnoremap <leader>H :call GrepHelp()<CR>
 
+" TODO: add mappings for tabclose and bdelete (not sure if i should use
+" bdelete yet, though)
+
 " don't use ex mode, do formatting instead
-nnoremap Q gqap
+nnoremap Q gqip
 vnoremap Q gq
 
 " TODO: move this into snide
@@ -427,13 +460,24 @@ nnoremap <silent> <leader>gw :Gwrite<CR>
 "nnoremap <leader>gt :Gist
 "nnoremap <leader>gp :Gist -p
 
-" toggle between paste and nopaste modes
+" toggle between paste and nopaste modes (i don't use this ATM)
 nnoremap <leader>P :setlocal invpaste paste?<CR>
 
 " toggle wrap
-nnoremap <leader>w :setlocal invwrap wrap?
+nnoremap <leader>W :setlocal invwrap wrap?<CR>
 
+" show the paste registers
 nnoremap <leader>r :registers<CR>
+
+" reselect text that was just pasted
+nnoremap <leader>v V`]
+
+" open a quickfix window for the last search
+nnoremap <silent> <leader>/ :execute "vimgrep /" . @/ . "/gj %"<Bar>botright cwindow 15<CR>
+
+" TODO: comment
+"nnoremap - gu
+"nnoremap + gU
 
 " mappings: visual {{{1
 
@@ -467,63 +511,49 @@ cnoreabbrev <expr> ;;p expand("%:p:h") . "/"
 "cnoreabbrev <buffer> ;;g expand("%:p:h") . "/"
 
 " commands {{{1
-command! DiffOrig vert new | set buftype=nofile | r # | 0d_ | diffthis
+
+command! DiffOrig vertical new | set buftype=nofile | r # | 0d_ | diffthis
 	 	\ | wincmd p | diffthis
 
-" plugin: runtime {{{2
+" text-object: H {{{1
 
-runtime! macros/matchit.vim
-runtime! ftplugin/man.vim
+vnoremap tH t0
+onoremap tH :normal VtH<CR>
+vnoremap TH T0
+onoremap TH :normal VTH<CR>
 
-" plugin: peepopen {{{2
+" text-object: L {{{1
 
-" TODO:fork peepopen so it does the hasmapto thing instead of using
-" <unique>and producing an error
-"disable default mapping so we can reuse it
-map <nop> <Plug>PeepOpen
+vnoremap tL t$
+onoremap tL :normal VtL<CR>
+vnoremap TL T$
+onoremap TL :normal VTL<CR>
 
-" plugin: nerdcommenter {{{2
+" textobject: fold {{{1
 
-" disable default mapping so we can reuse it
-" TODO: test if this is required
-"map <nop> <Plug>NERDCommenterNest
+vnoremap af :<C-U>silent! normal! [zV]z<CR>
+onoremap af :normal Vaf<CR>
 
-" plugin: headlights {{{2
+" textobject: square {{{1
 
-"let g:headlights_use_plugin_menu = 1
-let g:headlights_debug_mode = 1
-let g:headlights_show_files = 1
-"let g:headlights_show_commands = 0
-"let g:headlights_show_mappings = 0
-let g:headlights_show_abbreviations = 1
-let g:headlights_show_functions = 1
+vnoremap iq i[
+vnoremap aq a[
+onoremap iq i[
+onoremap aq a[
 
-" plugin: syntastic {{{2
+" textobject: curly {{{1
 
-" this needs to be set here (TODO: test)
-let g:syntastic_enable_signs = 1
+vnoremap ic i{
+vnoremap ac a{
+onoremap ic i{
+onoremap ac a{
 
-" plugin: supertab {{{2
+" textobject: angle {{{1
 
-"let g:SuperTabDefaultCompletionType = "context"
-"let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
-"let g:SuperTabRetainCompletionDuration = "session"
-
-" plugin: easytags {{{2
-
-" TODO: change colour of tags (see highlight groups defined by easytags (ref.
-" help), as well as jellybeans stuff
-"let g:easytags_file = '$HOME/.vim/tags'
-
-" plugin: hammer {{{2
-nnoremap <leader>p :Hammer<CR>
-
-" plugin: rooter {{{2
-let g:rooter_use_lcd = 1
-
-" plugin: quickfixsigns {{{2
-" don't show quickfix vcsdiff signs
-let g:quickfixsigns_classes = ['qfl', 'loc', 'marks', 'breakpoints']
+vnoremap ia i<
+vnoremap aa a<
+onoremap ia i<
+onoremap aa a<
 
 " terminal {{{1
 
@@ -542,21 +572,115 @@ if !has('gui_running')
   endif
 endif
 
+" plugin: runtime {{{1
+
+runtime! macros/matchit.vim
+runtime! ftplugin/man.vim
+
+" plugin: peepopen {{{1
+
+" TODO:fork peepopen so it does the hasmapto thing instead of using
+" <unique>and producing an error
+"disable default mapping so we can reuse it
+map <nop> <Plug>PeepOpen
+
+" plugin: nerdcommenter {{{1
+
+" disable default mapping so we can reuse it
+" TODO: test if this is required
+"map <nop> <Plug>NERDCommenterNest
+
+" plugin: headlights {{{1
+
+"let g:headlights_use_plugin_menu = 1
+"let g:headlights_debug_mode = 1
+let g:headlights_show_files = 1
+"let g:headlights_show_commands = 0
+"let g:headlights_show_mappings = 0
+let g:headlights_show_abbreviations = 1
+let g:headlights_show_functions = 1
+
+" plugin: syntastic {{{1
+
+" this needs to be set here (TODO: test)
+let g:syntastic_enable_signs = 1
+
+" plugin: supertab {{{1
+
+"let g:SuperTabDefaultCompletionType = "context"
+"let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
+"let g:SuperTabRetainCompletionDuration = "session"
+
+" plugin: easytags {{{1
+
+" TODO: change colour of tags (see highlight groups defined by easytags (ref.
+" help), as well as jellybeans stuff
+"let g:easytags_file = '$HOME/.vim/tags'
+
+" plugin: hammer {{{1
+
+nnoremap <leader>p :Hammer<CR>
+
+" plugin: rooter {{{1
+
+let g:rooter_use_lcd = 1
+
+" plugin: quickfixsigns {{{1
+
+" don't show quickfix vcsdiff signs
+let g:quickfixsigns_classes = ['qfl', 'loc', 'marks', 'breakpoints']
+
+" plugin: camelcase " {{{1
+
+"map <silent> L <Plug>CamelCaseMotion_w
+"map <silent> H <Plug>CamelCaseMotion_h
+"map <silent> w <Plug>CamelCaseMotion_w
+"map <silent> b <Plug>CamelCaseMotion_b
+"map <silent> e <Plug>CamelCaseMotion_e
+"sunmap w
+"sunmap b
+"sunmap e
+
+"omap <silent> iw <Plug>CamelCaseMotion_iw
+"xmap <silent> iw <Plug>CamelCaseMotion_iw
+"omap <silent> ib <Plug>CamelCaseMotion_ib
+"xmap <silent> ib <Plug>CamelCaseMotion_ib
+"omap <silent> ie <Plug>CamelCaseMotion_ie
+"xmap <silent> ie <Plug>CamelCaseMotion_ie
+
 function! GetCurrentTag() " {{{1
-  if exists('g:loaded_taglist')
-    let l:tagname = Tlist_Get_Tagname_By_Line()
-    return empty(l:tagname) ? '' : l:tagname . '()'
+  if !exists('g:loaded_taglist')
+    return ''
   endif
+
+  let l:tagname = Tlist_Get_Tagname_By_Line()
+  return empty(l:tagname) ? '' : l:tagname . '()'
 endfunction
 
-function! GetCurrentBranch() " {{{1
-  if exists('g:loaded_fugitive')
-    let l:branch = matchstr(fugitive#statusline(), '(\zs.*\ze)')
-    return empty(l:branch) ? '' : '<' . l:branch . '>'
+function! SetCurrentBranch() " {{{1
+  if !exists('g:loaded_fugitive')
+    "return ''
+    let g:current_branch = ''
+    return
   endif
-  return ''
+
+  let l:branch = matchstr(fugitive#statusline(), '(\zs.*\ze)')
+  if empty(l:branch)
+    "return ''
+    let g:current_branch = ''
+    return
+  endif
+
+  silent let l:status = system("git status -s")
+  if !empty(l:status)
+    let l:branch .= '!'
+  endif
+
+  "return '<' . l:branch . '>'
+  let g:current_branch = '<' . l:branch . '>'
 endfunction
 
+" only show dos and mac fileformats
 function! GetFileFormat() " {{{1
   return &fileformat == 'unix' ? '' : toupper(&fileformat)
 endfunction
@@ -575,19 +699,36 @@ function! SetWD() " {{{1
   endif
 endfunction
 
-function! GetStatusLine() " {{{1
-  " TODO: implement a different statusline with custom text for inactive
-  " buffers
-  "setlocal statusline=%5{GetCWD()}                      " current dir
-  setlocal statusline=\ \ \ \ \ \ %{GetCWD()}            " current dir (always force 6 leading spaces)
-  setlocal statusline+=\ %{GetNextError()}               " syntastic errors (for quiet mode)
-  setlocal statusline+=%=                                " right divider
-  setlocal statusline+=%-7w                              " preview window tag (if applicable)
-  setlocal statusline+=\ %{&filetype}                    " filetype (if exists)
-  setlocal statusline+=\ %-7{GetFileFormat()}            " fileformat (if not unix)
-  setlocal statusline+=\ %-5{GetCurrentBranch()}         " git branch
-  setlocal statusline+=%30(%7v%*%)                       " current column or virtual column
-  setlocal statusline+=%15(%l%*\ of\ %L%)\               " current line and total lines
+
+function! SetStatusline() " {{{1
+  if !IsSpecialBuffer()
+    setlocal statusline=\ \ \ \ \ \ %{GetCWD()}            " current dir (always force 6 leading spaces)
+    setlocal statusline+=\ %{GetNextError()}               " syntastic errors (for quiet mode)
+    setlocal statusline+=%=                                " right divider
+    setlocal statusline+=%-7w                              " preview window tag (if applicable)
+    setlocal statusline+=\ %{&filetype}                    " filetype (if exists)
+    setlocal statusline+=\ %-7{GetFileFormat()}            " fileformat (if not unix)
+    "setlocal statusline+=\ %-5{GetCurrentBranch()}        " git branch
+    setlocal statusline+=\ %-5{g:current_branch}           " git branch
+    setlocal statusline+=%30(%7v%*%)                       " current column or virtual column
+    setlocal statusline+=%15(%l%*\ of\ %L%)\               " current line and total lines
+  endif
+endfunction
+
+function! IsSpecialBuffer() " {{{1
+  if &filetype == 'tagbar' || &filetype == 'nerdtree' || &filetype == 'help' || &filetype == 'qf' || &filetype == 'man' || &filetype == 'gitcommit' || bufname('') == '[Command Line]' 
+    return 1
+  endif
+  return 0
+endfunction
+
+function! SetStatuslineNC() " {{{1
+  if !IsSpecialBuffer()
+    setlocal statusline=\ \ \ \ \ \ %f
+    setlocal statusline+=%=
+    setlocal statusline+=%-7w
+    setlocal statusline+=\ %-50{&filetype}
+  endif
 endfunction
 
 function! ToggleListChars() " {{{1
@@ -622,14 +763,21 @@ function! GetDocTitle(command) " {{{1
 endfunction
 
 function! GetQuickFixTitle() " {{{1
-  return exists('w:quickfix_title') ? w:quickfix_title : ''
+  return !exists('w:quickfix_title') ? '' : ':' . matchstr(w:quickfix_title, '^:\?\s*\zs.\+')
 endfunction
- 
-function! GetNextError()
-  if exists('g:loaded_syntastic_plugin')
-    return SyntasticStatuslineFlag()
+
+function! GetNextError() " {{{1
+  return !exists('g:loaded_syntastic_plugin') ? '' : SyntasticStatuslineFlag()
+endfunction
+
+function! ToggleAllFolds() " {{{1
+  if &foldlevel == 0
+    "normal zR
+    setlocal foldlevel=99
+  else
+    "normal zM
+    setlocal foldlevel=0
   endif
-  return ''
 endfunction
 
 " cheatsheet {{{1
@@ -657,6 +805,9 @@ endfunction
 " E - end of current/next word defined by only space boundaries
 " B - beginning of current/previous defined by only space boundaries
 
+" mode() tells you the mode
+"
+" g<c-g> shows you doc stats, g2<c-g> shows you file stats -- file name, line number, col number, etc
 " ge goes to the end of the previous word (isn't be the same or faster?
 " gE goes to the end of the previous 'full' word
 " if you just want to go to the end of the previous word, ge or gE is the way
@@ -681,6 +832,8 @@ endfunction
 
 " x is dl -- X is dh
 
+" gqq reformats the current line
+"
 " folding
 "za toggles a fold opened and closed!
 "zf#j  creates a fold from the cursor down  #  lines.
@@ -700,6 +853,8 @@ endfunction
 
 " todo {{{1
 
+" TODO: experiment with auto formatting some more -- set textwidths for
+" different filetypes, etc
 " TODO: add <unique> and hasmapto to mappings in your scripts
 " TODO: use gq and reformat paragraphs more
 " TODO: fork the plugins you've modified (jellybeans, trailing whitespace,
@@ -739,7 +894,7 @@ endfunction
 
 " TODO: i have no need for H, L, and M, since i use scrolloff. find a mapping for them.
 " (actually, M seems complementary in scrolloff)
-nnoremap H ge
+"nnoremap H ge
 "nnoremap L gE
 "nnoremap M gE
 
@@ -747,7 +902,12 @@ nnoremap H ge
 "nnoremap <leader>d :close<CR>
 "nnoremap <leader>w :call WipeoutBuffer()<CR>
 
+" TODO: document note in README.mkd:
+" (nocompatible is automatically set when vim starts up and sources this file)
+
 " TODO: make scratch buffer say [Scratch]
+"
+" TODO: remap + and - in command mode to something else, maybe gU and gu
 "
 " TODO: report the omnicomplete glitch on the vim mailing list. steps to
 " reproduce:
