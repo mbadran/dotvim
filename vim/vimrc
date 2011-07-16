@@ -452,11 +452,11 @@ nnoremap <silent> <leader>gc :Gcommit %<CR>
 nnoremap <silent> <leader>gp :Git push<Bar>silent only<Bar>TagbarOpen<CR>
 nnoremap <leader>gi :Git<Space>
 nnoremap <silent> <leader>gl :Glog<CR>
-"nnoremap <silent> <leader>gd :silent only\|diffthis\|Gdiff<CR>
 nnoremap <silent> <leader>gd :silent only<Bar>diffthis<Bar>Gdiff<CR>
 nnoremap <silent> <leader>gs :Gstatus<CR>
 nnoremap <silent> <leader>gb :Gblame<CR>
 nnoremap <silent> <leader>gw :Gwrite<CR>
+nnoremap <silent> <leader>gq :silent only<Bar>diffoff<Bar>TagbarOpen<CR>
 "nnoremap <leader>gt :Gist
 "nnoremap <leader>gp :Gist -p
 
