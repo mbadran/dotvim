@@ -449,7 +449,8 @@ nnoremap <silent> <leader>l :call ToggleListChars()<CR>
 " git and gist mappings
 " TODO: improve mappings including gist
 nnoremap <silent> <leader>gc :Gcommit %<CR>
-nnoremap <silent> <leader>gp :Git push<Bar>silent only<Bar>TagbarOpen<CR>
+nnoremap <silent> <leader>gC :Gcommit<CR>
+nnoremap <silent> <leader>gp :Git push<Bar>silent only<Bar>diffoff<Bar>TagbarOpen<CR>
 nnoremap <leader>gi :Git<Space>
 nnoremap <silent> <leader>gl :Glog<CR>
 nnoremap <silent> <leader>gd :silent only<Bar>diffthis<Bar>Gdiff<CR>
