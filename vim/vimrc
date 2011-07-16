@@ -451,7 +451,7 @@ nnoremap <silent> <leader>l :call ToggleListChars()<CR>
 nnoremap <silent> <leader>gc :Gcommit %<CR>
 nnoremap <silent> <leader>gC :Gcommit<CR>
 " TODO: only do this if diff is set
-nnoremap <silent> <leader>gp :Git push<Bar>wincmd h<Bar>quit<CR>
+nnoremap <silent> <leader>gp :Git push<Bar>wincmd h<Bar>quit<Bar>silent TagbarOpen<CR>
 nnoremap <leader>gi :Git<Space>
 nnoremap <silent> <leader>gl :Glog<CR>
 "nnoremap <silent> <leader>gd :silent only<Bar>diffthis<Bar>Gdiff<CR>
