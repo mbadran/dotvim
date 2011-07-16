@@ -450,14 +450,16 @@ nnoremap <silent> <leader>l :call ToggleListChars()<CR>
 " TODO: improve mappings including gist
 nnoremap <silent> <leader>gc :Gcommit %<CR>
 nnoremap <silent> <leader>gC :Gcommit<CR>
-nnoremap <silent> <leader>gp :Git push<Bar>silent only<Bar>diffoff<Bar>TagbarOpen<CR>
+" TODO: only do this if diff is set
+nnoremap <silent> <leader>gp :Git push<Bar>wincmd h<Bar>quit<CR>
 nnoremap <leader>gi :Git<Space>
 nnoremap <silent> <leader>gl :Glog<CR>
-nnoremap <silent> <leader>gd :silent only<Bar>diffthis<Bar>Gdiff<CR>
+"nnoremap <silent> <leader>gd :silent only<Bar>diffthis<Bar>Gdiff<CR>
+nnoremap <silent> <leader>gd :silent only<Bar>Gdiff<CR>
+nnoremap <silent> <leader>gD :wincmd h<Bar>quit<Bar>silent TagbarOpen<CR>
 nnoremap <silent> <leader>gs :Gstatus<CR>
 nnoremap <silent> <leader>gb :Gblame<CR>
 nnoremap <silent> <leader>gw :Gwrite<CR>
-nnoremap <silent> <leader>gq :silent only<Bar>diffoff<Bar>TagbarOpen<CR>
 "nnoremap <leader>gt :Gist
 "nnoremap <leader>gp :Gist -p
 
@@ -899,6 +901,8 @@ endfunction
 "nnoremap L gE
 "nnoremap M gE
 
+" TODO: find out why dj and dk are broken
+"
 " TODO: revise these
 "nnoremap <leader>d :close<CR>
 "nnoremap <leader>w :call WipeoutBuffer()<CR>
