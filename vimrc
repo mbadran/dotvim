@@ -46,6 +46,7 @@ try
   Bundle 'Gist.vim'
   Bundle 'utl.vim'
   Bundle 'Pydiction'
+  "Bundle 'gitignore'
   "Bundle 'netrw.vim'
 
   " bundles: github {{{1
@@ -304,9 +305,9 @@ if has('autocmd')
     autocmd CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
 
     " doing this manually for now. TODO: fork rooter and fix.
-    autocmd BufNew * lcd $HOME
-    "autocmd BufEnter * Rooter
-    autocmd BufEnter * call SetWD()
+    "autocmd BufNew * lcd $HOME
+    autocmd BufEnter * Rooter
+    "autocmd BufEnter * call SetWD()
 
     autocmd BufReadPost * call GoToLastPosition()
 
@@ -337,18 +338,26 @@ if has('autocmd')
 
     " (misbehaving as an ftplugin)
     autocmd FileType qf setlocal number
-    autocmd FileType qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%l\ of\ %L%)\ 
+    "autocmd FileType qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%l\ of\ %L%)\ 
+    autocmd FileType qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%)
     autocmd FileType qf let b:noquickfixsigns = 1 | call QuickfixsignsUpdate()
+    " reset fold open mappings TODO: find a better way to set them so this
+    " isn't necessary
+    autocmd FileType qf noremap <buffer> <CR> <CR>
+    autocmd FileType qf noremap <buffer> <S-CR> <S-CR>
 
     " filetype: man {{{1
 
     " (misbehaving as an ftplugin)
-    autocmd FileType man setlocal statusline=\ %{GetDocTitle('Man')}%=[Man]\ %{expand('%:r')}%40P\ 
-    autocmd FileType man let b:noquickfixsigns = 1
+    "autocmd FileType man setlocal statusline=\ %{GetDocTitle('Man')}%=[Man]\ %{expand('%:r')}%40P\ 
+    autocmd FileType man setlocal nonumber norelativenumber statusline=\ %{GetDocTitle('Man')}%=[Man]\ %{expand('%:r')}%40(%)
+    autocmd FileType man let b:noquickfixsigns = 1 | call QuickfixsignsUpdate()
 
     " filetype: commandline {{{1
 
-    autocmd FileType * if bufname('') == '[Command Line]' | setlocal statusline=%=%{bufname('')}%40P\  | endif
+    "autocmd FileType * if bufname('') == '[Command Line]' | setlocal statusline=%=%{bufname('')}%40P\  | endif
+    autocmd FileType * if bufname('') == '[Command Line]' | setlocal number statusline=%=%{bufname('')}%40(%) | endif
+    autocmd FileType * if bufname('') == '[Command Line]' | let b:noquickfixsigns = 1 | endif
 
     " filetype: tagbar {{{1
 
@@ -502,9 +511,15 @@ cnoremap %g/ %g/\v
 "
 " TODO: set up visual mappings as well as normal ones for your plugins
 
-" insert {{{2
+" mappings: insert {{{2
 
 inoremap <C-S-Space> <C-x><C-o>
+
+" mappings: operator-pending {{{1
+
+" TODO: find out why these were broken to begin with -- the new text objects?
+onoremap j j
+onoremap k k
 
 " abbreviations {{{1
 
@@ -692,16 +707,6 @@ function! GetCWD() " {{{1
   let l:cwd = substitute(getcwd(), $HOME . '\ze.*$', '~', '')
   return strlen(l:cwd) > 50 ? strpart(l:cwd, 0, 50) . '>' : l:cwd
 endfunction
-
-" change to dir of project root
-function! SetWD() " {{{1
-  if match(expand("%:p"), "/Documents/projects/") > -1
-    Rooter
-  else
-    lcd %:p:h
-  endif
-endfunction
-
 
 function! SetStatusline() " {{{1
   if !IsSpecialBuffer()
