@@ -1,7 +1,6 @@
 setlocal nonumber norelativenumber
 
-setlocal statusline=%=[Git]
-setlocal statusline+=\ %{&readonly?'status':'commit'}
+setlocal statusline=%=[Git\ %{&readonly?'Status':'Commit'}]
 setlocal statusline+=\ %{g:current_branch}
 setlocal statusline+=%50(%)
 
