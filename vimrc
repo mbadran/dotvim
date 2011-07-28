@@ -2,13 +2,12 @@
 
 " bundles: vim-scripts {{{1
 
-" first, source vundle
+" source and run vundle
 set runtimepath+=$HOME/.vim/bundle/vundle/
-
 try
   call vundle#rc()
 
-  " (let vundle manage vundle)
+  " let vundle manage vundle
   Bundle 'gmarik/vundle'
 
   Bundle 'Conque-Shell'
@@ -30,7 +29,6 @@ try
   Bundle 'quickfixsigns'
   Bundle 'Tagbar'
   Bundle 'ack.vim'
-  " TODO: test
   Bundle 'camelcasemotion'
   Bundle 'surround.vim'
   Bundle 'repeat.vim'
@@ -38,32 +36,38 @@ try
   Bundle 'capslock.vim'
   Bundle 'unimpaired.vim'
   Bundle 'endwise.vim'
-  Bundle 'python.vim'
-  "Bundle 'python_match.vim'
+  "Bundle 'python.vim'
+  Bundle 'python_match.vim'
   "Bundle 'py_jump.vim'
   Bundle '256-grayvim'
   "Bundle 'Python-2.x-Standard-Library-Reference'
   Bundle 'Gist.vim'
   Bundle 'utl.vim'
   Bundle 'Pydiction'
+  Bundle 'pep8--Driessen'
+  Bundle 'VimClojure'
+  Bundle 'growlnotify.vim'
   "Bundle 'gitignore'
   "Bundle 'netrw.vim'
 
   " bundles: github {{{1
 
-  Bundle 'robgleeson/hammer.vim'
+  "Bundle 'robgleeson/hammer.vim'
   Bundle 'shemerey/vim-peepopen'
   Bundle 'klen/rope-vim'
   " snipmate {{{2
+
   Bundle 'MarcWeber/vim-addon-mw-utils'
   Bundle 'tomtom/tlib_vim'
   Bundle 'honza/snipmate-snippets'
   Bundle 'garbas/vim-snipmate'
+
   "}}}
   Bundle 'airblade/vim-rooter'
   Bundle 'sessionman.vim'
   Bundle 'renamer.vim'
   Bundle 'skammer/vim-css-color'
+  "Bundle 'c9s/growlnotify.vim'
 catch /E117/ | endtry    " no vundle
 
 " bundles: mine {{{1
@@ -311,7 +315,7 @@ if has('autocmd')
 
     autocmd BufReadPost * call GoToLastPosition()
 
-    autocmd BufEnter,BufLeave,BufWrite * call SetCurrentBranch()
+    "autocmd BufEnter,BufLeave,BufWrite * call SetCurrentBranch()
 
     autocmd WinEnter * call SetStatusline()
     autocmd WinLeave * call SetStatuslineNC()
@@ -337,12 +341,12 @@ if has('autocmd')
     " filetype: quickfix/location {{{1
 
     " (misbehaving as an ftplugin)
-    autocmd FileType qf setlocal number
-    "autocmd FileType qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%l\ of\ %L%)\ 
-    autocmd FileType qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%)
+    "autocmd FileType qf setlocal number
+    "autocmd FileType qf setlocal number statusline=\ %{GetQuickFixTitle()}%=%t%40L\ Matches\ 
+    autocmd FileType qf setlocal number statusline=\ %{GetQuickFixTitle()}%=%t%40(%l\ of\ %L%)\ 
+    "autocmd FileType qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%)
     autocmd FileType qf let b:noquickfixsigns = 1 | call QuickfixsignsUpdate()
-    " reset fold open mappings TODO: find a better way to set them so this
-    " isn't necessary
+    " reset fold open mappings TODO: find a better way to set them so this isn't necessary
     autocmd FileType qf noremap <buffer> <CR> <CR>
     autocmd FileType qf noremap <buffer> <S-CR> <S-CR>
 
@@ -361,8 +365,9 @@ if has('autocmd')
 
     " filetype: tagbar {{{1
 
-    " hide the statusline at the nearest opportunity TODO: fork and fix
-    autocmd BufEnter __Tagbar__ setlocal statusline=\ 
+    " hide the statusline at the nearest opportunity TODO: fork and fix --
+    " make an option, like nerdtree
+    "autocmd BufEnter __Tagbar__ setlocal statusline=\ 
   augroup END
 endif
 
@@ -372,8 +377,40 @@ endif
 noremap M ge
 
 " go to beginning and end of line more easily (see associated text-objects)
-noremap H 0
-noremap L $
+" TODO: modify these so they default to _ and g_, with a second key going to ^
+" or $, unless _ and g_ don't apply
+"noremap H 0
+"noremap L $
+noremap <silent> H :call GoToStartOfLine()<CR>
+noremap <silent> L :call GoToEndOfLine()<CR>
+
+function! GoToStartOfLine()
+  " save current cursor pos
+  let s:save_col = getpos(".")[2]
+
+  normal _
+
+  let s:new_col = getpos(".")[2]
+
+  " if we haven't moved, and we're not at the beginning, go to the beginning
+  if s:save_col == s:new_col && s:new_col > 1
+    normal 0
+  endif
+endfunction
+
+function! GoToEndOfLine()
+  " save current cursor pos
+  let s:save_col = getpos(".")[2]
+
+  normal g_
+
+  let s:new_col = getpos(".")[2]
+
+  " if we haven't moved, and we're not at the end, go to the end
+  if s:save_col == s:new_col && s:new_col < len(getline('.'))
+    normal $
+  endif
+endfunction
 
 " calculator TODO: move
 inoremap <C-B> <C-O>yiW<End>=<C-R>=<C-R>0<CR>
@@ -438,34 +475,40 @@ nnoremap <leader>H :call GrepHelp()<CR>
 nnoremap Q gqip
 vnoremap Q gq
 
-" TODO: move this into snide
-function! GrepHelp()
-  let l:subject = input("Help subject? ")
-
-  try
-    execute "tab helpgrep " . l:subject
-    botright copen 15
-  catch /E480/
-    echohl ErrorMsg
-    echomsg("Try Google.")
-    echohl None
-  catch /E471/    " cancelled
-  endtry
-endfunction
-
 nnoremap <silent> <leader>l :call ToggleListChars()<CR>
+
+fun! DoGitDiff()
+" TODO: move this into snide
+  silent TagbarClose
+  Gdiff
+endf
+
+fun! DoGitNoDiff()
+" TODO: move this into snide (make a toggle actually)
+  " TODO: only switch windows and close them if fugitive is open (check)
+  "if &diff == 1
+    "wincmd h
+    "quit
+  "endif
+  silent only
+  diffoff
+  silent TagbarOpen
+endf
 
 " git and gist mappings
 " TODO: improve mappings including gist
 nnoremap <silent> <leader>gc :Gcommit %<CR>
 nnoremap <silent> <leader>gC :Gcommit<CR>
-" TODO: only do this if diff is set
-nnoremap <silent> <leader>gp :Git push<Bar>wincmd h<Bar>quit<Bar>silent TagbarOpen<CR>
+" TODO: only do this if diff is set (write a function)
+"nnoremap <silent> <leader>gp :Git push<Bar>wincmd h<Bar>quit<Bar>silent TagbarOpen<CR>
+" TODO: this too
+nnoremap <silent> <leader>gp :Git push<Bar>silent only<Bar>silent TagbarOpen<CR>
 nnoremap <leader>gi :Git<Space>
 nnoremap <silent> <leader>gl :Glog<CR>
-"nnoremap <silent> <leader>gd :silent only<Bar>diffthis<Bar>Gdiff<CR>
-nnoremap <silent> <leader>gd :silent only<Bar>Gdiff<CR>
-nnoremap <silent> <leader>gD :wincmd h<Bar>quit<Bar>silent TagbarOpen<CR>
+"nnoremap <silent> <leader>gd :silent only<Bar>Gdiff<CR>
+"nnoremap <silent> <leader>gD :wincmd h<Bar>quit<Bar>silent TagbarOpen<CR>
+nnoremap <silent> <leader>gd :call DoGitDiff()<CR>
+nnoremap <silent> <leader>gD :call DoGitNoDiff()<CR>
 nnoremap <silent> <leader>gs :Gstatus<CR>
 nnoremap <silent> <leader>gb :Gblame<CR>
 nnoremap <silent> <leader>gw :Gwrite<CR>
@@ -479,6 +522,8 @@ nnoremap <leader>P :setlocal invpaste paste?<CR>
 nnoremap <leader>W :setlocal invwrap wrap?<CR>
 
 " show the paste registers
+" TODO: consider write a quick plugin that captures the output of registers,
+" then dumps it into a buffer for you to select. just something basic, is all.
 nnoremap <leader>r :registers<CR>
 
 " reselect text that was just pasted
@@ -576,18 +621,24 @@ onoremap aa a<
 " terminal {{{1
 
 if !has('gui_running')
-  " TODO: find out why stuff flashes in terminal (could be terminal theme or
-  " vim)
-  colorscheme zellner
-  set background=dark
-  set nocursorline
   set t_Co=256
+  set background=dark
+
+  try
+    colorscheme solarized
+  catch /E185/
+    colorscheme zellner
+  endtry
+
+  set nocursorline
   set title
+
   if v:version > 702
-    set cursorcolumn
-    set colorcolumn=80
-    highlight colorcolumn ctermbg=lightgrey guibg=lightgrey
+    "set cursorcolumn
+    set colorcolumn=81
   endif
+  " the c key is pressed upon entering, from some reason TODO: fix
+  "normal <Esc>
 endif
 
 " plugin: runtime {{{1
@@ -613,6 +664,7 @@ map <nop> <Plug>PeepOpen
 "let g:headlights_use_plugin_menu = 1
 "let g:headlights_debug_mode = 1
 let g:headlights_show_files = 1
+let g:headlights_show_load_order = 1
 "let g:headlights_show_commands = 0
 "let g:headlights_show_mappings = 0
 let g:headlights_show_abbreviations = 1
@@ -637,7 +689,8 @@ let g:syntastic_enable_signs = 1
 
 " plugin: hammer {{{1
 
-nnoremap <leader>p :Hammer<CR>
+" TODO: use Marked instead
+"nnoremap <leader>p :Hammer<CR>
 
 " plugin: rooter {{{1
 
@@ -666,41 +719,16 @@ let g:quickfixsigns_classes = ['qfl', 'loc', 'marks', 'breakpoints']
 "omap <silent> ie <Plug>CamelCaseMotion_ie
 "xmap <silent> ie <Plug>CamelCaseMotion_ie
 
-function! GetCurrentTag() " {{{1
-  if !exists('g:loaded_taglist')
-    return ''
-  endif
+" plugin: easytags " {{{1
 
-  let l:tagname = Tlist_Get_Tagname_By_Line()
-  return empty(l:tagname) ? '' : l:tagname . '()'
-endfunction
+let g:easytags_cmd = '/usr/local/bin/ctags'
 
-function! SetCurrentBranch() " {{{1
-  if !exists('g:loaded_fugitive')
-    "return ''
-    let g:current_branch = ''
-    return
-  endif
-
-  let l:branch = matchstr(fugitive#statusline(), '(\zs.*\ze)')
-  if empty(l:branch)
-    "return ''
-    let g:current_branch = ''
-    return
-  endif
-
-  silent let l:status = system("git status -s")
-  if !empty(l:status)
-    let l:branch .= '!'
-  endif
-
-  "return '<' . l:branch . '>'
-  let g:current_branch = '<' . l:branch . '>'
-endfunction
+" TODO: find out why 2 buffers are loaded when we first start vim -- some
+" annoying plugin is doing it
 
 " only show dos and mac fileformats
 function! GetFileFormat() " {{{1
-  return &fileformat == 'unix' ? '' : toupper(&fileformat)
+  return &fileformat == 'unix' ? '' : toupper(&fileformat) . '!'
 endfunction
 
 function! GetCWD() " {{{1
@@ -717,7 +745,8 @@ function! SetStatusline() " {{{1
     setlocal statusline+=\ %{&filetype}                    " filetype (if exists)
     setlocal statusline+=\ %-7{GetFileFormat()}            " fileformat (if not unix)
     "setlocal statusline+=\ %-5{GetCurrentBranch()}        " git branch
-    setlocal statusline+=\ %-5{g:current_branch}           " git branch
+    "setlocal statusline+=\ %-5{g:current_branch}           " git branch
+    setlocal statusline+=\ %-5{SetCurrentBranch()}        " git branch
     setlocal statusline+=%30(%7v%*%)                       " current column or virtual column
     setlocal statusline+=%15(%l%*\ of\ %L%)\               " current line and total lines
   endif
@@ -774,6 +803,31 @@ function! GetQuickFixTitle() " {{{1
   return !exists('w:quickfix_title') ? '' : ':' . matchstr(w:quickfix_title, '^:\?\s*\zs.\+')
 endfunction
 
+function! SetCurrentBranch() " {{{1
+  if !exists('g:loaded_fugitive')
+    let g:current_branch = ''
+    return
+  endif
+
+  let g:current_branch = matchstr(fugitive#statusline(), '(\zs.*\ze)')
+  if empty(g:current_branch)
+    let g:current_branch = ''
+    return
+  endif
+
+  silent let l:status = system("git status -s")
+  if !empty(l:status)
+    "let l:branch .= '!'
+    "let g:current_branch = '+ ' . g:current_branch
+    let g:current_branch .= '!'
+  endif
+
+  "return '<' . l:branch . '>'
+  let g:current_branch = '<' . g:current_branch . '>'
+  "let g:current_branch = l:branch
+  return g:current_branch
+endfunction
+
 function! GetNextError() " {{{1
   return !exists('g:loaded_syntastic_plugin') ? '' : SyntasticStatuslineFlag()
 endfunction
@@ -814,6 +868,8 @@ endfunction
 " B - beginning of current/previous defined by only space boundaries
 
 " mode() tells you the mode
+"
+" %s/pattern//gn number of occurrences of pattern
 "
 " g<c-g> shows you doc stats, g2<c-g> shows you file stats -- file name, line number, col number, etc
 " ge goes to the end of the previous word (isn't be the same or faster?
@@ -899,6 +955,9 @@ endfunction
 " TODO: write a snide function to pull a word under cursor and vimgrep it.
 " also conisder vimgrep vs grep vs ack. and add an optional word input
 " variant.
+
+" TODO: add a hook for tpope's repeat plugin to the nerdcommenter plugin so
+" that repeat works with commenting.
 
 " TODO: i have no need for H, L, and M, since i use scrolloff. find a mapping for them.
 " (actually, M seems complementary in scrolloff)
