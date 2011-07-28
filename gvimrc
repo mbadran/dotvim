@@ -26,8 +26,6 @@ set guioptions-=L
 " add a bottom scrollbar
 "set guioptions+=b
 
-"this is a very long line" this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line
-
 set cursorline
 
 " tab settings
