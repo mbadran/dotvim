@@ -1,5 +1,7 @@
 " mbadran's gvimrc <github.com/mbadran/dotfiles>
 
+" TODO: move statusline stuff here
+
 " settings {{{1
 
 try
@@ -14,11 +16,17 @@ endtry
 " remove the toolbar
 set guioptions-=T
 
-" remove the left scrollbar when multiple vsplits present (MAYBE enable with os x lion)
+" change scrollbar options when macvim scrollbars become transparent
+" remove the left scrollbar when multiple vsplits present
 set guioptions-=L
 
-" add a bottom scrollbar (enable with os x lion)
+" remove the right scrollbar when multiple vsplits present
+"set guioptions-=r
+
+" add a bottom scrollbar
 "set guioptions+=b
+
+"this is a very long line" this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line"this is a very long line
 
 set cursorline
 
@@ -39,7 +47,7 @@ set switchbuf=useopen,usetab
 set switchbuf+=split,newtab
 
 " always show the tab bar
-"set showtabline=2
+set showtabline=2
 
 " macvim: settings {{{1
 
