@@ -1,4 +1,9 @@
 setlocal spell tw=80 wrap
 
-setlocal colorcolumn=81
-highlight colorcolumn ctermbg=grey guibg=#101010
+if v:version > 702
+  setlocal colorcolumn=81
+
+  if has('gui_running')
+    highlight colorcolumn ctermbg=grey guibg=#101010
+  endif
+endif
