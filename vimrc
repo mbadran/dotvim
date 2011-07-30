@@ -273,12 +273,11 @@ set iskeyword+=$,%,#
 " set these as word delimiters
 set iskeyword-=_
 
-" don't immediately clear changed text
-"set cpoptions+=$
-
 " set grep options
 "set grepprg=grep\ -nHi $* /dev/null
-set grepprg=grep\ -nHi\ $*
+"set grepprg=grep\ -nHi\ $*
+"TODO: what do i use grep for again?
+set grepprg=ack
 
 " indentation {{{1
 
@@ -308,25 +307,15 @@ if has('autocmd')
     " automatically close the preview window
     autocmd CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
 
-    " doing this manually for now. TODO: fork rooter and fix.
-    "autocmd BufNew * lcd $HOME
-    autocmd BufEnter * Rooter
-    "autocmd BufEnter * call SetWD()
+    autocmd BufEnter * call Rooter()
 
     autocmd BufReadPost * call GoToLastPosition()
-
-    "autocmd BufEnter,BufLeave,BufWrite * call SetCurrentBranch()
 
     autocmd WinEnter * call SetStatusline()
     autocmd WinLeave * call SetStatuslineNC()
 
     " new files should be txt by default. TODO: doesn't work, fix.
     "autocmd BufNew * set filetype=txt
-
-    " remember folding (TODO: test)
-    "autocmd BufWinLeave * if bufname('.') | mkview! | endif
-    "autocmd BufWinEnter * if bufname('.') | silent loadview | endif
-    "autocmd BufWinEnter * if bufname('.') | loadview | endif
 
     " filetype: vimrc {{{1
 
@@ -362,12 +351,6 @@ if has('autocmd')
     "autocmd FileType * if bufname('') == '[Command Line]' | setlocal statusline=%=%{bufname('')}%40P\  | endif
     autocmd FileType * if bufname('') == '[Command Line]' | setlocal number statusline=%=%{bufname('')}%40(%) | endif
     autocmd FileType * if bufname('') == '[Command Line]' | let b:noquickfixsigns = 1 | endif
-
-    " filetype: tagbar {{{1
-
-    " hide the statusline at the nearest opportunity TODO: fork and fix --
-    " make an option, like nerdtree
-    "autocmd BufEnter __Tagbar__ setlocal statusline=\ 
   augroup END
 endif
 
@@ -377,43 +360,10 @@ endif
 noremap M ge
 
 " go to beginning and end of line more easily (see associated text-objects)
-" TODO: modify these so they default to _ and g_, with a second key going to ^
-" or $, unless _ and g_ don't apply
 "noremap H 0
 "noremap L $
 noremap <silent> H :call GoToStartOfLine()<CR>
 noremap <silent> L :call GoToEndOfLine()<CR>
-
-function! GoToStartOfLine()
-  " save current cursor pos
-  let s:save_col = getpos(".")[2]
-
-  normal _
-
-  let s:new_col = getpos(".")[2]
-
-  " if we haven't moved, and we're not at the beginning, go to the beginning
-  if s:save_col == s:new_col && s:new_col > 1
-    normal 0
-  endif
-endfunction
-
-function! GoToEndOfLine()
-  " save current cursor pos
-  let s:save_col = getpos(".")[2]
-
-  normal g_
-
-  let s:new_col = getpos(".")[2]
-
-  " if we haven't moved, and we're not at the end, go to the end
-  if s:save_col == s:new_col && s:new_col < len(getline('.'))
-    normal $
-  endif
-endfunction
-
-" calculator TODO: move
-inoremap <C-B> <C-O>yiW<End>=<C-R>=<C-R>0<CR>
 
 " toggle folds more easily
 noremap <CR> za
@@ -454,7 +404,6 @@ nnoremap <Space> :
 nnoremap <silent> <leader>vw :%s/\r//e<Bar>set fileformat=unix<CR>
 
 " TODO: map to important things: leader space, leader leader, leader tab, \\, H, L, and M
-" TODO: add a mapping for Gundo
 
 " follow the symlinks so we can check in changes
 nnoremap <silent> <leader>vv :execute "tabedit " . resolve($MYVIMRC)<CR>
@@ -476,24 +425,6 @@ nnoremap Q gqip
 vnoremap Q gq
 
 nnoremap <silent> <leader>l :call ToggleListChars()<CR>
-
-fun! DoGitDiff()
-" TODO: move this into snide
-  silent TagbarClose
-  Gdiff
-endf
-
-fun! DoGitNoDiff()
-" TODO: move this into snide (make a toggle actually)
-  " TODO: only switch windows and close them if fugitive is open (check)
-  "if &diff == 1
-    "wincmd h
-    "quit
-  "endif
-  silent only
-  diffoff
-  silent TagbarOpen
-endf
 
 " git and gist mappings
 " TODO: improve mappings including gist
@@ -522,8 +453,6 @@ nnoremap <leader>P :setlocal invpaste paste?<CR>
 nnoremap <leader>W :setlocal invwrap wrap?<CR>
 
 " show the paste registers
-" TODO: consider write a quick plugin that captures the output of registers,
-" then dumps it into a buffer for you to select. just something basic, is all.
 nnoremap <leader>r :registers<CR>
 
 " reselect text that was just pasted
@@ -551,14 +480,16 @@ cnoremap w!! w !sudo tee % > /dev/null
 cnoremap %s/ %s/\v
 cnoremap %g/ %g/\v
 
+cnoremap <expr> ;;p expand("%:p:h") . "/"
+
 " TODO: set up more mappings for nerd commenter -- comment, uncomment, minimal
 " comment, etc.
-"
-" TODO: set up visual mappings as well as normal ones for your plugins
 
 " mappings: insert {{{2
 
-inoremap <C-S-Space> <C-x><C-o>
+"inoremap <C-S-Space> <C-x><C-o>
+
+inoremap <C-B> <C-O>yB<End>=<C-R>=<C-R>0<CR>
 
 " mappings: operator-pending {{{1
 
@@ -569,9 +500,6 @@ onoremap k k
 " abbreviations {{{1
 
 " TODO: add some more!
-"cnoreabbrev %% <C-r>=expand("%:p:h") . "/" <CR>
-cnoreabbrev <expr> ;;p expand("%:p:h") . "/"
-"cnoreabbrev <buffer> ;;g expand("%:p:h") . "/"
 
 " commands {{{1
 
@@ -648,16 +576,10 @@ runtime! ftplugin/man.vim
 
 " plugin: peepopen {{{1
 
-" TODO:fork peepopen so it does the hasmapto thing instead of using
-" <unique>and producing an error
 "disable default mapping so we can reuse it
 map <nop> <Plug>PeepOpen
 
 " plugin: nerdcommenter {{{1
-
-" disable default mapping so we can reuse it
-" TODO: test if this is required
-"map <nop> <Plug>NERDCommenterNest
 
 " plugin: headlights {{{1
 
@@ -672,7 +594,7 @@ let g:headlights_show_functions = 1
 
 " plugin: syntastic {{{1
 
-" this needs to be set here (TODO: test)
+" this needs to be set here for some reason
 let g:syntastic_enable_signs = 1
 
 " plugin: supertab {{{1
@@ -723,9 +645,6 @@ let g:quickfixsigns_classes = ['qfl', 'loc', 'marks', 'breakpoints']
 
 let g:easytags_cmd = '/usr/local/bin/ctags'
 
-" TODO: find out why 2 buffers are loaded when we first start vim -- some
-" annoying plugin is doing it
-
 " only show dos and mac fileformats
 function! GetFileFormat() " {{{1
   return &fileformat == 'unix' ? '' : toupper(&fileformat) . '!'
@@ -744,9 +663,7 @@ function! SetStatusline() " {{{1
     setlocal statusline+=%-7w                              " preview window tag (if applicable)
     setlocal statusline+=\ %{&filetype}                    " filetype (if exists)
     setlocal statusline+=\ %-7{GetFileFormat()}            " fileformat (if not unix)
-    "setlocal statusline+=\ %-5{GetCurrentBranch()}        " git branch
-    "setlocal statusline+=\ %-5{g:current_branch}           " git branch
-    setlocal statusline+=\ %-5{SetCurrentBranch()}        " git branch
+    setlocal statusline+=\ %-5{GetCurrentBranch()}         " git branch
     setlocal statusline+=%30(%7v%*%)                       " current column or virtual column
     setlocal statusline+=%15(%l%*\ of\ %L%)\               " current line and total lines
   endif
@@ -803,29 +720,21 @@ function! GetQuickFixTitle() " {{{1
   return !exists('w:quickfix_title') ? '' : ':' . matchstr(w:quickfix_title, '^:\?\s*\zs.\+')
 endfunction
 
-function! SetCurrentBranch() " {{{1
-  if !exists('g:loaded_fugitive')
-    let g:current_branch = ''
-    return
+function! GetCurrentBranch() " {{{1
+  try
+    let l:current_branch = matchstr(fugitive#statusline(), '(\zs.*\ze)')
+  catch /E117/
+    " fugitive is not loaded (faster than having a condition just for one edge case)
+    return ''
+  endtry
+
+  if empty(l:current_branch)
+    return ''
   endif
 
-  let g:current_branch = matchstr(fugitive#statusline(), '(\zs.*\ze)')
-  if empty(g:current_branch)
-    let g:current_branch = ''
-    return
-  endif
+  silent let l:status = empty(system("git status -s"))? '' : '!'
 
-  silent let l:status = system("git status -s")
-  if !empty(l:status)
-    "let l:branch .= '!'
-    "let g:current_branch = '+ ' . g:current_branch
-    let g:current_branch .= '!'
-  endif
-
-  "return '<' . l:branch . '>'
-  let g:current_branch = '<' . g:current_branch . '>'
-  "let g:current_branch = l:branch
-  return g:current_branch
+  return '<' . l:current_branch . l:status . '>'
 endfunction
 
 function! GetNextError() " {{{1
@@ -840,6 +749,60 @@ function! ToggleAllFolds() " {{{1
     "normal zM
     setlocal foldlevel=0
   endif
+endfunction
+
+function! GoToStartOfLine()
+  " save current cursor pos
+  let s:save_col = getpos(".")[2]
+
+  normal _
+
+  let s:new_col = getpos(".")[2]
+
+  " if we haven't moved, and we're not at the beginning, go to the beginning
+  if s:save_col == s:new_col && s:new_col > 1
+    normal 0
+  endif
+endfunction
+
+function! GoToEndOfLine()
+  " save current cursor pos
+  let s:save_col = getpos(".")[2]
+
+  normal g_
+
+  let s:new_col = getpos(".")[2]
+
+  " if we haven't moved, and we're not at the end, go to the end
+  if s:save_col == s:new_col && s:new_col < len(getline('.'))
+    normal $
+  endif
+endfunction
+
+function! Rooter()
+  try
+    Rooter
+  catch /E492/
+    " rooter is not loaded (faster than having a condition just for one edge case)
+  endtry
+endfunction
+
+function! DoGitDiff()
+" TODO: move this into snide
+  silent TagbarClose
+  Gdiff
+endfunction
+
+function! DoGitNoDiff()
+" TODO: move this into snide (make a toggle actually)
+  " TODO: only switch windows and close them if fugitive is open (check)
+  "if &diff == 1
+    "wincmd h
+    "quit
+  "endif
+  silent only
+  diffoff
+  silent TagbarOpen
 endfunction
 
 " cheatsheet {{{1
@@ -887,6 +850,8 @@ endfunction
 " cis
 " d(
 " d2(
+"
+" f<char> -> then -> c; or c, to d; d, to delete to that line operation mark
 
 " g_ is to $ what ^ is to 0
 
@@ -897,7 +862,7 @@ endfunction
 " x is dl -- X is dh
 
 " gqq reformats the current line
-"
+
 " folding
 "za toggles a fold opened and closed!
 "zf#j  creates a fold from the cursor down  #  lines.
@@ -914,6 +879,13 @@ endfunction
 "zE deletes all folds.
 "[z move to start of open fold.
 "]z move to end of open fold.
+
+" use the following command to debug:
+" vim -N -u NONE -U NONE
+" this will let you call vim in nocompatible mode, with no vimrc and no gvimrc
+" settings
+" then you can source ~/.vimrc and check that everything works in a cross
+" platform way
 
 " todo {{{1
 
@@ -959,6 +931,12 @@ endfunction
 " TODO: add a hook for tpope's repeat plugin to the nerdcommenter plugin so
 " that repeat works with commenting.
 
+" TODO: find out why 2 buffers are loaded when we first start vim -- some
+" annoying plugin is doing it
+
+" TODO: consider write a quick plugin that captures the output of registers,
+" then dumps it into a buffer for you to select. just something basic, is all.
+
 " TODO: i have no need for H, L, and M, since i use scrolloff. find a mapping for them.
 " (actually, M seems complementary in scrolloff)
 "nnoremap H ge
@@ -977,7 +955,9 @@ endfunction
 " TODO: make scratch buffer say [Scratch]
 "
 " TODO: remap + and - in command mode to something else, maybe gU and gu
-"
+
+" TODO: set up visual mappings as well as normal ones for your plugins
+
 " TODO: report the omnicomplete glitch on the vim mailing list. steps to
 " reproduce:
 " 1. open a new window
