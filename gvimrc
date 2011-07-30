@@ -1,7 +1,5 @@
 " mbadran's gvimrc <github.com/mbadran/dotfiles>
 
-" TODO: move statusline stuff here
-
 " settings {{{1
 
 try
