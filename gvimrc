@@ -14,12 +14,12 @@ endtry
 " remove the toolbar
 set guioptions-=T
 
-" change scrollbar options when macvim scrollbars become transparent
 " remove the left scrollbar when multiple vsplits present
 set guioptions-=L
 
-" remove the right scrollbar when multiple vsplits present
-"set guioptions-=r
+" remove the right scrollbar (temporary until MacVim gets Lion scrollbars)
+" protip: on the rare? occasion you want to see where you in the file, use CTRL-g
+set guioptions-=r
 
 " add a bottom scrollbar
 "set guioptions+=b

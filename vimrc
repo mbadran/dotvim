@@ -889,6 +889,8 @@ endfunction
 
 " todo {{{1
 
+" TODO: find out why i can't get vii etc to work: http://vim.wikia.com/wiki/Indent_text_object
+
 " TODO: experiment with auto formatting some more -- set textwidths for
 " different filetypes, etc
 " TODO: add <unique> and hasmapto to mappings in your scripts
