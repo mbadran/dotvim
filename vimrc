@@ -1,4 +1,4 @@
-" mbadran's vimrc <github.com/mbadran/dotfiles>
+" mbadran's vimrc <github.com/mbadran/dotvim>
 
 " bundles: vundle {{{1
 
@@ -301,6 +301,7 @@ set expandtab
 set shiftround
 
 "set suffixes+=.class,.exe,.o,.obj,.dat,.dll,.aux,.pdf,.gch
+" TODO: comment what this is for
 set suffixes+=.pdf
 
 " autocmds {{{1

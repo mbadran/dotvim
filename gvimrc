@@ -1,10 +1,8 @@
-" mbadran's gvimrc <github.com/mbadran/dotfiles>
+" mbadran's gvimrc <github.com/mbadran/dotvim>
 
 " settings {{{1
 
 try
-  "colorscheme BClear
-  "set background=light
   colorscheme Jellybeans
   set background=dark
 catch /E185/
@@ -17,11 +15,7 @@ set guioptions-=T
 " remove the left scrollbar when multiple vsplits present
 set guioptions-=L
 
-" remove the right scrollbar (temporary until MacVim gets Lion scrollbars)
-" protip: on the rare? occasion you want to see where you in the file, use CTRL-g
-set guioptions-=r
-
-" add a bottom scrollbar
+" TODO: add a bottom scrollbar (when/if Lion style scrollbars are introduced)
 "set guioptions+=b
 
 set cursorline
@@ -39,7 +33,7 @@ set shiftwidth=4
 " make quickfix (and :sb* commands) switch to open windows and tabs
 " (this breaks :sbuffer -- use :vsp and :spl instead)
 set switchbuf=useopen,usetab
-" make quickfix open new tabs (splits in <7) instead of reusing the window
+" make quickfix open new tabs (splits in <v7) instead of reusing the window
 set switchbuf+=split,newtab
 
 " always show the tab bar
@@ -52,21 +46,6 @@ if has('gui_macvim')
 
   set guifont=Meslo\ LG\ S\ DZ:h13'
 
-  let no_plugin_menus = 1
-  " remove the legacy plugin menu
-  "try
-    "silent aunmenu Plugin
-  "catch /E329/
-    " (wasn't there)
-  "endtry
-
-  " show the filetypes by default
-  "try
-    "silent emenu Syntax.Show\ filetypes\ in\ menu
-  "catch /E334/
-    " (already shown)
-  "endtry
-
   " macvim: mappings {{{1
   nnoremap <D-1> 1gt
   nnoremap <D-2> 2gt
@@ -78,17 +57,9 @@ if has('gui_macvim')
   nnoremap <D-8> 8gt
   nnoremap <D-9> 9gt
 
-  " quickly switch between buffers (alternative to C-^) (shouldn't have to
-  " do this)
-  "nnoremap <D-0> :b#<CR>
-  nnoremap <D-Left> :b#<CR>
-
-  " repurpose cmd-o to use peepopen instead of the open dialog
-  "macmenu File.Open\.\.\. key=<D-S-o>
+  " add peepopen to the file menu
   anoremenu <silent> .305 File.PeepOpen :PeepOpen<CR>
-  "macmenu File.PeepOpen key=<D-o>
   macmenu File.PeepOpen key=<D-S-o>
-  "map <silent> <D-S-o> <Plug>PeepOpen
 
   " repurpose cmd-w to delete the buffer instead of just closing the window
   "macmenu File.Close key=<D-M-w>
@@ -120,8 +91,6 @@ if has('gui_macvim')
 
 elseif (match(v:progname, "gvim") ==? 0)
   set guifont=Lucida_Console:h10:cANSI
-  "set lines=45
-  "set columns=140
   nnoremap <C-tab> gt
   nnoremap <C-S-tab> gT
 endif
