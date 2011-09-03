@@ -80,25 +80,29 @@ if has('gui_macvim')
 
   " quickly switch between buffers (alternative to C-^) (shouldn't have to
   " do this)
-  nnoremap <D-0> :b#<CR>
-
-  " autoindent (by filetype) on paste is broken in gvim, paste in insert mode
-  " instead using <C-r>+. TODO: fix this mapping to achieve that.
-  "inoremap <D-v> <C-r>+
-  " repurpose cmd-v to fix paste behaviour (indentation is broken)
-  "macmenu Edit.Paste key=<D-M-v>
+  "nnoremap <D-0> :b#<CR>
+  nnoremap <D-Left> :b#<CR>
 
   " repurpose cmd-o to use peepopen instead of the open dialog
-  macmenu File.Open\.\.\. key=<D-S-o>
+  "macmenu File.Open\.\.\. key=<D-S-o>
   anoremenu <silent> .305 File.PeepOpen :PeepOpen<CR>
   "macmenu File.PeepOpen key=<D-o>
-  "macmenu File.PeepOpen key=<D-S-o>
-  map <silent> <D-o> <Plug>PeepOpen
+  macmenu File.PeepOpen key=<D-S-o>
+  "map <silent> <D-S-o> <Plug>PeepOpen
 
   " repurpose cmd-w to delete the buffer instead of just closing the window
   "macmenu File.Close key=<D-M-w>
   "anoremenu <silent> .328 File.Wipeout\ Buffer :call WipeoutBuffer()<CR>
   "macmenu File.Wipeout\ Buffer key=<D-w>
+
+  " add a menu item to close the tab (for when a tab has multiple splits for
+  " which we no longer care)
+  anoremenu <silent> .330 File.Close\ Tab :call CloseTab()<CR>
+  macmenu File.Close\ Tab key=<D-d>
+
+" for when i'm done with a combination of splits in a tab
+"nnoremap <leader>d :tabclose<CR>
+"nnoremap <leader><D-d> :tabclose<CR>
 
   " repurpose cmd-s to :update instead of saving every single time
   macmenu File.Save key=<nop>
@@ -145,6 +149,16 @@ let g:VimRoom_Colorscheme = "DesertEx2"
 
 " move tabs to the end for new, single buffers (exclude splits)
 autocmd BufNew * if winnr('$') == 1 | tabmove99 | endif
+
+" TODO: fix. this is bad because you should have just one mapping that does
+" The Right Thing. look at bringing back WipeoutBuffer()
+function! CloseTab() " {{{1
+  try
+    tabclose!
+  catch /E784/
+    close
+  endtry
+endfunction
 
 function! UpdateBuffer() " {{{1
 " only save the buffer when there is something to save

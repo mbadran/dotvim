@@ -1,8 +1,7 @@
 " mbadran's vimrc <github.com/mbadran/dotfiles>
 
-" bundles: vim-scripts {{{1
+" bundles: vundle {{{1
 
-" source and run vundle
 set runtimepath+=$HOME/.vim/bundle/vundle/
 try
   call vundle#rc()
@@ -10,11 +9,12 @@ try
   " let vundle manage vundle
   Bundle 'gmarik/vundle'
 
+  " bundles: vim-scripts {{{1
+
   Bundle 'Conque-Shell'
   Bundle 'matrix.vim--Yang'
   Bundle 'pydoc.vim'
   Bundle 'The-NERD-tree'
-  Bundle 'The-NERD-Commenter'
   Bundle 'fugitive.vim'
   Bundle 'Color-Sampler-Pack'
   Bundle 'SearchComplete'
@@ -36,26 +36,40 @@ try
   Bundle 'capslock.vim'
   Bundle 'unimpaired.vim'
   Bundle 'endwise.vim'
-  "Bundle 'python.vim'
-  Bundle 'python_match.vim'
-  "Bundle 'py_jump.vim'
   Bundle '256-grayvim'
-  "Bundle 'Python-2.x-Standard-Library-Reference'
   Bundle 'Gist.vim'
   Bundle 'utl.vim'
   Bundle 'Pydiction'
   Bundle 'pep8--Driessen'
   Bundle 'VimClojure'
   Bundle 'growlnotify.vim'
+  " TODO: figure out whether to keep this or regbuf
+  Bundle 'regbuf.vim'
+  " Bundle 'tregisters'
+  " TODO: figure out whether to keep this or tpope's commentary
+  Bundle 'tComment'
+  Bundle 'closetag.vim'
+  "Bundle 'Python-2.x-Standard-Library-Reference'
+  "Bundle 'python.vim'
+  "Bundle 'python_match.vim'
+  "Bundle 'py_jump.vim'
   "Bundle 'gitignore'
   "Bundle 'netrw.vim'
+  "Bundle 'The-NERD-Commenter'
 
   " bundles: github {{{1
 
-  "Bundle 'robgleeson/hammer.vim'
   Bundle 'shemerey/vim-peepopen'
   Bundle 'klen/rope-vim'
-  " snipmate {{{2
+  Bundle 'airblade/vim-rooter'
+  Bundle 'sessionman.vim'
+  Bundle 'renamer.vim'
+  Bundle 'tarmack/vim-python-ftplugin'
+  Bundle 'skammer/vim-css-color'
+  "Bundle 'tpope/vim-commentary'
+  "Bundle 'c9s/growlnotify.vim'
+
+  " bundles: snipmate {{{2
 
   Bundle 'MarcWeber/vim-addon-mw-utils'
   Bundle 'tomtom/tlib_vim'
@@ -63,11 +77,6 @@ try
   Bundle 'garbas/vim-snipmate'
 
   "}}}
-  Bundle 'airblade/vim-rooter'
-  Bundle 'sessionman.vim'
-  Bundle 'renamer.vim'
-  Bundle 'skammer/vim-css-color'
-  "Bundle 'c9s/growlnotify.vim'
 catch /E117/ | endtry    " no vundle
 
 " bundles: mine {{{1
@@ -366,8 +375,10 @@ noremap <silent> H :call GoToStartOfLine()<CR>
 noremap <silent> L :call GoToEndOfLine()<CR>
 
 " toggle folds more easily
-noremap <CR> za
-noremap <silent> <S-CR> :silent call ToggleAllFolds()<CR>
+" TODO: make these noremap instead?
+nnoremap <CR> za
+nnoremap <silent> <S-CR> :silent call ToggleAllFolds()<CR>
+nnoremap <silent> <C-CR> zMzv
 
 " swap mark commands
 noremap ' `
@@ -417,8 +428,9 @@ nnoremap <leader>h :help<Space>
 "nnoremap <leader>H :tab helpgrep<Space>
 nnoremap <leader>H :call GrepHelp()<CR>
 
-" TODO: add mappings for tabclose and bdelete (not sure if i should use
-" bdelete yet, though)
+" for when i'm done with a combination of splits in a tab
+"nnoremap <leader>d :tabclose<CR>
+"nnoremap <leader><D-d> :tabclose<CR>
 
 " don't use ex mode, do formatting instead
 nnoremap Q gqip
@@ -458,12 +470,23 @@ nnoremap <leader>r :registers<CR>
 " reselect text that was just pasted
 nnoremap <leader>v V`]
 
-" open a quickfix window for the last search
+" open a quickfix window for the last search TODO: move to snide
 nnoremap <silent> <leader>/ :execute "vimgrep /" . @/ . "/gj %"<Bar>botright cwindow 15<CR>
 
-" TODO: comment
-"nnoremap - gu
-"nnoremap + gU
+" don't move on matches
+nnoremap * *<C-O>
+nnoremap # #<C-O>
+
+" TODO: make a function for this, requesting the pattern and the filetype for
+" the recursive search. then move this to snide.
+" nnoremap <silent> <leader>, :vimgrep /pattern/gj ./**/*.filetype
+
+" use :make for these instead
+" preview markdown with bcat
+"nnoremap <silent> <leader>pm :silent !redcarpet %<Bar>bcat<CR>
+"nnoremap <silent> <leader>p :silent !markdown %<Bar>bcat<CR>
+" preview html with bcat
+"nnoremap <silent> <leader>ph :silent !bcat %<CR>
 
 " mappings: visual {{{1
 
@@ -859,10 +882,16 @@ endfunction
 
 " gv - repeat the last selection
 
+" g; and g, to jump around (look up using help)
+
 " x is dl -- X is dh
+
+" ]p to paste with indentation
 
 " gqq reformats the current line
 
+" :map <keys> -- find the mapping corresponding to <keys>
+"
 " folding
 "za toggles a fold opened and closed!
 "zf#j  creates a fold from the cursor down  #  lines.
@@ -891,12 +920,8 @@ endfunction
 
 " TODO: find out why i can't get vii etc to work: http://vim.wikia.com/wiki/Indent_text_object
 
-" TODO: experiment with auto formatting some more -- set textwidths for
-" different filetypes, etc
 " TODO: add <unique> and hasmapto to mappings in your scripts
-" TODO: use gq and reformat paragraphs more
-" TODO: fork the plugins you've modified (jellybeans, trailing whitespace,
-" etc) and use your versions from github instead
+" TODO: fork the jellybeans plugin
 " TODO: master undo trees (with potential visual plugin), registers,
 " folds, macros (flash cards)
 " TODO: use splits more
@@ -911,17 +936,13 @@ endfunction
 " TODO: raise a macvim feature request for gf go in the recent document
 " history natively. and ask him what recentFilesDummy macation does (search on
 " mailing list first).
-" TODO: finish commenting (functions, any stray stuff)
-" TODO: check out fuzzy finder over peep-open
-" TODO: use spelling more
 " TODO: use spelling completion and other completions more
 " TODO: try to edit files remotely from within macvim using ssh
 " TODO: add a bundle to rename a buffer and file on the filesystem (see https://github.com/jbe/.vim/blob/master/functions.vim)
 " TODO: read the full quickfix manual (lots of commands)
+" TODO: read the full tags manual
 " TODO: add compilers for ftplugins instead of various hacks
-" TODO: reconsider abbrev's vs mappings for commandline mode (mappings are
-" looking better at this stage)
-"
+
 "In order to make custom mappings easier and prevent overwritting existing
 "ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
 "for its mappings.
@@ -937,26 +958,12 @@ endfunction
 " annoying plugin is doing it
 
 " TODO: consider write a quick plugin that captures the output of registers,
-" then dumps it into a buffer for you to select. just something basic, is all.
+" then dumps it into a buffer for you to paste by navigating and hitting enter
+" or typing an index. just something basic, is all.
 
-" TODO: i have no need for H, L, and M, since i use scrolloff. find a mapping for them.
-" (actually, M seems complementary in scrolloff)
-"nnoremap H ge
-"nnoremap L gE
-"nnoremap M gE
-
-" TODO: find out why dj and dk are broken
-"
 " TODO: revise these
 "nnoremap <leader>d :close<CR>
 "nnoremap <leader>w :call WipeoutBuffer()<CR>
-
-" TODO: document note in README.mkd:
-" (nocompatible is automatically set when vim starts up and sources this file)
-
-" TODO: make scratch buffer say [Scratch]
-"
-" TODO: remap + and - in command mode to something else, maybe gU and gu
 
 " TODO: set up visual mappings as well as normal ones for your plugins
 
