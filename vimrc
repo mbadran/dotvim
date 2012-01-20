@@ -1,7 +1,5 @@
 " mbadran's vimrc <github.com/mbadran/dotvim>
 
-" bundles: vundle {{{1
-
 set runtimepath+=$HOME/.vim/bundle/vundle/
 try
   call vundle#rc()
@@ -11,10 +9,7 @@ try
 
   " bundles: vim-scripts {{{1
 
-  Bundle 'Conque-Shell'
-  Bundle 'matrix.vim--Yang'
   Bundle 'pydoc.vim'
-  Bundle 'The-NERD-tree'
   Bundle 'fugitive.vim'
   Bundle 'Color-Sampler-Pack'
   Bundle 'SearchComplete'
@@ -24,59 +19,43 @@ try
   Bundle 'Solarized'
   Bundle 'Gundo'
   Bundle 'Syntastic'
-  Bundle 'taskpaper.vim'
   Bundle 'Markdown'
   Bundle 'quickfixsigns'
   Bundle 'Tagbar'
-  Bundle 'ack.vim'
-  Bundle 'camelcasemotion'
   Bundle 'surround.vim'
   Bundle 'repeat.vim'
   Bundle 'easytags.vim'
-  Bundle 'capslock.vim'
-  Bundle 'unimpaired.vim'
   Bundle 'endwise.vim'
-  Bundle '256-grayvim'
-  Bundle 'Gist.vim'
-  Bundle 'utl.vim'
   Bundle 'Pydiction'
   Bundle 'pep8--Driessen'
-  Bundle 'VimClojure'
-  Bundle 'growlnotify.vim'
-  " TODO: figure out whether to keep this or regbuf
   Bundle 'regbuf.vim'
-  " Bundle 'tregisters'
-  " TODO: figure out whether to keep this or tpope's commentary
-  Bundle 'tComment'
-  Bundle 'closetag.vim'
+  Bundle 'commentary.vim'
+  Bundle 'sessionman.vim'
+  Bundle 'renamer.vim'
+  Bundle 'AfterColors.vim'
+  "Bundle 'VimClojure'
+  "Bundle 'ack.vim'
+  "Bundle 'camelcasemotion'
+  "Bundle '256-grayvim'
+  "Bundle 'utl.vim'
+  "Bundle 'closetag.vim'
   "Bundle 'Python-2.x-Standard-Library-Reference'
   "Bundle 'python.vim'
   "Bundle 'python_match.vim'
   "Bundle 'py_jump.vim'
   "Bundle 'gitignore'
   "Bundle 'netrw.vim'
-  "Bundle 'The-NERD-Commenter'
 
   " bundles: github {{{1
 
   Bundle 'shemerey/vim-peepopen'
   Bundle 'klen/rope-vim'
   Bundle 'airblade/vim-rooter'
-  Bundle 'sessionman.vim'
-  Bundle 'renamer.vim'
   Bundle 'tarmack/vim-python-ftplugin'
   Bundle 'skammer/vim-css-color'
-  "Bundle 'tpope/vim-commentary'
-  "Bundle 'c9s/growlnotify.vim'
-
-  " bundles: snipmate {{{2
-
-  Bundle 'MarcWeber/vim-addon-mw-utils'
-  Bundle 'tomtom/tlib_vim'
-  Bundle 'honza/snipmate-snippets'
-  Bundle 'garbas/vim-snipmate'
-
+  Bundle 'Lokaltog/vim-powerline'
   "}}}
+
 catch /E117/ | endtry    " no vundle
 
 " bundles: mine {{{1
@@ -148,9 +127,6 @@ set showcmd
 " highlight search matches
 set hlsearch
 
-" set a more useful statusline
-set statusline=%{SetStatusline()}
-
 " hide the intro message on startup
 set shortmess+=I
 
@@ -182,7 +158,7 @@ set linebreak
 set autoread
 
 " automatically save before certain commands
-set autowrite
+set autowriteall
 
 " let h and l traverse lines too
 set whichwrap+=h,l
@@ -268,7 +244,9 @@ set matchpairs+=<:>
 set noequalalways
 
 " speed up background operations
-set updatetime=1000
+"set updatetime=1000
+" slow it down for easytags
+set updatetime=4000
 
 "TODO: make this a toggleable function, cos i don't care about it most of the
 "time. have a configurable column width, with 78 as default.
@@ -321,9 +299,6 @@ if has('autocmd')
 
     autocmd BufReadPost * call GoToLastPosition()
 
-    autocmd WinEnter * call SetStatusline()
-    autocmd WinLeave * call SetStatuslineNC()
-
     " new files should be txt by default. TODO: doesn't work, fix.
     "autocmd BufNew * set filetype=txt
 
@@ -341,9 +316,6 @@ if has('autocmd')
 
     " (misbehaving as an ftplugin)
     "autocmd FileType qf setlocal number
-    "autocmd FileType qf setlocal number statusline=\ %{GetQuickFixTitle()}%=%t%40L\ Matches\ 
-    autocmd FileType qf setlocal number statusline=\ %{GetQuickFixTitle()}%=%t%40(%l\ of\ %L%)\ 
-    "autocmd FileType qf setlocal statusline=\ %{GetQuickFixTitle()}%=%t%40(%)
     autocmd FileType qf let b:noquickfixsigns = 1 | call QuickfixsignsUpdate()
     " reset fold open mappings TODO: find a better way to set them so this isn't necessary
     autocmd FileType qf noremap <buffer> <CR> <CR>
@@ -358,8 +330,6 @@ if has('autocmd')
 
     " filetype: commandline {{{1
 
-    "autocmd FileType * if bufname('') == '[Command Line]' | setlocal statusline=%=%{bufname('')}%40P\  | endif
-    autocmd FileType * if bufname('') == '[Command Line]' | setlocal number statusline=%=%{bufname('')}%40(%) | endif
     autocmd FileType * if bufname('') == '[Command Line]' | let b:noquickfixsigns = 1 | endif
   augroup END
 endif
@@ -633,11 +603,6 @@ let g:syntastic_enable_signs = 1
 " help), as well as jellybeans stuff
 "let g:easytags_file = '$HOME/.vim/tags'
 
-" plugin: hammer {{{1
-
-" TODO: use Marked instead
-"nnoremap <leader>p :Hammer<CR>
-
 " plugin: rooter {{{1
 
 let g:rooter_use_lcd = 1
@@ -670,6 +635,15 @@ let g:quickfixsigns_classes = ['qfl', 'loc', 'marks', 'breakpoints']
 let g:easytags_cmd = '/usr/local/bin/ctags'
 
 " only show dos and mac fileformats
+
+" plugin: csscolor " {{{1
+
+let g:cssColorVimDoNotMessMyUpdatetime = 1
+
+" plugin: powerline " {{{1
+
+let g:Powerline_symbols = 'fancy'
+
 function! GetFileFormat() " {{{1
   return &fileformat == 'unix' ? '' : toupper(&fileformat) . '!'
 endfunction
@@ -877,6 +851,11 @@ endfunction
 "
 " f<char> -> then -> c; or c, to d; d, to delete to that line operation mark
 
+" gP pastes the text before the current char, and leaves the cursor on the
+" current char. whereas P pastes the text before the current char, and moves
+" the cursor to the end of the pasted text (one to the left of the previous
+" char)
+
 " g_ is to $ what ^ is to 0
 
 " g`" goes to the last cursor position in the file
@@ -918,6 +897,10 @@ endfunction
 " platform way
 
 " todo {{{1
+
+" TODO: add and commit after/colors/jellybeans.vim to git
+
+" TODO: find a replacement for snipmate not from marcweber -- too heavy
 
 " TODO: find out why i can't get vii etc to work: http://vim.wikia.com/wiki/Indent_text_object
 
