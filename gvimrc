@@ -44,7 +44,7 @@ set showtabline=2
 if has('gui_macvim')
   set macmeta
 
-  set guifont=Meslo\ LG\ S\ DZ:h13'
+  set guifont=Meslo\ LG\ S\ DZ\ for\ Powerline:h13'
 
   " macvim: mappings {{{1
   nnoremap <D-1> 1gt
@@ -113,6 +113,11 @@ nnoremap <leader>t :tabclose<CR>
 let g:VimRoom_ShowStatusLine = 0
 let g:VimRoom_ZoomLevel = 2
 let g:VimRoom_Colorscheme = "DesertEx2"
+
+" plugin: commentary {{{1
+
+nmap <silent> <D-\> <Plug>Commentary
+nmap <silent> <D-/> <Plug>CommentaryLine
 
 " autocmds {{{1
 
