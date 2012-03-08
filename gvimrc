@@ -3,8 +3,8 @@
 " settings {{{1
 
 try
-  colorscheme Jellybeans
   set background=dark
+  colorscheme solarized
 catch /E185/
   " ok, use the default color scheme
 endtry
@@ -44,7 +44,8 @@ set showtabline=2
 if has('gui_macvim')
   set macmeta
 
-  set guifont=Meslo\ LG\ S\ DZ\ for\ Powerline:h13'
+  " set guifont=Meslo\ LG\ S\ DZ\ for\ Powerline:h13'
+  set guifont=Meslo\ LG\ S\ DZ:h13'
 
   " macvim: mappings {{{1
   nnoremap <D-1> 1gt
@@ -97,10 +98,19 @@ endif
 
 " mappings {{{1
 
-" fix searches (this doesn't work in .vimrc, for some reason)
-noremap / /\v
-" (this does, here for consistency only)
-noremap ? ?\v
+" fix searches
+" enter commandline window by default with / and ?
+" (these don't work in .vimrc, for some reason)
+" noremap / /\v
+nnoremap / q/i\v
+vnoremap / q/i\v
+" (these do, here for consistency only)
+" noremap ? ?\v
+nnoremap ? q?i\v
+vnoremap ? q?i\v
+
+" allow leaving cmdline-window with
+" autocmd CmdWinEnter * nnoremap <Esc> :q<CR>:echo ""<CR>
 
 " (this doesn't work in .vimrc, for some reason)
 nnoremap <silent> gp :silent !open <cfile><cr>
