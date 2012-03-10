@@ -28,3 +28,7 @@ inoremap ; ;<C-g>u
 " (you can't create a compiler script for markdown)
 let b:makeprgvar='open\ -a\ /Applications/Marked.app\ ' . fnameescape(expand('%:p'))
 execute ':setlocal makeprg=' . b:makeprgvar
+
+" actions {{{1
+" complete from dictionary by default
+" call SuperTabSetDefaultCompletionType('<c-x><c-k>')

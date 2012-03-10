@@ -528,9 +528,7 @@ let g:syntastic_enable_signs = 1
 
 " plugin: supertab {{{1
 
-"let g:SuperTabDefaultCompletionType = "context"
-"let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
-"let g:SuperTabRetainCompletionDuration = "session"
+let g:SuperTabDefaultCompletionType = "context"
 
 " plugin: rooter {{{1
 
