@@ -580,6 +580,7 @@ function! GetFileFormat() " {{{1
   return &fileformat == 'unix' ? '' : toupper(&fileformat) . '!'
 endfunction
 
+" TODO: deprecate, incorporate into a powerline theme
 function! GetCWD() " {{{1
   let l:cwd = substitute(getcwd(), $HOME . '\ze.*$', '~', '')
   return strlen(l:cwd) > 50 ? strpart(l:cwd, 0, 50) . '>' : l:cwd
@@ -701,11 +702,6 @@ endfunction
 
 " cheatsheet {{{1
 
-" TODO: add cheatsheet items for everything you want to improve -- marks,
-" registers, etc. only way you'll learn if you have an immediate reference.
-" also: sessions, movement commands (as per the grok vim post), etc
-" also: c-r shortcuts in insert mode, refomratting, etc. see list in todos.
-
 " '. goes to previously edited line
 " `. goes to previous column on previously edited line
 " gi goes to previous column on previously edited line, putting you in insert
@@ -716,7 +712,6 @@ endfunction
 " back and forth, especially when you still want to see the invoking code
 "
 " <C-x><C-k> to invoke spelling dictionary
-" TODO: add more omnicomplete keywords here
 "
 " select the just pasted text: V`]
 "
@@ -813,6 +808,14 @@ endfunction
 
 " TODO: bring back your statusline adjustments (see github commit history) as
 " a powerline theme
+
+" TODO: add cheatsheet items for everything you want to improve -- marks,
+" registers, etc. only way you'll learn if you have an immediate reference.
+" also: sessions, movement commands (as per the grok vim post), etc
+" also: c-r shortcuts in insert mode, refomratting, etc. see list in todos.
+
+" TODO: add more omnicomplete keywords to the cheatsheet (such as c-x, c-k for
+" dictionary)
 
 " TODO: find a replacement for snipmate not from marcweber -- too heavy
 
