@@ -528,7 +528,10 @@ let g:syntastic_enable_signs = 1
 
 " plugin: supertab {{{1
 
-let g:SuperTabDefaultCompletionType = "context"
+" do context aware completion
+let g:SuperTabDefaultCompletionType = 'context'
+" fall back to current/local file completion (instead of the 'complete' option)
+let g:SuperTabContextDefaultCompletionType = '<c-x><c-p>'
 
 " plugin: rooter {{{1
 

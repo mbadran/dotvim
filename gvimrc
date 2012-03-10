@@ -15,6 +15,9 @@ set guioptions-=T
 " remove the left scrollbar when multiple vsplits present
 set guioptions-=L
 
+" remove the right scrollbar for now (ugly in Lion)
+set guioptions-=r
+
 " TODO: add a bottom scrollbar (when/if Lion style scrollbars are introduced)
 " set guioptions+=b
 
@@ -72,6 +75,33 @@ if has('gui_macvim')
   " change go to file behaviour to go to a new tab, honouring MacVim's file
   " opening preferences and registering with recent files history
   nnoremap gf :!open -a MacVim <cfile><CR>
+
+  " map omnicompletion shortcuts (corresponding to their <c-x><c-?> letter
+  " (:help ins-completion)
+  " dictionary
+  inoremap <C-K> <C-X><C-K>
+  " spelling
+  inoremap <C-S> <C-X><C-S>
+  " tags
+  inoremap <C-]> <C-X><C-]>
+  " file names
+  inoremap <C-F> <C-X><C-F>
+  " vim/ex commands
+  inoremap <C-V> <C-X><C-V>
+  " thesaurus (not configured)
+  " inoremap <C-T> <C-X><C-T>
+  " current and included files (unnecessary)
+  " inoremap <C-I> <C-X><C-I>
+  " definitions or macros (for c programs, unnecessary)
+  " inoremap <C-D> <C-X><C-D>
+  " user defined (none)
+  " inoremap <C-U> <C-X><C-U>
+  " omnicompletion (handled by supertab, overrides 'jump to normal mode')
+  " inoremap <C-O> <C-X><C-O>
+  " whole lines (broken)
+  " inoremap <C-L> <C-L>
+  " current file (handled by supertab, and <C-N> is already mapped to 'complete')
+  " inoremap <C-N> <C-X><C-N>
 
 " gvim {{{1
 
