@@ -578,42 +578,11 @@ function! GetFileFormat() " {{{1
   return &fileformat == 'unix' ? '' : toupper(&fileformat) . '!'
 endfunction
 
-" TODO: deprecate, incorporate into a powerline theme
-function! GetCWD() " {{{1
-  let l:cwd = substitute(getcwd(), $HOME . '\ze.*$', '~', '')
-  return strlen(l:cwd) > 50 ? strpart(l:cwd, 0, 50) . '>' : l:cwd
-endfunction
-
 function! IsSpecialBuffer() " {{{1
   if &filetype == 'tagbar' || &filetype == 'nerdtree' || &filetype == 'help' || &filetype == 'qf' || &filetype == 'man' || &filetype == 'gitcommit' || &filetype == 'preview' || bufname('') == '[Command Line]' 
     return 1
   endif
   return 0
-endfunction
-
-" TODO: deprecate, incorporate into a powerline theme
-function! SetStatusline() " {{{1
-  if !IsSpecialBuffer()
-    setlocal statusline=\ \ \ \ \ \ %{GetCWD()}            " current dir (always force 6 leading spaces)
-    setlocal statusline+=\ %{GetNextError()}               " syntastic errors (for quiet mode)
-    setlocal statusline+=%=                                " right divider
-    setlocal statusline+=%-7w                              " preview window tag (if applicable)
-    setlocal statusline+=\ %{&filetype}                    " filetype (if exists)
-    setlocal statusline+=\ %-7{GetFileFormat()}            " fileformat (if not unix)
-    setlocal statusline+=\ %-5{GetCurrentBranch()}         " git branch
-    setlocal statusline+=%30(%7v%*%)                       " current column or virtual column
-    setlocal statusline+=%15(%l%*\ of\ %L%)\               " current line and total lines
-  endif
-endfunction
-
-" TODO: deprecate, incorporate into a powerline theme
-function! SetStatuslineNC() " {{{1
-  if !IsSpecialBuffer()
-    setlocal statusline=\ \ \ \ \ \ %f
-    setlocal statusline+=%=
-    setlocal statusline+=%-7w
-    setlocal statusline+=\ %-50{&filetype}
-  endif
 endfunction
 
 function! GoToLastPosition() " {{{1
@@ -658,44 +627,6 @@ function! GoToEndOfLine() " {{{1
   if s:save_col == s:new_col && s:new_col < len(getline('.'))
     normal $
   endif
-endfunction
-
-" TODO: deprecate, incorporate into a powerline theme
-function! GetDocTitle(command) " {{{1
-  try
-    let l:title = matchstr(@:, '^' . a:command . '.*')
-    return empty(l:title) ? '' : ':' . l:title
-  catch /E30/
-    return ''
-  endtry
-endfunction
-
-" TODO: deprecate, incorporate into a powerline theme
-function! GetQuickFixTitle() " {{{1
-  return !exists('w:quickfix_title') ? '' : ':' . matchstr(w:quickfix_title, '^:\?\s*\zs.\+')
-endfunction
-
-" TODO: deprecate, incorporate into a powerline theme
-function! GetCurrentBranch() " {{{1
-  try
-    let l:current_branch = matchstr(fugitive#statusline(), '(\zs.*\ze)')
-  catch /E117/
-    " fugitive is not loaded (faster than having a condition just for one edge case)
-    return ''
-  endtry
-
-  if empty(l:current_branch)
-    return ''
-  endif
-
-  silent let l:status = empty(system("git status -s"))? '' : '!'
-
-  return '<' . l:current_branch . l:status . '>'
-endfunction
-
-" TODO: deprecate, incorporate into a powerline theme
-function! GetNextError() " {{{1
-  return !exists('g:loaded_syntastic_plugin') ? '' : SyntasticStatuslineFlag()
 endfunction
 
 " cheatsheet {{{1
