@@ -10,62 +10,63 @@ try
 
   " bundles: github {{{1
 
-  Bundle 'tpope/vim-fugitive'
-  Bundle 'tpope/vim-unimpaired'
-  Bundle 'tpope/vim-endwise'
-  Bundle 'tpope/vim-surround'
-  Bundle 'tpope/vim-repeat'
-  Bundle 'tpope/vim-commentary'
-  Bundle 'ervandew/supertab'
-  Bundle 'majutsushi/tagbar'
-  Bundle 'plasticboy/vim-markdown'
-  Bundle 'altercation/vim-colors-solarized'
-  Bundle 'sjl/gundo.vim'
-  Bundle 'scrooloose/syntastic'
-  Bundle 'tyru/regbuf.vim'
-  Bundle 'xolox/vim-easytags'
-  Bundle 'sukima/xmledit'
-  Bundle 'bkad/CamelCaseMotion'
-  Bundle 'gregsexton/MatchTag'
-  Bundle 'shemerey/vim-peepopen'
-  Bundle 'airblade/vim-rooter'
-  Bundle 'skammer/vim-css-color'
   Bundle 'Lokaltog/vim-powerline'
+  Bundle 'Raimondi/delimitMate'
+  Bundle 'airblade/vim-rooter'
+  Bundle 'altercation/vim-colors-solarized'
+  Bundle 'bkad/CamelCaseMotion'
+  Bundle 'davidoc/taskpaper.vim'
+  Bundle 'ervandew/supertab'
+  Bundle 'gregsexton/MatchTag'
+  Bundle 'klen/python-mode'
+  Bundle 'majutsushi/tagbar'
+  Bundle 'michaeljsmith/vim-indent-object'
+  Bundle 'mikewest/vimroom'
+  Bundle 'plasticboy/vim-markdown'
+  Bundle 'scrooloose/syntastic'
+  Bundle 'shemerey/vim-peepopen'
+  Bundle 'sickill/vim-pasta'
+  Bundle 'sjl/gundo.vim'
+  Bundle 'skammer/vim-css-color'
+  Bundle 'sukima/xmledit'
   " required by quickfixsigns
   Bundle 'tomtom/tlib_vim'
   Bundle 'tomtom/quickfixsigns_vim'
-  Bundle 'davidoc/taskpaper.vim'
-  Bundle 'sickill/vim-pasta'
-  Bundle 'klen/python-mode'
-  Bundle 'Raimondi/delimitMate'
-  Bundle 'mikewest/vimroom'
-  Bundle 'michaeljsmith/vim-indent-object'
+  Bundle 'tpope/vim-commentary'
+  Bundle 'tpope/vim-endwise'
+  Bundle 'tpope/vim-fugitive'
+  Bundle 'tpope/vim-repeat'
+  Bundle 'tpope/vim-surround'
+  Bundle 'tpope/vim-unimpaired'
+  Bundle 'tyru/regbuf.vim'
+  Bundle 'xolox/vim-easytags'
 
   " bundles: vim-scripts {{{1
 
-  Bundle 'SearchComplete'
-  Bundle 'sessionman.vim'
   Bundle 'AfterColors.vim'
   Bundle 'Rename'
+  Bundle 'SearchComplete'
   Bundle 'argtextobj.vim'
   Bundle 'closetag.vim'
+  " Bundle 'sessionman.vim'
 
 catch /E117/ | endtry    " no vundle
 
 " bundles: mine {{{1
 
+set runtimepath+=$HOME/.vim/mundle/findinfiles
 set runtimepath+=$HOME/.vim/mundle/headlights
 set runtimepath+=$HOME/.vim/mundle/instaruler
-set runtimepath+=$HOME/.vim/mundle/findinfiles
 set runtimepath+=$HOME/.vim/mundle/snide
 set runtimepath+=$HOME/.vim/mundle/spacedebris
-" set runtimepath+=$HOME/.vim/mundle/vimroom
-" set runtimepath+=$HOME/.vim/mundle/sessionfridge
 " set runtimepath+=$HOME/.vim/mundle/jpythonfold.vim
+" set runtimepath+=$HOME/.vim/mundle/sessionfridge
+" set runtimepath+=$HOME/.vim/mundle/vimroom
 
 " settings {{{1
 
 let g:mapleader = ','
+let g:maplocalleader = '\\'
 
 filetype indent plugin on
 
@@ -94,6 +95,9 @@ set confirm
 " don't beep or flash
 set visualbell
 set t_vb=
+
+" highlight the line the cursor is on
+set cursorline
 
 " enable the mouse in all modes
 set mouse=a
@@ -141,8 +145,8 @@ set showmatch
 
 " highlight the line the cursor is on (in the current window)
 if has('autocmd')
-  autocmd WinEnter * set cursorline
-  autocmd WinLeave * set nocursorline
+  autocmd WinEnter,InsertLeave * if !IsSpecialBuffer() | setlocal cursorline | endif
+  autocmd WinLeave,InsertEnter * if !IsSpecialBuffer() | setlocal nocursorline | endif
 endif
 
 " use these file formats when reading and creating files
@@ -180,13 +184,13 @@ else
     lcd %:p:h
 endif
 
-" save swap files far away (put the full dir path in the filename)
-" // expands to full dir path, not just filename (doesn't work on windows)
-set directory=$TEMP//,$TMP//,$TMPDIR//,.
+" don't create swap files
+set noswapfile
 
-" don't create ~ backup files
-set nowritebackup
-"set backupdir=$TEMP//,$TMP//,$TMPDIR//,.
+" save backup files far away (put the full dir path in the filename)
+" // expands to full dir path, not just filename (doesn't work on windows)
+set backupdir=$TEMP//,$TMP//,$TMPDIR//,.
+set backup
 
 " list all matches and complete till longest common string
 " (tab twice to cycle through)
@@ -198,14 +202,14 @@ set listchars=tab:▸\ ,eol:¬,trail:·,nbsp:○,extends:→,precedes:←
 " specify the language for spelling corrections
 set spelllang=en_au
 
-" TODO: set a mapping, or integrate into supertab
+" specify a file for good spellings
+set spellfile=$HOME/.vim/spell/general.utf-8.add
+
 " specify the dictionary files for keyword completion
 set dictionary+=/usr/share/dict/words
 
 " specify the fill characters
-" set fillchars=vert:`,fold:·
 set fillchars=vert:\\,fold:·
-" set fillchars=vert:·,fold:·
 
 " add only one space when joining lines
 set nojoinspaces
@@ -216,8 +220,7 @@ set guicursor+=n:blinkon0
 " use the system clipboard as the default register
 set clipboard=unnamed
 
-" only save tabs and folds when making sessions
-"set sessionoptions=tabpages,folds
+" only save tabs when making sessions
 set sessionoptions=tabpages
 
 " limit the number of menu items for omnicompletion (temporary hack)
@@ -248,20 +251,15 @@ set noequalalways
 " slow it down for easytags
 set updatetime=4000
 
-"TODO: make this a toggleable function in SNIDE, cos i don't care about it most of the
-"time. have a configurable column width, with 78 as default.
-"set colorcolumn=80
-
 " unset these as word delimiters
 set iskeyword+=$,%,#
 
 " set these as word delimiters
 set iskeyword-=_
 
-" set grep options
-"set grepprg=grep\ -nHi $* /dev/null
-"set grepprg=grep\ -nHi\ $*
-"TODO: what do i use grep for again?
+" set grep options (i just use vimgrep these days, though)
+" set grepprg=grep\ -nHi $* /dev/null
+" set grepprg=grep\ -nHi\ $*
 set grepprg=ack
 
 " indentation {{{1
@@ -290,6 +288,12 @@ if has('autocmd')
     " reset all autocmds for quick re-sourcing
     autocmd!
 
+    " identify txt files with no extensions
+    autocmd BufRead README,INSTALL set filetype=txt
+
+    " configure command line buffers {{{1
+    autocmd FileType * if bufname('') == '[Command Line]' | setlocal nonumber norelativenumber | endif
+
     " enable omnicompletion by default
     autocmd FileType * if &omnifunc == '' | setlocal omnifunc=syntaxcomplete#Complete | endif
 
@@ -299,12 +303,8 @@ if has('autocmd')
     " open the previous position in the file
     autocmd BufReadPost * call GoToLastPosition()
 
-    " define txt extensions
-    autocmd BufRead README,INSTALL,*.txt set filetype=txt
-
-    " filetype: commandline {{{1
-
-    autocmd FileType * if bufname('') == '[Command Line]' | setlocal nonumber norelativenumber | endif
+    " automatically source vimrc and gvimrc upon saving
+    autocmd BufWritePost vimrc,gvimrc source %
   augroup END
 endif
 
@@ -312,7 +312,7 @@ endif
 
 " go to end of previous word with a single key (ge, gE)
 " noremap M ge
-" noremap M gE
+noremap M gE
 
 " go to beginning and end of line more easily (see associated text-objects)
 noremap H 0
@@ -360,7 +360,6 @@ nnoremap <Space> q:i
 vnoremap <Space> q:i
 
 " repeat one off macros quickly
-" nnoremap M @q
 nnoremap <leader>. @q
 
 " use <Tab> for % matching and <C-p> for jumping forwards
@@ -375,49 +374,19 @@ vnoremap <Tab> %
 " unwindows
 nnoremap <silent> <leader>vw :%s/\r//e<Bar>set fileformat=unix<CR>
 
-" TODO: map to important things: leader space, leader leader, \\, H, L, and M
-
-nnoremap <silent> <leader><Tab> :tabedit ~/Dropbox/todo/1_Life.taskpaper<CR>
-
 " follow the symlinks so we can check in changes
 nnoremap <silent> <leader>vv :execute "tabedit " . resolve($MYVIMRC)<CR>
 nnoremap <silent> <leader>vg :execute "tabedit " . resolve($MYGVIMRC)<CR>
 nnoremap <silent> <leader>vs :update<Bar>source %<CR>
+nnoremap <silent> <leader>vt :tabedit ~/Dropbox/todo/1_Life.taskpaper<CR>
 
 nnoremap <silent> <leader>b :buffers<CR>
 
 nnoremap <leader>h :help<Space>
-nnoremap <leader>H :call GrepHelp()<CR>
-
-" for when i'm done with a combination of splits in a tab
-"nnoremap <leader>d :tabclose<CR>
-"nnoremap <leader><D-d> :tabclose<CR>
 
 " don't use ex mode, do formatting instead
 nnoremap Q gqip
 vnoremap Q gq
-
-" TODO: make a new statusline theme with ft-specific info (see commit history)
-
-" git and gist mappings
-" TODO: improve mappings including gist
-nnoremap <silent> <leader>gc :Gcommit %<CR>
-nnoremap <silent> <leader>gC :Gcommit<CR>
-" TODO: only do this if diff is set (write a function)
-"nnoremap <silent> <leader>gp :Git push<Bar>wincmd h<Bar>quit<Bar>silent TagbarOpen<CR>
-" TODO: this too
-nnoremap <silent> <leader>gp :Git push<Bar>silent only<Bar>silent TagbarOpen<CR>
-nnoremap <leader>gi :Git<Space>
-nnoremap <silent> <leader>gl :Glog<CR>
-"nnoremap <silent> <leader>gd :silent only<Bar>Gdiff<CR>
-"nnoremap <silent> <leader>gD :wincmd h<Bar>quit<Bar>silent TagbarOpen<CR>
-nnoremap <silent> <leader>gd :call DoGitDiff()<CR>
-nnoremap <silent> <leader>gD :call DoGitNoDiff()<CR>
-nnoremap <silent> <leader>gs :Gstatus<CR>
-nnoremap <silent> <leader>gb :Gblame<CR>
-nnoremap <silent> <leader>gw :Gwrite<CR>
-"nnoremap <leader>gt :Gist
-"nnoremap <leader>gp :Gist -p
 
 " toggle between paste and nopaste modes (i don't use this ATM)
 nnoremap <leader>P :setlocal invpaste paste?<CR>
@@ -431,23 +400,9 @@ nnoremap <leader>r :registers<CR>
 " reselect text that was just pasted
 nnoremap <leader>v V`]
 
-" open a quickfix window for the last search TODO: move to snide
-nnoremap <silent> <leader>/ :execute "vimgrep /" . @/ . "/gj %"<Bar>botright cwindow 15<CR>
-
 " don't move on matches
 nnoremap * *<C-O>
 nnoremap # #<C-O>
-
-" TODO: make a function for this, requesting the pattern and the filetype for
-" the recursive search. then move this to snide.
-" nnoremap <silent> <leader>, :vimgrep /pattern/gj ./**/*.filetype
-
-" use :make for these instead
-" preview markdown with bcat
-"nnoremap <silent> <leader>pm :silent !redcarpet %<Bar>bcat<CR>
-"nnoremap <silent> <leader>p :silent !markdown %<Bar>bcat<CR>
-" preview html with bcat
-"nnoremap <silent> <leader>ph :silent !bcat %<CR>
 
 " mappings: visual {{{1
 
@@ -473,10 +428,6 @@ cnoremap <expr> ;;p expand("%:p:h") . "/"
 inoremap <C-B> <C-O>yB<End>=<C-R>=<C-R>0<CR>
 
 " mappings: operator-pending {{{1
-
-" TODO: find out why these were broken to begin with -- the new text objects?
-onoremap j j
-onoremap k k
 
 " abbreviations {{{1
 
@@ -543,7 +494,7 @@ if !has('gui_running')
   if v:version > 702
     set colorcolumn=81
   endif
-  " the c key is pressed upon entering, from some reason TODO: fix
+  " the c key is pressed upon entering, for some reason
   "normal <Esc>
 endif
 
@@ -667,7 +618,6 @@ function! SetStatuslineNC() " {{{1
 endfunction
 
 function! GoToLastPosition() " {{{1
-" TODO: find out why this isn't working for .gvimrc
   if line("'\"") > 0 && line("'\"") <= line('$')
     execute "normal g`\""
   endif
@@ -709,24 +659,6 @@ function! GoToEndOfLine() " {{{1
   if s:save_col == s:new_col && s:new_col < len(getline('.'))
     normal $
   endif
-endfunction
-
-function! DoGitDiff() " {{{1
-" TODO: move this into snide
-  silent TagbarClose
-  Gdiff
-endfunction
-
-function! DoGitNoDiff() " {{{1
-" TODO: move this into snide (make a toggle actually)
-  " TODO: only switch windows and close them if fugitive is open (check)
-  "if &diff == 1
-    "wincmd h
-    "quit
-  "endif
-  silent only
-  diffoff
-  silent TagbarOpen
 endfunction
 
 " TODO: deprecate, incorporate into a powerline theme
@@ -795,7 +727,9 @@ endfunction
 " mode() tells you the mode
 "
 " %s/pattern//gn number of occurrences of pattern
-"
+
+"g; and g, to cycle back and forth through your last edits
+
 " g<c-g> shows you doc stats, g2<c-g> shows you file stats -- file name, line number, col number, etc
 " ge goes to the end of the previous word (isn't be the same or faster?
 " gE goes to the end of the previous 'full' word
@@ -901,11 +835,16 @@ endfunction
 "ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
 "for its mappings.
 "
-" TODO: write a snide function to pull a word under cursor and vimgrep it.
 " also conisder vimgrep vs grep vs ack. and add an optional word input
 " variant.
 
 " TODO: set up visual mappings as well as normal ones for your plugins
+
+" TODO: map to important things: leader space, leader tab, \\, H, L, and M
+
+" TODO: figure out if any ftplugins use this localleader (help :maplocalleader)
+
+" TODO: work more with the spelling correction engine (:help dictionary)
 
 " TODO: report the omnicomplete glitch on the vim mailing list. steps to
 " reproduce:

@@ -1,3 +1,5 @@
+" settings {{{1
+
 setlocal nospell
 
 if v:version > 702

@@ -1,3 +1,5 @@
+" mappings {{{1
+
 " noremap <buffer> <Space> :
 " all of these are broken
 " noremap <buffer> <Space> :wincmd h<CR> | q:i

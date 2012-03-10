@@ -16,9 +16,7 @@ set guioptions-=T
 set guioptions-=L
 
 " TODO: add a bottom scrollbar (when/if Lion style scrollbars are introduced)
-"set guioptions+=b
-
-set cursorline
+" set guioptions+=b
 
 " tab settings
 set guitablabel=%M\ %-13.13t\ %N
@@ -44,7 +42,6 @@ set showtabline=2
 if has('gui_macvim')
   set macmeta
 
-  " set guifont=Meslo\ LG\ S\ DZ\ for\ Powerline:h13'
   set guifont=Meslo\ LG\ S\ DZ:h13'
 
   " macvim: mappings {{{1
@@ -62,19 +59,10 @@ if has('gui_macvim')
   anoremenu <silent> .305 File.PeepOpen :PeepOpen<CR>
   macmenu File.PeepOpen key=<D-S-o>
 
-  " repurpose cmd-w to delete the buffer instead of just closing the window
-  "macmenu File.Close key=<D-M-w>
-  "anoremenu <silent> .328 File.Wipeout\ Buffer :call WipeoutBuffer()<CR>
-  "macmenu File.Wipeout\ Buffer key=<D-w>
-
-  " add a menu item to close the tab (for when a tab has multiple splits for
-  " which we no longer care)
-  anoremenu <silent> .330 File.Close\ Tab :call CloseTab()<CR>
-  macmenu File.Close\ Tab key=<D-d>
-
-" for when i'm done with a combination of splits in a tab
-"nnoremap <leader>d :tabclose<CR>
-"nnoremap <leader><D-d> :tabclose<CR>
+  " repurpose cmd-w to close the tab, and cmd-d to close the buffer
+  macmenu File.Close key=<D-d>
+  anoremenu <silent> .328 File.Close\ Tab :call CloseTab()<CR>
+  macmenu File.Close\ Tab key=<D-w>
 
   " repurpose cmd-s to :update instead of saving every single time
   macmenu File.Save key=<nop>
@@ -84,9 +72,6 @@ if has('gui_macvim')
   " change go to file behaviour to go to a new tab, honouring MacVim's file
   " opening preferences and registering with recent files history
   nnoremap gf :!open -a MacVim <cfile><CR>
-
-  " TODO: change this mapping, ,w? ,c?
-  nnoremap <A-w> :close<CR>
 
 " gvim {{{1
 
@@ -134,13 +119,11 @@ nmap <silent> <D-/> <Plug>CommentaryLine
 " move tabs to the end for new, single buffers (exclude splits)
 autocmd BufNew * if winnr('$') == 1 | tabmove99 | endif
 
-" TODO: fix. this is bad because you should have just one mapping that does
-" The Right Thing. look at bringing back WipeoutBuffer()
 function! CloseTab() " {{{1
   try
     tabclose!
-  catch /E784/
-    close
+  catch
+    quit
   endtry
 endfunction
 
@@ -151,21 +134,4 @@ function! UpdateBuffer() " {{{1
   catch /E32/
     browse confirm saveas
   endtry
-endfunction
-
-function! WipeoutBuffer() " {{{1
-" don't leave buffers hanging around
-  " don't do anything fancy in the command line window (q:)
-  if bufname('') == '[Command Line]'
-    return
-  else
-    " if this is the only buffer in the only tab in the gui window, close the whole window
-    " TODO: understand and test this some more
-    if len(filter(range(1, bufnr('')), 'buflisted(v:val)')) == 1 && tabpagenr('$') == 1
-      quit
-    else
-      "bwipeout
-      close
-    endif
-  endif
 endfunction

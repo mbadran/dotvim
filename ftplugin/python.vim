@@ -1,4 +1,10 @@
+" settings {{{1
+
+" unset _ as a word delimiter
+setlocal iskeyword+=_
+
 " abbreviations {{{1
+
 inoreabbrev <buffer> ;;l % locals()
 inoreabbrev <buffer> ;;b #! /usr/bin/env python
 inoreabbrev <buffer> ;;i import 

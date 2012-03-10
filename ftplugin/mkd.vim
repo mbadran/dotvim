@@ -1,8 +1,7 @@
+" settings {{{1
+
 setlocal spell
 setlocal textwidth=80
-
-" TODO: fix - isn't set - html makeprg is set instead
-setlocal makeprg=redcarpet\ %\ \\\|bcat
 
 " partially display wrapped lines at the bottom of the screen
 setlocal display=lastline
@@ -15,9 +14,17 @@ if v:version > 702
   setlocal colorcolumn=81
 endif
 
+" mappings {{{1
+
 " undo one sentence at a time in insert mode
 inoremap . .<C-g>u
 inoremap ! !<C-g>u
 inoremap ? ?<C-g>u
 inoremap : :<C-g>u
 inoremap ; ;<C-g>u
+
+" make {{{1
+
+" (you can't create a compiler script for markdown)
+let b:makeprgvar='open\ -a\ /Applications/Marked.app\ ' . fnameescape(expand('%:p'))
+execute ':setlocal makeprg=' . b:makeprgvar
