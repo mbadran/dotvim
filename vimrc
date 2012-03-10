@@ -817,6 +817,11 @@ endfunction
 " TODO: add more omnicomplete keywords to the cheatsheet (such as c-x, c-k for
 " dictionary)
 
+" TODO: review your bundles, see which ones to develop and which ones to drop,
+" and which ones to replace
+
+" TODO: review the bundles you've installed
+
 " TODO: find a replacement for snipmate not from marcweber -- too heavy
 
 " TODO: add <unique> and hasmapto to mappings in your scripts
@@ -834,11 +839,12 @@ endfunction
 " TODO: read the full tags manual
 " TODO: add compilers for ftplugins instead of various hacks
 
+" TODO: review this:
 "In order to make custom mappings easier and prevent overwritting existing
 "ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
 "for its mappings.
-"
-" also conisder vimgrep vs grep vs ack. and add an optional word input
+
+" TODO: also conisder vimgrep vs grep vs ack. and add an optional word input
 " variant.
 
 " TODO: set up visual mappings as well as normal ones for your plugins
