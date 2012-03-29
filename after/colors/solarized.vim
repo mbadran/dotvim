@@ -1,3 +1,6 @@
+" c for [list/special] characters
+nnoremap <silent> <leader>c :call ToggleListChars()<CR>
+
 highlight NonText guifg=#002b36
 highlight SpecialKey guifg=#002b36
 highlight Folded guibg=#002b36
@@ -19,4 +22,3 @@ function! ToggleListChars() " {{{1
     set list
   endif
 endfun
-nnoremap <silent> <leader>l :call ToggleListChars()<CR>
