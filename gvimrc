@@ -1,5 +1,8 @@
 " mbadran's gvimrc <github.com/mbadran/dotvim>
 
+" TODO: find a way to capture all files opened and add them to macvim's
+" recently opened files. or just give up and use a native plugin.
+
 " settings {{{1
 
 try
@@ -14,12 +17,6 @@ set guioptions-=T
 
 " remove the left scrollbar when multiple vsplits present
 set guioptions-=L
-
-" remove the right scrollbar for now (ugly in Lion)
-set guioptions-=r
-
-" TODO: add a bottom scrollbar (when/if Lion style scrollbars are introduced)
-" set guioptions+=b
 
 " tab settings
 set guitablabel=%M\ %-13.13t\ %N
@@ -47,7 +44,14 @@ if has('gui_macvim')
 
   set guifont=Meslo\ LG\ S\ DZ:h13'
 
+  " remove the right scrollbar for now (ugly in Lion)
+  set guioptions-=r
+
+  " TODO: add a bottom scrollbar (when/if Lion style scrollbars are introduced)
+  " set guioptions+=b
+
   " macvim: mappings {{{1
+
   nnoremap <D-1> 1gt
   nnoremap <D-2> 2gt
   nnoremap <D-3> 3gt
@@ -132,17 +136,10 @@ nnoremap <silent> gp :silent !open <cfile><cr>
 
 nnoremap <silent> gf :!open -a MacVim <cfile><cr>
 
-nnoremap <leader>t :tabclose<CR>
-
 " plugin: vimroom {{{1
 let g:VimRoom_ShowStatusLine = 0
 let g:VimRoom_ZoomLevel = 2
 let g:VimRoom_Colorscheme = "DesertEx2"
-
-" plugin: commentary {{{1
-
-nmap <silent> <D-\> <Plug>Commentary
-nmap <silent> <D-/> <Plug>CommentaryLine
 
 " autocmds {{{1
 
@@ -158,7 +155,7 @@ function! CloseTab() " {{{1
 endfunction
 
 function! UpdateBuffer() " {{{1
-" only save the buffer when there is something to save
+  " only save the buffer when there is something to save
   try
     update
   catch /E32/
