@@ -12,26 +12,37 @@ try
 
   Bundle 'Lokaltog/vim-powerline'
   Bundle 'Raimondi/delimitMate'
+  Bundle 'Rykka/ColorV'
+  Bundle 'Shougo/neocomplcache'
+  Bundle 'Shougo/unite.vim'
+  " required by vimshell
+  Bundle 'Shougo/vimproc'
+  Bundle 'Shougo/vimshell'
   Bundle 'airblade/vim-rooter'
   Bundle 'altercation/vim-colors-solarized'
   Bundle 'bkad/CamelCaseMotion'
   Bundle 'davidoc/taskpaper.vim'
   Bundle 'ervandew/supertab'
+  " Bundle 'garbas/vim-snipmate'
   Bundle 'gregsexton/MatchTag'
+  Bundle 'h1mesuke/unite-outline'
   Bundle 'klen/python-mode'
+  " required by snipmate
+  " Bundle 'MarcWeber/vim-addon-mw-utils'
   Bundle 'majutsushi/tagbar'
   Bundle 'michaeljsmith/vim-indent-object'
   Bundle 'mikewest/vimroom'
   Bundle 'plasticboy/vim-markdown'
+  Bundle 'roman/golden-ratio'
   Bundle 'scrooloose/syntastic'
   Bundle 'shemerey/vim-peepopen'
   Bundle 'sickill/vim-pasta'
   Bundle 'sjl/gundo.vim'
   Bundle 'skammer/vim-css-color'
   Bundle 'sukima/xmledit'
-  " required by quickfixsigns
-  Bundle 'tomtom/tlib_vim'
   Bundle 'tomtom/quickfixsigns_vim'
+  " required by quickfixsigns and snipmate
+  Bundle 'tomtom/tlib_vim'
   Bundle 'tpope/vim-commentary'
   Bundle 'tpope/vim-endwise'
   Bundle 'tpope/vim-fugitive'
@@ -54,19 +65,28 @@ catch /E117/ | endtry    " no vundle
 
 " bundles: mine {{{1
 
+" TODO: complete and release this plugin (3 in total, plus your custom changes)
+set runtimepath+=$HOME/.vim/mundle/quicktrix
 set runtimepath+=$HOME/.vim/mundle/findinfiles
 set runtimepath+=$HOME/.vim/mundle/headlights
+" TODO: improve and release this little plugin
 set runtimepath+=$HOME/.vim/mundle/instaruler
 set runtimepath+=$HOME/.vim/mundle/snide
-set runtimepath+=$HOME/.vim/mundle/spacedebris
-" set runtimepath+=$HOME/.vim/mundle/jpythonfold.vim
+" TODO: figure out what to do with this plugin (redundant with solarized and
+" one user definable command) -- mod solarized to turn of highlight in insert
+" mode though
+" set runtimepath+=$HOME/.vim/mundle/spacedebris
+" TODO: release this plugin, better than python mode's folding
+set runtimepath+=$HOME/.vim/mundle/jpythonfold.vim
 " set runtimepath+=$HOME/.vim/mundle/sessionfridge
 " set runtimepath+=$HOME/.vim/mundle/vimroom
 
 " settings {{{1
 
+" TODO: find out why new vim windows start up without a number ruler
+" TODO: fix escaping search from commandline (q:) window
+
 let g:mapleader = ','
-let g:maplocalleader = '\\'
 
 filetype indent plugin on
 
@@ -114,7 +134,7 @@ set ttimeout
 set ttimeoutlen=200
 
 " keep all modified buffers visible
-"set nohidden
+set nohidden
 
 " enhance command line completion
 set wildmenu
@@ -145,8 +165,8 @@ set showmatch
 
 " highlight the line the cursor is on (in the current window)
 if has('autocmd')
-  autocmd WinEnter,InsertLeave * if !IsSpecialBuffer() | setlocal cursorline | endif
-  autocmd WinLeave,InsertEnter * if !IsSpecialBuffer() | setlocal nocursorline | endif
+  autocmd WinEnter,InsertLeave * if !Snide_IsSpecialBuffer() | setlocal cursorline | endif
+  autocmd WinLeave,InsertEnter * if !Snide_IsSpecialBuffer() | setlocal nocursorline | endif
 endif
 
 " use these file formats when reading and creating files
@@ -178,6 +198,8 @@ if v:version > 702
   set undofile
 
   " save undo files far away (put the full dir path in the filename)
+  " (when the system restarts, undo files will be lost, which is OK TODO: is
+  " it?)
   set undodir=$TEMP//,$TMP//,$TMPDIR//,.
 else
   " change to dir of the current file automatically
@@ -189,6 +211,8 @@ set noswapfile
 
 " save backup files far away (put the full dir path in the filename)
 " // expands to full dir path, not just filename (doesn't work on windows)
+" (when the system restarts, backup files will be lost, which is OK TODO: is
+" it?)
 set backupdir=$TEMP//,$TMP//,$TMPDIR//,.
 set backup
 
@@ -237,8 +261,8 @@ set showfulltag
 set report=1
 
 " retain more history items
-" set history=1000
-set history=100
+" set history=100
+set history=1000
 
 " match angle brackets too
 set matchpairs+=<:>
@@ -257,10 +281,13 @@ set iskeyword+=$,%,#
 " set these as word delimiters
 set iskeyword-=_
 
-" set grep options (i just use vimgrep these days, though)
-" set grepprg=grep\ -nHi $* /dev/null
-" set grepprg=grep\ -nHi\ $*
-set grepprg=ack
+" set grep options
+set grepprg=ack\ -H\ --nocolor\ --nogroup\ --column
+" set grepformat=%f:%l:%c:%m,%f:%l%c%m,%f %l%c%m
+set grepformat=%f:%l:%c:%m
+
+" disable modelines for security reasons
+set nomodeline
 
 " indentation {{{1
 
@@ -291,7 +318,7 @@ if has('autocmd')
     " identify txt files with no extensions
     autocmd BufRead README,INSTALL set filetype=txt
 
-    " configure command line buffers {{{1
+    " configure command line buffers
     autocmd FileType * if bufname('') == '[Command Line]' | setlocal nonumber norelativenumber | endif
 
     " enable omnicompletion by default
@@ -300,7 +327,7 @@ if has('autocmd')
     " automatically close the preview window
     autocmd CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
 
-    " open the previous position in the file
+    " open files at the last position
     autocmd BufReadPost * call GoToLastPosition()
 
     " automatically source vimrc and gvimrc upon saving
@@ -317,8 +344,16 @@ noremap M gE
 " go to beginning and end of line more easily (see associated text-objects)
 noremap H 0
 noremap L $
+" not sure why i need to define these again in visual mode (shouldn't have to)
+vnoremap H 0
+vnoremap L $
 noremap <silent> H :call GoToStartOfLine()<CR>
 noremap <silent> L :call GoToEndOfLine()<CR>
+" TODO: find out if these are necessary
+" xnoremap <silent> H :call GoToStartOfLine()<CR>
+" xnoremap <silent> L :call GoToEndOfLine()<CR>
+" vnoremap <silent> H :call GoToStartOfLine()<CR>
+" vnoremap <silent> L :call GoToEndOfLine()<CR>
 
 " toggle folds more easily
 nnoremap <CR> za
@@ -330,6 +365,8 @@ noremap ' `
 noremap ` '
 
 " swap the default movements on wrapped lines
+" side effect: operator-pending movements behave differently on unwrapped lines
+" use dgj and dgk instead of the handy dj and dk (annoying but consistent)
 noremap j gj
 noremap k gk
 noremap 0 g0
@@ -359,11 +396,11 @@ nnoremap <C-l> <C-w>l
 nnoremap <Space> q:i
 vnoremap <Space> q:i
 
-" repeat one off macros quickly
-nnoremap <leader>. @q
+" repeat the last macro quickly
+nnoremap <leader>. @@
 
 " use <Tab> for % matching and <C-p> for jumping forwards
-" (<Tab> and <C-i> are the same as far as Vim is concerned)
+" (because <Tab> and <C-i> are the same as far as Vim is concerned)
 nnoremap <C-p> <Tab>
 vnoremap <C-p> <Tab>
 
@@ -395,7 +432,8 @@ nnoremap <leader>P :setlocal invpaste paste?<CR>
 nnoremap <leader>W :setlocal invwrap wrap?<CR>
 
 " show the paste registers
-nnoremap <leader>r :registers<CR>
+" nnoremap <leader>r :registers<CR>
+nnoremap <leader>r :Unite -toggle -vertical -hide-source-names register<CR>
 
 " reselect text that was just pasted
 nnoremap <leader>v V`]
@@ -403,6 +441,14 @@ nnoremap <leader>v V`]
 " don't move on matches
 nnoremap * *<C-O>
 nnoremap # #<C-O>
+
+" open a quickfix window for the last search
+nnoremap <silent> <leader>? :execute "lvimgrep /" . @/ . "/gj %"<CR>
+
+" search for help topics
+nnoremap <leader>H :call GrepHelp()<CR>
+
+nnoremap <leader>o :silent only<CR>
 
 " mappings: visual {{{1
 
@@ -421,40 +467,47 @@ cnoremap %g/ %g/\v
 
 cnoremap <expr> ;;p expand("%:p:h") . "/"
 
-" mappings: insert {{{2
+" mappings: insert {{{1
 
-"inoremap <C-S-Space> <C-x><C-o>
-
-inoremap <C-B> <C-O>yB<End>=<C-R>=<C-R>0<CR>
+" calculate expression
+inoremap <C-B> <C-O>yiW<End>=<C-R>=<C-R>0<CR>
 
 " mappings: operator-pending {{{1
+
+" not sure why we need to do this
+" onoremap j j
+" onoremap k k
 
 " abbreviations {{{1
 
 " commands {{{1
 
-command! DiffOrig vertical new | set buftype=nofile | r # | 0d_ | diffthis
-	 	\ | wincmd p | diffthis
+command! DiffOrig vertical new | set buftype=nofile | r # | 0d_ | diffthis | wincmd p | diffthis
 
+" TODO: pull these into a separate plugin
 " text-object: H {{{1
 
+" TODO: these break fFtT operations, change
 vnoremap tH t0
-onoremap tH :normal VtH<CR>
+onoremap tH :normal! VtH<CR>
 vnoremap TH T0
-onoremap TH :normal VTH<CR>
+onoremap TH :normal! VTH<CR>
 
 " text-object: L {{{1
 
+" TODO: these break fFtT operations, change
 vnoremap tL t$
-onoremap tL :normal VtL<CR>
+onoremap tL :normal! VtL<CR>
 vnoremap TL T$
-onoremap TL :normal VTL<CR>
+onoremap TL :normal! VTL<CR>
 
+" TODO: get the full plugin from that dude on github
 " textobject: fold {{{1
 
 vnoremap af :<C-U>silent! normal! [zV]z<CR>
-onoremap af :normal Vaf<CR>
+onoremap af :normal! Vaf<CR>
 
+" TODO: reconsider these (y u no use?)
 " textobject: square {{{1
 
 vnoremap iq i[
@@ -494,8 +547,11 @@ if !has('gui_running')
   if v:version > 702
     set colorcolumn=81
   endif
+
   " the c key is pressed upon entering, for some reason
-  "normal <Esc>
+  " FIXME doesn't work
+  " call feedkeys("\<ESC>")
+  call feedkeys("\<C-[>")
 endif
 
 " plugin: runtime {{{1
@@ -510,21 +566,35 @@ map <nop> <Plug>PeepOpen
 
 " plugin: headlights {{{1
 
-"let g:headlights_use_plugin_menu = 1
-"let g:headlights_debug_mode = 1
+" let g:headlights_use_plugin_menu = 1
+" let g:headlights_debug_mode = 1
 let g:headlights_show_files = 1
 let g:headlights_show_load_order = 1
-"let g:headlights_show_commands = 0
-"let g:headlights_show_mappings = 0
+" let g:headlights_show_commands = 0
+" let g:headlights_show_mappings = 0
 let g:headlights_show_abbreviations = 1
 let g:headlights_show_functions = 1
 " let g:headlights_smart_menus = 0
 let g:headlights_show_highlights = 1
+" let g:headlights_unprefix_names = 0
 
 " plugin: syntastic {{{1
 
 " this needs to be set here for some reason
 let g:syntastic_enable_signs = 1
+let g:syntastic_auto_loc_list = 1
+" all python syntax errors are reported as warnings, for some reason. bad.
+" let g:syntastic_quiet_warnings = 1
+
+" plugin: tagbar {{{1
+
+" let g:tagbar_left = 1
+" let g:tagbar_compact = 1
+" let g:tagbar_width = 31
+let g:tagbar_autofocus = 1
+let g:tagbar_autoclose = 1
+let g:tagbar_autoshowtag = 1
+let g:tagbar_ctags_bin = '/usr/local/bin/ctags'
 
 " plugin: supertab {{{1
 
@@ -532,6 +602,11 @@ let g:syntastic_enable_signs = 1
 let g:SuperTabDefaultCompletionType = 'context'
 " fall back to current/local file completion (instead of the 'complete' option)
 let g:SuperTabContextDefaultCompletionType = '<c-x><c-p>'
+
+" plugin: commentary {{{1
+
+nmap <silent> <D-\> <Plug>Commentary
+nmap <silent> <D-/> <Plug>CommentaryLine
 
 " plugin: rooter {{{1
 
@@ -541,80 +616,99 @@ let g:rooter_use_lcd = 1
 
 " don't show quickfix vcsdiff signs
 let g:quickfixsigns_classes = ['qfl', 'loc', 'marks', 'breakpoints']
-let g:quickfixsigns_blacklist_buffer = '^__.*__\|\[.*$'
+" don't show quickfixsigns for special buffers like tagbar, unite, and anything starting with [
+let g:quickfixsigns_blacklist_buffer = '^__.*__\|\*unite.*\|\[.*$'
 let g:quickfixsigns#marks#texthl = 'SignColumn'
 let g:quickfixsigns_icons = {}
 
-" plugin: camelcase " {{{1
+" plugin: camelcase {{{1
 
-map <silent> w <Plug>CamelCaseMotion_w
-map <silent> b <Plug>CamelCaseMotion_b
-map <silent> e <Plug>CamelCaseMotion_e
-sunmap w
-sunmap b
-sunmap e
+" map <silent> w <Plug>CamelCaseMotion_w
+" map <silent> b <Plug>CamelCaseMotion_b
+" map <silent> e <Plug>CamelCaseMotion_e
+" sunmap w
+" sunmap b
+" sunmap e
 
-omap <silent> iw <Plug>CamelCaseMotion_iw
-xmap <silent> iw <Plug>CamelCaseMotion_iw
-omap <silent> ib <Plug>CamelCaseMotion_ib
-xmap <silent> ib <Plug>CamelCaseMotion_ib
-omap <silent> ie <Plug>CamelCaseMotion_ie
-xmap <silent> ie <Plug>CamelCaseMotion_ie
+" omap <silent> iw <Plug>CamelCaseMotion_iw
+" xmap <silent> iw <Plug>CamelCaseMotion_iw
+" omap <silent> ib <Plug>CamelCaseMotion_ib
+" xmap <silent> ib <Plug>CamelCaseMotion_ib
+" omap <silent> ie <Plug>CamelCaseMotion_ie
+" xmap <silent> ie <Plug>CamelCaseMotion_ie
 
-" plugin: easytags " {{{1
+" plugin: easytags {{{1
 
 let g:easytags_cmd = '/usr/local/bin/ctags'
 
-" plugin: csscolor " {{{1
+" plugin: csscolor {{{1
 
 let g:cssColorVimDoNotMessMyUpdatetime = 1
 
-" plugin: powerline " {{{1
+" plugin: powerline {{{1
 
 let g:Powerline_symbols = 'fancy'
 
-" plugin: solarized " {{{1
+" plugin: solarized {{{1
 
 let g:solarized_menu = 0
+let g:solarized_hitrail = 1
 
-function! GetFileFormat() " {{{1
-  return &fileformat == 'unix' ? '' : toupper(&fileformat) . '!'
-endfunction
+" plugin: neocomplcache {{{1
+" TODO: troubleshoot why this is so slow
+" let g:neocomplcache_enable_at_startup = 1
+" let g:neocomplcache_source_disable = {"dictionary_complete.vim": 1}
 
-function! IsSpecialBuffer() " {{{1
-  if &filetype == 'tagbar' || &filetype == 'nerdtree' || &filetype == 'help' || &filetype == 'qf' || &filetype == 'man' || &filetype == 'gitcommit' || &filetype == 'preview' || bufname('') == '[Command Line]' 
-    return 1
-  endif
-  return 0
-endfunction
+" plugin: python-mode {{{1
+let g:pymode_folding = 0
+
+" plugin: unite {{{1
+let g:unite_split_rule = "botright"
+let g:unite_source_grep_command = "ack"
+let g:unite_source_grep_default_opts = "-H --nocolor --nogroup --column"
+let g:unite_source_grep_recursive_opt = ""
+
+" plugin: fugitive {{{1
+nnoremap <leader>gg :Git<space>
+nnoremap <silent> <leader>gc :Gcommit %<CR>
+nnoremap <silent> <leader>gC :Gcommit<CR>
+nnoremap <silent> <leader>gp :Git push<bar>silent only<CR>
+nnoremap <silent> <leader>gl :Glog<CR>
+nnoremap <silent> <leader>gd :Gdiff<CR>
+nnoremap <silent> <leader>gD :silent only<bar>:diffoff<CR>
+nnoremap <silent> <leader>gs :Gstatus<CR>
+nnoremap <silent> <leader>gb :Gblame<CR>
+nnoremap <silent> <leader>gw :Gwrite<CR>
+
+" plugin: quicktrix {{{1
+" let s:quicktrix_ctags_cmd = "/usr/local//bin/ctags"
 
 function! GoToLastPosition() " {{{1
-  if line("'\"") > 0 && line("'\"") <= line('$')
-    execute "normal g`\""
+  if line("'\"") > 0 && line("'\"") <= line("$")
+    execute "normal! g`\""
   endif
 endfunction
 
 function! ToggleAllFolds() " {{{1
   if &foldlevel == 0
-    "normal zR
     setlocal foldlevel=99
   else
-    "normal zM
     setlocal foldlevel=0
   endif
 endfunction
 
+" TODO: make these a new textobject plugin
 function! GoToStartOfLine() " {{{1
   " save current cursor pos
   let s:save_col = getpos(".")[2]
 
-  normal _
+  normal! _
 
   let s:new_col = getpos(".")[2]
 
   " if we haven't moved, and we're not at the beginning, go to the beginning
   if s:save_col == s:new_col && s:new_col > 1
-    normal 0
+    normal! 0
   endif
 endfunction
 
@@ -622,13 +716,23 @@ function! GoToEndOfLine() " {{{1
   " save current cursor pos
   let s:save_col = getpos(".")[2]
 
-  normal g_
+  normal! g_
 
   let s:new_col = getpos(".")[2]
 
   " if we haven't moved, and we're not at the end, go to the end
   if s:save_col == s:new_col && s:new_col < len(getline('.'))
-    normal $
+    normal! $
+  endif
+endfunction
+
+" TODO: make a mapping for this
+function! ShowColorColumn() " {{{1
+  " show colorcolumn one char removed from 'textwidth', or at 81 chars by default
+  if &textwidth == ""
+    setlocal colorcolumn=81
+  else
+    execute "setlocal colorcolumn=" . (&textwidth + 1)
   endif
 endfunction
 
@@ -775,9 +879,6 @@ endfunction
 "In order to make custom mappings easier and prevent overwritting existing
 "ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
 "for its mappings.
-
-" TODO: also conisder vimgrep vs grep vs ack. and add an optional word input
-" variant.
 
 " TODO: set up visual mappings as well as normal ones for your plugins
 
