@@ -23,12 +23,11 @@ inoremap ? ?<C-g>u
 inoremap : :<C-g>u
 inoremap ; ;<C-g>u
 
-" make {{{1
+" run {{{1
 
-" (you can't create a compiler script for markdown)
-let b:makeprgvar='open\ -a\ /Applications/Marked.app\ ' . fnameescape(expand('%:p'))
-execute ":setlocal makeprg=" . b:makeprgvar
+nnoremap <buffer> <silent> <leader>r :echomsg "Running in Marked..."<CR><Bar>:silent !open -a /Applications/Marked.app %<CR>
 
 " commands {{{1
+
 " complete from dictionary by default
 " call SuperTabSetDefaultCompletionType('<c-x><c-k>')

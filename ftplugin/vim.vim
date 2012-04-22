@@ -6,4 +6,5 @@ setlocal foldmethod=marker
 " mappings {{{1
 
 " show help for the word under the cursor
-noremap <F1> :tab help <C-r><C-w><CR>
+" noremap <F1> :tab help <C-r><C-w><CR>
+noremap K :tab help <C-r><C-w><CR>

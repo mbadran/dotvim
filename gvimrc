@@ -2,6 +2,7 @@
 
 " TODO: find a way to capture all files opened and add them to macvim's
 " recently opened files. or just give up and use a native plugin.
+" TODO: add more cmd hotkeys for common tasks, like commenting, etc
 
 " settings {{{1
 
@@ -22,24 +23,12 @@ set guioptions-=L
 set guitablabel=%M\ %-13.13t\ %N
 set guitabtooltip=%F\ (%n)
 
-" default indentation settings (these don't work in .vimrc, for some reason)
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-
-" (these don't work in .vimrc, for some reason)
-" make quickfix (and :sb* commands) switch to open windows and tabs
-" (this breaks :sbuffer -- use :vsp and :spl instead)
-set switchbuf=useopen,usetab
-" make quickfix open new tabs (splits in <v7) instead of reusing the window
-set switchbuf+=split,newtab
-
 " always show the tab bar
 set showtabline=2
 
 " macvim: settings {{{1
 
-if has('gui_macvim')
+if has("gui_macvim")
   set macmeta
 
   set guifont=Meslo\ LG\ S\ DZ:h13'
@@ -67,9 +56,10 @@ if has('gui_macvim')
   macmenu File.PeepOpen key=<D-S-o>
 
   " repurpose cmd-w to close the tab, and cmd-d to close the buffer
-  macmenu File.Close key=<D-d>
+  " macmenu File.Close key=<D-d>
   anoremenu <silent> .328 File.Close\ Tab :call CloseTab()<CR>
-  macmenu File.Close\ Tab key=<D-w>
+  " macmenu File.Close\ Tab key=<D-w>
+  macmenu File.Close\ Tab key=<D-d>
 
   " repurpose cmd-s to :update instead of saving every single time
   macmenu File.Save key=<nop>
@@ -78,7 +68,10 @@ if has('gui_macvim')
 
   " change go to file behaviour to go to a new tab, honouring MacVim's file
   " opening preferences and registering with recent files history
-  nnoremap gf :!open -a MacVim <cfile><CR>
+  nnoremap <silent> gf :silent !open -a MacVim <cfile><CR>
+
+  " open urls in the default browser
+  nnoremap <silent> gb :silent !open <cfile><CR>
 
   " map omnicompletion shortcuts (corresponding to their <c-x><c-?> letter
   " (:help ins-completion)
@@ -109,32 +102,13 @@ if has('gui_macvim')
 
 " gvim {{{1
 
-elseif (match(v:progname, "gvim") ==? 0)
+elseif (v:progname ==? "gvim")
   set guifont=Lucida_Console:h10:cANSI
   nnoremap <C-tab> gt
   nnoremap <C-S-tab> gT
 endif
 
 " mappings {{{1
-
-" fix searches
-" enter commandline window by default with / and ?
-" (these don't work in .vimrc, for some reason)
-" noremap / /\v
-nnoremap / q/i\v
-vnoremap / q/i\v
-" (these do, here for consistency only)
-" noremap ? ?\v
-nnoremap ? q?i\v
-vnoremap ? q?i\v
-
-" allow leaving cmdline-window with
-" autocmd CmdWinEnter * nnoremap <Esc> :q<CR>:echo ""<CR>
-
-" (this doesn't work in .vimrc, for some reason)
-nnoremap <silent> gp :silent !open <cfile><cr>
-
-nnoremap <silent> gf :!open -a MacVim <cfile><cr>
 
 " plugin: vimroom {{{1
 let g:VimRoom_ShowStatusLine = 0
@@ -143,8 +117,10 @@ let g:VimRoom_Colorscheme = "DesertEx2"
 
 " autocmds {{{1
 
-" move tabs to the end for new, single buffers (exclude splits)
-autocmd BufNew * if winnr('$') == 1 | tabmove99 | endif
+" if the tabline is enabled, a new buffer is opened, and there are no splits,
+" then this is probably a new tab. move it to the end. (NOTE: enew will
+" trigger this action too, unfortunately)
+autocmd BufNew * if &showtabline && winnr("$") == 1 | tabmove | endif
 
 function! CloseTab() " {{{1
   try

@@ -1,5 +1,6 @@
 setlocal tabstop=3 shiftwidth=3 softtabstop=3 expandtab foldnestmax=2
 setlocal foldmethod=syntax foldnestmax=2
+setlocal nospell
 
 " TODO: these are probably broken, use a compiler instead (just download one)
 " use ant to make, using a build file above this (src) one

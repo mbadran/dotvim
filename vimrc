@@ -1,5 +1,8 @@
 " mbadran's vimrc <github.com/mbadran/dotvim>
 
+" use ideas from here for mappings
+" http://www.reddit.com/r/vim/comments/shtto/what_are_the_main_single_keys_that_you_remap_in/
+
 " bundles: boilerplate {{{1
 set runtimepath+=$HOME/.vim/bundle/vundle/
 try
@@ -11,8 +14,9 @@ try
   " bundles: github {{{1
 
   Bundle 'Lokaltog/vim-powerline'
-  Bundle 'Raimondi/delimitMate'
-  Bundle 'Rykka/ColorV'
+  " i suspect this is slowing down vim
+  " Bundle 'Raimondi/delimitMate'
+  " Bundle 'Rykka/ColorV'
   Bundle 'Shougo/neocomplcache'
   Bundle 'Shougo/unite.vim'
   " required by vimshell
@@ -20,43 +24,63 @@ try
   Bundle 'Shougo/vimshell'
   Bundle 'airblade/vim-rooter'
   Bundle 'altercation/vim-colors-solarized'
-  Bundle 'bkad/CamelCaseMotion'
+  " Bundle 'bkad/CamelCaseMotion'
+  Bundle 'csexton/trailertrash.vim'
   Bundle 'davidoc/taskpaper.vim'
   Bundle 'ervandew/supertab'
-  " Bundle 'garbas/vim-snipmate'
+  Bundle 'garbas/vim-snipmate'
+  Bundle 'gmarik/sudo-gui.vim'
   Bundle 'gregsexton/MatchTag'
   Bundle 'h1mesuke/unite-outline'
+  " Bundle 'jystic/browser.vim'
+  Bundle 'kana/vim-smartinput'
+  " these seem broken
+  " Bundle 'kana/vim-textobj-fold'
+  " Bundle 'kana/vim-textobj-function'
+  " Bundle 'kana/vim-textobj-lastpat'
   Bundle 'klen/python-mode'
   " required by snipmate
-  " Bundle 'MarcWeber/vim-addon-mw-utils'
+  Bundle 'MarcWeber/vim-addon-mw-utils'
   Bundle 'majutsushi/tagbar'
   Bundle 'michaeljsmith/vim-indent-object'
-  Bundle 'mikewest/vimroom'
+  " Bundle 'mikewest/vimroom'
+  " the mapping clashes with endwise -- reconsider
+  " Bundle 'Osse/double-tap'
   Bundle 'plasticboy/vim-markdown'
-  Bundle 'roman/golden-ratio'
+  " Bundle 'roman/golden-ratio'
   Bundle 'scrooloose/syntastic'
   Bundle 'shemerey/vim-peepopen'
   Bundle 'sickill/vim-pasta'
+  " TODO: evaluate
+  " Bundle 'sjl/clam.vim'
   Bundle 'sjl/gundo.vim'
-  Bundle 'skammer/vim-css-color'
+  " i suspect this is slowing down vim
+  " Bundle 'skammer/vim-css-color'
   Bundle 'sukima/xmledit'
   Bundle 'tomtom/quickfixsigns_vim'
   " required by quickfixsigns and snipmate
   Bundle 'tomtom/tlib_vim'
+  " TODO: find out if this does anything other than just define commands and autoread
+  " Bundle 'tony/vim-tail'
   Bundle 'tpope/vim-commentary'
   Bundle 'tpope/vim-endwise'
+  " TODO: check out eunuch for dev ideas
+  Bundle 'tpope/vim-eunuch'
   Bundle 'tpope/vim-fugitive'
   Bundle 'tpope/vim-repeat'
   Bundle 'tpope/vim-surround'
   Bundle 'tpope/vim-unimpaired'
-  Bundle 'tyru/regbuf.vim'
+  " Bundle 'tyru/regbuf.vim'
   Bundle 'xolox/vim-easytags'
 
   " bundles: vim-scripts {{{1
 
   Bundle 'AfterColors.vim'
-  Bundle 'Rename'
-  Bundle 'SearchComplete'
+  " Bundle 'Rename'
+  " TODO: consider reincluding this, breaks the / movement in normal mode
+  " Bundle 'SearchComplete'
+  " TODO: remove when done debugging
+  Bundle 'a.vim'
   Bundle 'argtextobj.vim'
   Bundle 'closetag.vim'
   " Bundle 'sessionman.vim'
@@ -65,28 +89,22 @@ catch /E117/ | endtry    " no vundle
 
 " bundles: mine {{{1
 
-" TODO: complete and release this plugin (3 in total, plus your custom changes)
-set runtimepath+=$HOME/.vim/mundle/quicktrix
-set runtimepath+=$HOME/.vim/mundle/findinfiles
 set runtimepath+=$HOME/.vim/mundle/headlights
-" TODO: improve and release this little plugin
+" TODO: improve and release
+set runtimepath+=$HOME/.vim/mundle/quicktrix
 set runtimepath+=$HOME/.vim/mundle/instaruler
-set runtimepath+=$HOME/.vim/mundle/snide
-" TODO: figure out what to do with this plugin (redundant with solarized and
-" one user definable command) -- mod solarized to turn of highlight in insert
-" mode though
-" set runtimepath+=$HOME/.vim/mundle/spacedebris
-" TODO: release this plugin, better than python mode's folding
 set runtimepath+=$HOME/.vim/mundle/jpythonfold.vim
+set runtimepath+=$HOME/.vim/mundle/vimbits
+" obsolete, discard
+" set runtimepath+=$HOME/.vim/mundle/findinfiles
+" set runtimepath+=$HOME/.vim/mundle/snide
 " set runtimepath+=$HOME/.vim/mundle/sessionfridge
 " set runtimepath+=$HOME/.vim/mundle/vimroom
 
 " settings {{{1
 
-" TODO: find out why new vim windows start up without a number ruler
-" TODO: fix escaping search from commandline (q:) window
-
 let g:mapleader = ','
+let g:maplocalleader = '_'
 
 filetype indent plugin on
 
@@ -163,10 +181,10 @@ set incsearch
 " jump to matching brackets
 set showmatch
 
-" highlight the line the cursor is on (in the current window)
-if has('autocmd')
-  autocmd WinEnter,InsertLeave * if !Snide_IsSpecialBuffer() | setlocal cursorline | endif
-  autocmd WinLeave,InsertEnter * if !Snide_IsSpecialBuffer() | setlocal nocursorline | endif
+" highlight the line the cursor is on in the current buffer
+if has("autocmd")
+  autocmd BufEnter,InsertLeave * setlocal cursorline
+  autocmd BufLeave,InsertEnter * setlocal nocursorline
 endif
 
 " use these file formats when reading and creating files
@@ -184,7 +202,7 @@ set autowriteall
 " let h and l traverse lines too
 set whichwrap+=h,l
 
-" search globally by default (use /g flag for first match only)
+" substitute globally by default (use /g flag for first match only)
 set gdefault
 
 if v:version > 702
@@ -253,6 +271,9 @@ set pumheight=17
 " let the cursor move past the end of the line (helps with b movements)
 " set virtualedit=onemore
 
+" look for tags in the current dir first, then work up the tree
+set tags=./tags;/
+
 " show more information while completing tags
 set showfulltag
 
@@ -289,6 +310,22 @@ set grepformat=%f:%l:%c:%m
 " disable modelines for security reasons
 set nomodeline
 
+" use custom text for folds
+set foldtext=MyFoldText()
+
+" ignore files with these extensions when completing filenames
+" set suffixes+=.class,.exe,.o,.obj,.dat,.dll,.aux,.pdf,.gch
+set suffixes+=.pdf
+
+" ignore whitespace for diff
+set diffopt+=iwhite
+
+" make quickfix (and :sb* commands) switch to open windows and tabs
+" (this breaks :sbuffer -- use :vsp and :spl instead)
+set switchbuf=useopen,usetab
+" make quickfix open new tabs (splits in <v7) instead of reusing the window
+set switchbuf+=split,newtab
+
 " indentation {{{1
 
 " default indentation settings
@@ -301,12 +338,10 @@ set expandtab
 " indent/outdent to nearest tabstops
 set shiftround
 
-" ignore files with these extensions when completing filenames
-" set suffixes+=.class,.exe,.o,.obj,.dat,.dll,.aux,.pdf,.gch
-set suffixes+=.pdf
-
-" ignore whitespace for diff
-set diffopt+=iwhite
+" TODO: comment these
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
 
 " autocmds {{{1
 
@@ -315,17 +350,14 @@ if has('autocmd')
     " reset all autocmds for quick re-sourcing
     autocmd!
 
-    " identify txt files with no extensions
-    autocmd BufRead README,INSTALL set filetype=txt
-
     " configure command line buffers
-    autocmd FileType * if bufname('') == '[Command Line]' | setlocal nonumber norelativenumber | endif
+    autocmd FileType * if bufname("") ==? "[Command Line]" | setlocal nonumber norelativenumber | endif
 
     " enable omnicompletion by default
-    autocmd FileType * if &omnifunc == '' | setlocal omnifunc=syntaxcomplete#Complete | endif
+    autocmd FileType * if empty(&omnifunc) | setlocal omnifunc=syntaxcomplete#Complete | endif
 
     " automatically close the preview window
-    autocmd CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
+    autocmd CursorMovedI,InsertLeave * if !pumvisible() | silent! pclose | endif
 
     " open files at the last position
     autocmd BufReadPost * call GoToLastPosition()
@@ -339,12 +371,13 @@ endif
 
 " go to end of previous word with a single key (ge, gE)
 " noremap M ge
+" TODO: find a mapping for ge too (or swap them around)
 noremap M gE
 
 " go to beginning and end of line more easily (see associated text-objects)
 noremap H 0
 noremap L $
-" not sure why i need to define these again in visual mode (shouldn't have to)
+" FIXME: not sure why i need to define these again in visual mode (shouldn't have to)
 vnoremap H 0
 vnoremap L $
 noremap <silent> H :call GoToStartOfLine()<CR>
@@ -354,11 +387,6 @@ noremap <silent> L :call GoToEndOfLine()<CR>
 " xnoremap <silent> L :call GoToEndOfLine()<CR>
 " vnoremap <silent> H :call GoToStartOfLine()<CR>
 " vnoremap <silent> L :call GoToEndOfLine()<CR>
-
-" toggle folds more easily
-nnoremap <CR> za
-nnoremap <silent> <S-CR> :silent call ToggleAllFolds()<CR>
-nnoremap <silent> <C-CR> zMzv
 
 " swap mark commands
 noremap ' `
@@ -376,40 +404,62 @@ noremap gk k
 noremap g0 0
 noremap g$ $
 
+" make searches 'very magic' by default
+noremap / /\v
+noremap ? ?\v
+
 " mappings: normal {{{1
 
 " make Y behave like D and C, not yy
 nnoremap Y y$
 
-" overload Esc to also clear search matches
-nnoremap <silent> <Esc> <Esc>:nohlsearch<CR>
+" toggle folds more easily
+nnoremap <CR> za
+nnoremap <silent> <S-CR> :silent call ToggleAllFolds()<CR>
+nnoremap <silent> <C-CR> zMzv
 
-" simplify window operations
+" overload Esc to also clear search matches
+" FIXME: find out why this line starts terminal vim with the 'c' command
+nnoremap <silent> <Esc> <Esc>:nohlsearch<CR>
+" nnoremap <Esc> :call feedkeys("\<Esc>")<CR><Bar>:nohlsearch<CR>
+" nnoremap <esc> :call feedkeys('Esp')<CR>
+" nnoremap <silent> \<Esc> :q<CR>
+
+" simplify window movements
 nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
+" make the arrow keys rotate splits (and resize them equally)
+nnoremap <Left> <C-w>L<C-w>=
+nnoremap <Right> <C-w>H<C-w>=
+nnoremap <Up> <C-w>K<C-w>=
+nnoremap <Down> <C-w>J<C-w>=
+
 " invoke command line mode with one key
-" nnoremap <Space> :
-" enter commandline window by default with <Space>
-nnoremap <Space> q:i
-vnoremap <Space> q:i
+noremap <space> :
+" invoke commandline window with two
+noremap <leader><space> q:i
 
 " repeat the last macro quickly
 nnoremap <leader>. @@
 
 " use <Tab> for % matching and <C-p> for jumping forwards
 " (because <Tab> and <C-i> are the same as far as Vim is concerned)
-nnoremap <C-p> <Tab>
-vnoremap <C-p> <Tab>
+" nnoremap <C-p> <Tab>
+" vnoremap <C-p> <Tab>
 
 " now, we can use <Tab> to jump between matches
-nnoremap <Tab> %
-vnoremap <Tab> %
+" nnoremap <Tab> %
+" vnoremap <Tab> %
+
+nnoremap <BS> %
 
 " unwindows
 nnoremap <silent> <leader>vw :%s/\r//e<Bar>set fileformat=unix<CR>
+
+nnoremap <leader>vx :setlocal filetype=txt<CR>
 
 " follow the symlinks so we can check in changes
 nnoremap <silent> <leader>vv :execute "tabedit " . resolve($MYVIMRC)<CR>
@@ -432,8 +482,8 @@ nnoremap <leader>P :setlocal invpaste paste?<CR>
 nnoremap <leader>W :setlocal invwrap wrap?<CR>
 
 " show the paste registers
-" nnoremap <leader>r :registers<CR>
-nnoremap <leader>r :Unite -toggle -vertical -hide-source-names register<CR>
+" nnoremap <leader>R :registers<CR>
+" nnoremap <leader>R :RegbufOpen<CR>
 
 " reselect text that was just pasted
 nnoremap <leader>v V`]
@@ -443,12 +493,44 @@ nnoremap * *<C-O>
 nnoremap # #<C-O>
 
 " open a quickfix window for the last search
-nnoremap <silent> <leader>? :execute "lvimgrep /" . @/ . "/gj %"<CR>
+" TODO: move this to quicktrix
+" nnoremap <silent> <leader>? :execute "lvimgrep /" . @/ . "/gj %"<CR>
 
-" search for help topics
-nnoremap <leader>H :call GrepHelp()<CR>
-
+" show only the current buffer
 nnoremap <leader>o :silent only<CR>
+
+" fast make. that is all.
+nnoremap <silent> <leader>m :make<CR>
+
+" toggle case in Word (i don't use U to undo changes on one line)
+" TODO: improve this, make it support visual mode, etc
+nnoremap U g~iW
+" toggle case till End (for sentence case)
+nnoremap ,U g~E
+
+" easy redo (i never use R to replace)
+" TODO: consider making this U
+nnoremap R <C-r>
+
+nnoremap _ 0D
+
+" also map the following:
+" + and - for space.vim
+" TODO: map to important things: Z, leader tab,
+" TODO: consider using the Z key for my quicktrix plugin mappings instead of ,<key> then something. actually, do that!
+
+" TODO: consider using A-] (or C-|) to open in a horizontal split (i suspect i'll prefer vertical splits though)
+" nnoremap <C-\> :vsplit <CR>:exec("tselect ".expand("<cword>"))<CR>
+nnoremap <C-\> <C-w><C-]><C-w>L
+nnoremap <A-\> <C-w><C-]>
+
+" power search with the commandline window
+" FIXME: find out why autocmds don't apply to the q/ window (meanwhile, work around)
+" note: this doesn't support motions using search operators FIXME
+noremap <silent> <leader>/ q/:setlocal filetype=vim nonumber norelativenumber<CR>i\v
+" vnoremap <silent> / q/:setlocal filetype=vim nonumber norelativenumber<CR>i\v
+noremap <silent> <leader>? q?:setlocal filetype=vim nonumber norelativenumber<CR>i\v
+" vnoremap <silent> ? q?:setlocal filetype=vim nonumber norelativenumber<CR>i\v
 
 " mappings: visual {{{1
 
@@ -459,7 +541,8 @@ vnoremap < <gv
 " mappings: command {{{1
 
 " do a sudo write
-cnoremap w!! w !sudo tee % > /dev/null
+" cnoremap w!! w !sudo tee % > /dev/null
+cnoremap w!! silent SudoWriteMacGUI
 
 " fix searches
 cnoremap %s/ %s/\v
@@ -474,11 +557,14 @@ inoremap <C-B> <C-O>yiW<End>=<C-R>=<C-R>0<CR>
 
 " mappings: operator-pending {{{1
 
-" not sure why we need to do this
+" FIXME: not sure why we need to do this
 " onoremap j j
 " onoremap k k
 
 " abbreviations {{{1
+
+" silence grep, let the quickfix window show results
+cabbrev grep silent grep
 
 " commands {{{1
 
@@ -501,33 +587,32 @@ onoremap tL :normal! VtL<CR>
 vnoremap TL T$
 onoremap TL :normal! VTL<CR>
 
-" TODO: get the full plugin from that dude on github
 " textobject: fold {{{1
 
-vnoremap af :<C-U>silent! normal! [zV]z<CR>
-onoremap af :normal! Vaf<CR>
+" vnoremap af :<C-U>silent! normal! [zV]z<CR>
+" onoremap af :normal! Vaf<CR>
 
-" TODO: reconsider these (y u no use?)
+" TODO: reconsider these (y u no use?) also, some clash with text-object plugins
 " textobject: square {{{1
 
-vnoremap iq i[
-vnoremap aq a[
-onoremap iq i[
-onoremap aq a[
+" vnoremap iq i[
+" vnoremap aq a[
+" onoremap iq i[
+" onoremap aq a[
 
 " textobject: curly {{{1
 
-vnoremap ic i{
-vnoremap ac a{
-onoremap ic i{
-onoremap ac a{
+" vnoremap ic i{
+" vnoremap ac a{
+" onoremap ic i{
+" onoremap ac a{
 
 " textobject: angle {{{1
 
-vnoremap ia i<
-vnoremap aa a<
-onoremap ia i<
-onoremap aa a<
+" vnoremap ia i<
+" vnoremap aa a<
+" onoremap ia i<
+" onoremap aa a<
 
 " terminal {{{1
 
@@ -547,11 +632,6 @@ if !has('gui_running')
   if v:version > 702
     set colorcolumn=81
   endif
-
-  " the c key is pressed upon entering, for some reason
-  " FIXME doesn't work
-  " call feedkeys("\<ESC>")
-  call feedkeys("\<C-[>")
 endif
 
 " plugin: runtime {{{1
@@ -588,13 +668,15 @@ let g:syntastic_auto_loc_list = 1
 
 " plugin: tagbar {{{1
 
-" let g:tagbar_left = 1
-" let g:tagbar_compact = 1
+let g:tagbar_left = 1
+let g:tagbar_compact = 1
 " let g:tagbar_width = 31
 let g:tagbar_autofocus = 1
-let g:tagbar_autoclose = 1
+" let g:tagbar_autoclose = 1
 let g:tagbar_autoshowtag = 1
 let g:tagbar_ctags_bin = '/usr/local/bin/ctags'
+
+" nnoremap <silent> <leader>T :TagbarToggle<CR>
 
 " plugin: supertab {{{1
 
@@ -605,19 +687,28 @@ let g:SuperTabContextDefaultCompletionType = '<c-x><c-p>'
 
 " plugin: commentary {{{1
 
-nmap <silent> <D-\> <Plug>Commentary
-nmap <silent> <D-/> <Plug>CommentaryLine
+" noremap <silent> <D-/> <Plug>CommentaryLine
+nmap <D-/> <Plug>CommentaryLine
+" FIXME: find out why this doesn't work
+" noremap <silent> <D-\> <Plug>Commentary
+nmap <D-\> <Plug>Commentary
 
 " plugin: rooter {{{1
 
 let g:rooter_use_lcd = 1
+
+" disable the default mapping
+map <nop> <Plug>RooterChangeToRootDirectory
 
 " plugin: quickfixsigns {{{1
 
 " don't show quickfix vcsdiff signs
 let g:quickfixsigns_classes = ['qfl', 'loc', 'marks', 'breakpoints']
 " don't show quickfixsigns for special buffers like tagbar, unite, and anything starting with [
-let g:quickfixsigns_blacklist_buffer = '^__.*__\|\*unite.*\|\[.*$'
+" TODO: find a way to disable signs column for scratch/preview buffers without
+" also disabling it for new (unnamed) vim buffers
+" let g:quickfixsigns_blacklist_buffer = '^__.*__\|.\*Scratch.\*\|.\*unite.*\|\[.*$'
+let g:quickfixsigns_blacklist_buffer = '^__.*__\|^$\|.\*unite.*\|\[.*$'
 let g:quickfixsigns#marks#texthl = 'SignColumn'
 let g:quickfixsigns_icons = {}
 
@@ -652,21 +743,55 @@ let g:Powerline_symbols = 'fancy'
 " plugin: solarized {{{1
 
 let g:solarized_menu = 0
-let g:solarized_hitrail = 1
+" let g:solarized_hitrail = 1
 
 " plugin: neocomplcache {{{1
-" TODO: troubleshoot why this is so slow
+" FIXME: troubleshoot why this is so slow
 " let g:neocomplcache_enable_at_startup = 1
 " let g:neocomplcache_source_disable = {"dictionary_complete.vim": 1}
 
 " plugin: python-mode {{{1
 let g:pymode_folding = 0
+" let the run key correspond to the 'make' mapping
+let g:pymode_run_key = "<leader>m"
+" FIXME: disable this for now, autocomplete hangs vim
+let g:pymode_rope_vim_completion = 0
 
 " plugin: unite {{{1
-let g:unite_split_rule = "botright"
+let g:unite_split_rule = "aboveleft"
 let g:unite_source_grep_command = "ack"
 let g:unite_source_grep_default_opts = "-H --nocolor --nogroup --column"
 let g:unite_source_grep_recursive_opt = ""
+
+" TODO: do this properly
+nnoremap <silent> <leader>T :Unite -toggle -vertical -hide-source-names -buffer-name=Tags -quick-match output:!/usr/local/bin/ctags\ -x\ %\ \|\ grep\ "function"\ \|\ cut\ -d\ "\ "\ -f\ 1<CR>
+
+nnoremap <silent> <leader>O :Unite -toggle -vertical -direction=aboveleft -hide-source-names -no-empty -buffer-name=Outline -auto-preview -quick-match outline<CR>
+
+" nnoremap <silent> <leader>r :Unite -toggle -vertical -hide-source-names -quick-match register<CR>
+nnoremap <silent> <leader>R :Unite -toggle -vertical -hide-source-names -buffer-name=Registers -quick-match register<CR>
+
+" TODO: add L for locate
+
+" TODO: write a source to search vim menus (and narrow by Bundles) -- just an experiment
+
+nnoremap <silent> <leader>G :Unite -toggle -hide-source-names -buffer-name=Grep grep:*<CR>
+
+nnoremap <silent> <leader>F :Unite -toggle -hide-source-names -buffer-name=Find find:.<CR>
+
+nnoremap <silent> <leader>U :Unite -toggle -hide-source-names -buffer-name=Disk output:!du\ -\m\ \|\ sort\ -rn<CR>
+
+nnoremap <silent> <leader>D :Unite -toggle -hide-source-names -buffer-name=TODO grep:%:-i:todo\|fixme\|maybe<CR>
+
+nnoremap <silent> <leader>B :Unite -toggle -vertical -hide-source-names -buffer-name=Bookmarks -quick-match bookmarks<CR>
+
+nnoremap <silent> <leader>C :Unite -toggle -vertical -hide-source-names -buffer-name=Command -quick-match output<CR>
+
+nnoremap <silent> <leader>S :Unite -toggle -vertical -hide-source-names -buffer-name=Session -quick-match session<CR>
+
+nnoremap <silent> <leader>E :Unite -toggle -vertical -hide-source-names -buffer-name=Explorer -quick-match file<CR>
+
+nnoremap <silent> <leader>M :Unite -toggle -vertical -hide-source-names -buffer-name=MRU -quick-match file_mru directory_mru<CR>
 
 " plugin: fugitive {{{1
 nnoremap <leader>gg :Git<space>
@@ -681,7 +806,20 @@ nnoremap <silent> <leader>gb :Gblame<CR>
 nnoremap <silent> <leader>gw :Gwrite<CR>
 
 " plugin: quicktrix {{{1
-" let s:quicktrix_ctags_cmd = "/usr/local//bin/ctags"
+" let g:quicktrix_ctags_cmd = "/usr/local/bin/ctags"
+let g:quicktrix_tags_sort = 0
+let g:quicktrix_tags_categorise = 0
+" let g:quicktrix_orientation = "bottom"
+" let g:quicktrix_steal_focus = 0
+
+nnoremap <silent> <leader>t :QTags<CR>
+nnoremap <silent> <leader>d :QTodo<CR>
+nnoremap <silent> <leader>H :QHelp<CR>
+
+" plugin: jpythonfold {{{1
+
+" let g:jpythonfold_CustomFoldText = 1
+" let g:jpythonfold_Compact = 0
 
 function! GoToLastPosition() " {{{1
   if line("'\"") > 0 && line("'\"") <= line("$")
@@ -690,7 +828,7 @@ function! GoToLastPosition() " {{{1
 endfunction
 
 function! ToggleAllFolds() " {{{1
-  if &foldlevel == 0
+  if !&foldlevel
     setlocal foldlevel=99
   else
     setlocal foldlevel=0
@@ -729,11 +867,26 @@ endfunction
 " TODO: make a mapping for this
 function! ShowColorColumn() " {{{1
   " show colorcolumn one char removed from 'textwidth', or at 81 chars by default
-  if &textwidth == ""
+  if empty(&textwidth)
     setlocal colorcolumn=81
   else
     execute "setlocal colorcolumn=" . (&textwidth + 1)
   endif
+endfunction
+
+function! IsSpecialBuffer() " {{{1
+  if &filetype ==? "tagbar" || &filetype ==? "nerdtree" || &filetype ==? "help" || &filetype ==? "qf" || &filetype ==? "man" || &filetype ==? "gitcommit" || &filetype ==? "preview" || &filetype ==? "unite" || bufname("") ==? "[Command Line]" || &buftype ==? "nofile"
+    return 1
+  endif
+  return 0
+endfunction
+
+function! MyFoldText() " {{{1
+  " kiss -- don't show number of folded lines (unnecessary metadata)
+  let line = getline(v:foldstart)
+  " so far, handles vim and python well. TODO: keep an eye out for other languages.
+  let text = substitute(line, '\v^\s*"|^def |^function!? |"?\s*\{\{\{\d|:$', '', 'g')
+  return "+-- " . substitute(text, '\v^\s+|\s+$', '', 'g') . " "
 endfunction
 
 " cheatsheet {{{1
@@ -795,6 +948,19 @@ endfunction
 " gv - repeat the last selection
 
 " g; and g, to jump around (look up using help)
+
+" learn more about the :g command -- for example, to do actions or run script
+" snippets on specific lines, the same way you used to with beanshell. see
+" also the tip about using the /norm ex command with :g to run normal mode
+" commands on specific lines (for eg. :g/^\d/norm A; -- this appends a
+" semicolon to lines starting with numbers.) the great thing is that this
+" works with any ex command, so you can run sophisticated commands on lines
+
+" to paste the value of a variable/expression in insert mode, do the
+" following: <C-r>=&tags -- this saves you having to type values manually, and
+" is very handy, especially when you consider that you can put local settings
+" (&l:), any global vars (with completion!), any custom expressions, maths --
+" whatever.
 
 " x is dl -- X is dh
 
@@ -881,8 +1047,6 @@ endfunction
 "for its mappings.
 
 " TODO: set up visual mappings as well as normal ones for your plugins
-
-" TODO: map to important things: leader space, leader tab, \\, H, L, and M
 
 " TODO: figure out if any ftplugins use this localleader (help :maplocalleader)
 

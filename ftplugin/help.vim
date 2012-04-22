@@ -1,6 +1,7 @@
 " settings {{{1
 
-setlocal nospell
+" TODO: find out why the signs gutter doesn't show
+setlocal nospell relativenumber
 
 if v:version > 702
   setlocal colorcolumn=

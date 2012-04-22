@@ -1,4 +1,3 @@
-" make {{{1
+" run {{{1
 
-" (you can't create a compiler script for markdown)
-setlocal makeprg=bcat
+nnoremap <buffer> <silent> <leader>r :echomsg "Running in bcat..."<CR><Bar>:silent !bcat %<CR>

@@ -3,6 +3,9 @@
 " unset _ as a word delimiter
 setlocal iskeyword+=_
 
+" undo pymode's silly setting
+setlocal relativenumber
+
 " abbreviations {{{1
 
 inoreabbrev <buffer> ;;l % locals()
