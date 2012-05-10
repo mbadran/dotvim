@@ -21,3 +21,7 @@ inoreabbrev <buffer> ;;s self.
 "iabbrev <expr> ;;o hi there
 "inoreabbrev <script> ;;y gday there
 "inoreabbrev <script> <buffer> ;;z yo there
+
+" mappings {{{1
+
+nnoremap <buffer> <leader>r :Pyrun<CR>

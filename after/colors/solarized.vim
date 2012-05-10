@@ -1,4 +1,4 @@
-" TODO: badly broken in console. fix.
+" TODO: verify colours in the console.
 
 " c for [list/special] characters
 nnoremap <silent> <leader>c :call ToggleListChars()<CR>

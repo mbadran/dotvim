@@ -1,9 +1,5 @@
 " mbadran's gvimrc <github.com/mbadran/dotvim>
 
-" TODO: find a way to capture all files opened and add them to macvim's
-" recently opened files. or just give up and use a native plugin.
-" TODO: add more cmd hotkeys for common tasks, like commenting, etc
-
 " settings {{{1
 
 try
@@ -100,6 +96,11 @@ if has("gui_macvim")
   " current file (handled by supertab, and <C-N> is already mapped to 'complete')
   " inoremap <C-N> <C-X><C-N>
 
+  " macvim: commentary {{{1
+
+  nmap <D-/> <Plug>CommentaryLine
+  nmap <D-'> <Plug>Commentary
+
 " gvim {{{1
 
 elseif (v:progname ==? "gvim")
@@ -111,9 +112,9 @@ endif
 " mappings {{{1
 
 " plugin: vimroom {{{1
-let g:VimRoom_ShowStatusLine = 0
-let g:VimRoom_ZoomLevel = 2
-let g:VimRoom_Colorscheme = "DesertEx2"
+" let g:VimRoom_ShowStatusLine = 0
+" let g:VimRoom_ZoomLevel = 2
+" let g:VimRoom_Colorscheme = "DesertEx2"
 
 " autocmds {{{1
 

@@ -1,8 +1,5 @@
 " mbadran's vimrc <github.com/mbadran/dotvim>
 
-" use ideas from here for mappings
-" http://www.reddit.com/r/vim/comments/shtto/what_are_the_main_single_keys_that_you_remap_in/
-
 " bundles: boilerplate {{{1
 set runtimepath+=$HOME/.vim/bundle/vundle/
 try
@@ -32,12 +29,15 @@ try
   Bundle 'gmarik/sudo-gui.vim'
   Bundle 'gregsexton/MatchTag'
   Bundle 'h1mesuke/unite-outline'
+  Bundle 'hobbestigrou/vimtips-fortune'
+  " Bundle 'hallison/vim-markdown'
+  Bundle 'ivanov/vim-ipython'
   " Bundle 'jystic/browser.vim'
   Bundle 'kana/vim-smartinput'
-  " these seem broken
-  " Bundle 'kana/vim-textobj-fold'
+  Bundle 'kana/vim-textobj-user'
+  Bundle 'kana/vim-textobj-fold'
+  Bundle 'kana/vim-textobj-lastpat'
   " Bundle 'kana/vim-textobj-function'
-  " Bundle 'kana/vim-textobj-lastpat'
   Bundle 'klen/python-mode'
   " required by snipmate
   Bundle 'MarcWeber/vim-addon-mw-utils'
@@ -46,7 +46,6 @@ try
   " Bundle 'mikewest/vimroom'
   " the mapping clashes with endwise -- reconsider
   " Bundle 'Osse/double-tap'
-  Bundle 'plasticboy/vim-markdown'
   " Bundle 'roman/golden-ratio'
   Bundle 'scrooloose/syntastic'
   Bundle 'shemerey/vim-peepopen'
@@ -67,6 +66,7 @@ try
   " TODO: check out eunuch for dev ideas
   Bundle 'tpope/vim-eunuch'
   Bundle 'tpope/vim-fugitive'
+  Bundle 'tpope/vim-markdown'
   Bundle 'tpope/vim-repeat'
   Bundle 'tpope/vim-surround'
   Bundle 'tpope/vim-unimpaired'
@@ -80,7 +80,6 @@ try
   " TODO: consider reincluding this, breaks the / movement in normal mode
   " Bundle 'SearchComplete'
   " TODO: remove when done debugging
-  Bundle 'a.vim'
   Bundle 'argtextobj.vim'
   Bundle 'closetag.vim'
   " Bundle 'sessionman.vim'
@@ -94,7 +93,7 @@ set runtimepath+=$HOME/.vim/mundle/headlights
 set runtimepath+=$HOME/.vim/mundle/quicktrix
 set runtimepath+=$HOME/.vim/mundle/instaruler
 set runtimepath+=$HOME/.vim/mundle/jpythonfold.vim
-set runtimepath+=$HOME/.vim/mundle/vimbits
+" set runtimepath+=$HOME/.vim/mundle/vimbits
 " obsolete, discard
 " set runtimepath+=$HOME/.vim/mundle/findinfiles
 " set runtimepath+=$HOME/.vim/mundle/snide
@@ -338,10 +337,11 @@ set expandtab
 " indent/outdent to nearest tabstops
 set shiftround
 
-" TODO: comment these
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
+" FIXME: these interfere with filetype settings, i only want them to apply to
+" files with no filetype
+" set tabstop=4
+" set softtabstop=4
+" set shiftwidth=4
 
 " autocmds {{{1
 
@@ -360,33 +360,26 @@ if has('autocmd')
     autocmd CursorMovedI,InsertLeave * if !pumvisible() | silent! pclose | endif
 
     " open files at the last position
-    autocmd BufReadPost * call GoToLastPosition()
+    autocmd BufReadPost * call <SID>GoToLastPosition()
 
     " automatically source vimrc and gvimrc upon saving
-    autocmd BufWritePost vimrc,gvimrc source %
+    " autocmd BufWritePost vimrc,gvimrc source %|if exists("g:Powerline_loaded")|call Pl#Load()|endif
+    autocmd BufWritePost vimrc,gvimrc call Reinit()
   augroup END
 endif
 
 " mappings: all {{{1
 
-" go to end of previous word with a single key (ge, gE)
-" noremap M ge
-" TODO: find a mapping for ge too (or swap them around)
+" go to end of previous Word with a single key
 noremap M gE
 
-" go to beginning and end of line more easily (see associated text-objects)
-noremap H 0
-noremap L $
-" FIXME: not sure why i need to define these again in visual mode (shouldn't have to)
-vnoremap H 0
-vnoremap L $
-noremap <silent> H :call GoToStartOfLine()<CR>
-noremap <silent> L :call GoToEndOfLine()<CR>
-" TODO: find out if these are necessary
-" xnoremap <silent> H :call GoToStartOfLine()<CR>
-" xnoremap <silent> L :call GoToEndOfLine()<CR>
-" vnoremap <silent> H :call GoToStartOfLine()<CR>
-" vnoremap <silent> L :call GoToEndOfLine()<CR>
+" go to beginning and end of line more easily
+nnoremap <silent> H :call <SID>GoToStartOfLine()<CR>
+nnoremap <silent> L :call <SID>GoToEndOfLine()<CR>
+onoremap <silent> H :call <SID>GoToStartOfLine()<CR>
+onoremap <silent> L :call <SID>GoToEndOfLine()<CR>
+vnoremap <silent> H :<C-u>call <SID>GoToStartOfLine(visualmode())<CR>
+vnoremap <silent> L :<C-u>call <SID>GoToEndOfLine(visualmode())<CR>
 
 " swap mark commands
 noremap ' `
@@ -404,9 +397,20 @@ noremap gk k
 noremap g0 0
 noremap g$ $
 
+" invoke command line mode with one key
+noremap <space> :
+" invoke commandline window with two
+noremap <leader><space> q:i
+
 " make searches 'very magic' by default
 noremap / /\v
 noremap ? ?\v
+
+" power search with the commandline window
+" note: this doesn't support motions using search operators
+" FIXME: find out why autocmds don't apply to the q/ window (meanwhile, work around)
+noremap <silent> <leader>/ q/:setlocal filetype=vim nonumber norelativenumber<CR>i\v
+noremap <silent> <leader>? q?:setlocal filetype=vim nonumber norelativenumber<CR>i\v
 
 " mappings: normal {{{1
 
@@ -415,7 +419,7 @@ nnoremap Y y$
 
 " toggle folds more easily
 nnoremap <CR> za
-nnoremap <silent> <S-CR> :silent call ToggleAllFolds()<CR>
+nnoremap <silent> <S-CR> :silent call <SID>ToggleAllFolds()<CR>
 nnoremap <silent> <C-CR> zMzv
 
 " overload Esc to also clear search matches
@@ -436,11 +440,6 @@ nnoremap <Left> <C-w>L<C-w>=
 nnoremap <Right> <C-w>H<C-w>=
 nnoremap <Up> <C-w>K<C-w>=
 nnoremap <Down> <C-w>J<C-w>=
-
-" invoke command line mode with one key
-noremap <space> :
-" invoke commandline window with two
-noremap <leader><space> q:i
 
 " repeat the last macro quickly
 nnoremap <leader>. @@
@@ -466,6 +465,7 @@ nnoremap <silent> <leader>vv :execute "tabedit " . resolve($MYVIMRC)<CR>
 nnoremap <silent> <leader>vg :execute "tabedit " . resolve($MYGVIMRC)<CR>
 nnoremap <silent> <leader>vs :update<Bar>source %<CR>
 nnoremap <silent> <leader>vt :tabedit ~/Dropbox/todo/1_Life.taskpaper<CR>
+nnoremap <silent> <leader>vc :call <SID>ToggleColorColumn()<CR>
 
 nnoremap <silent> <leader>b :buffers<CR>
 
@@ -503,14 +503,22 @@ nnoremap <leader>o :silent only<CR>
 nnoremap <silent> <leader>m :make<CR>
 
 " toggle case in Word (i don't use U to undo changes on one line)
+" TODO: find other mappings for this
 " TODO: improve this, make it support visual mode, etc
-nnoremap U g~iW
+" nnoremap U g~iW
 " toggle case till End (for sentence case)
-nnoremap ,U g~E
+" nnoremap ,U g~E
 
-" easy redo (i never use R to replace)
 " TODO: consider making this U
-nnoremap R <C-r>
+" nnoremap R <C-r>
+
+" enter virtual replace mode by default
+" handy when you want to replace an identical number of chars
+" TODO: use this more often
+nnoremap R gR
+
+" easy redo (i never use U to replace)
+nnoremap U <C-r>
 
 nnoremap _ 0D
 
@@ -524,13 +532,8 @@ nnoremap _ 0D
 nnoremap <C-\> <C-w><C-]><C-w>L
 nnoremap <A-\> <C-w><C-]>
 
-" power search with the commandline window
-" FIXME: find out why autocmds don't apply to the q/ window (meanwhile, work around)
-" note: this doesn't support motions using search operators FIXME
-noremap <silent> <leader>/ q/:setlocal filetype=vim nonumber norelativenumber<CR>i\v
-" vnoremap <silent> / q/:setlocal filetype=vim nonumber norelativenumber<CR>i\v
-noremap <silent> <leader>? q?:setlocal filetype=vim nonumber norelativenumber<CR>i\v
-" vnoremap <silent> ? q?:setlocal filetype=vim nonumber norelativenumber<CR>i\v
+nnoremap + <C-w>+
+nnoremap - <C-w>-
 
 " mappings: visual {{{1
 
@@ -557,10 +560,6 @@ inoremap <C-B> <C-O>yiW<End>=<C-R>=<C-R>0<CR>
 
 " mappings: operator-pending {{{1
 
-" FIXME: not sure why we need to do this
-" onoremap j j
-" onoremap k k
-
 " abbreviations {{{1
 
 " silence grep, let the quickfix window show results
@@ -571,21 +570,7 @@ cabbrev grep silent grep
 command! DiffOrig vertical new | set buftype=nofile | r # | 0d_ | diffthis | wincmd p | diffthis
 
 " TODO: pull these into a separate plugin
-" text-object: H {{{1
 
-" TODO: these break fFtT operations, change
-vnoremap tH t0
-onoremap tH :normal! VtH<CR>
-vnoremap TH T0
-onoremap TH :normal! VTH<CR>
-
-" text-object: L {{{1
-
-" TODO: these break fFtT operations, change
-vnoremap tL t$
-onoremap tL :normal! VtL<CR>
-vnoremap TL T$
-onoremap TL :normal! VTL<CR>
 
 " textobject: fold {{{1
 
@@ -674,7 +659,7 @@ let g:tagbar_compact = 1
 let g:tagbar_autofocus = 1
 " let g:tagbar_autoclose = 1
 let g:tagbar_autoshowtag = 1
-let g:tagbar_ctags_bin = '/usr/local/bin/ctags'
+let g:tagbar_ctags_bin = "/usr/local/bin/ctags"
 
 " nnoremap <silent> <leader>T :TagbarToggle<CR>
 
@@ -683,15 +668,7 @@ let g:tagbar_ctags_bin = '/usr/local/bin/ctags'
 " do context aware completion
 let g:SuperTabDefaultCompletionType = 'context'
 " fall back to current/local file completion (instead of the 'complete' option)
-let g:SuperTabContextDefaultCompletionType = '<c-x><c-p>'
-
-" plugin: commentary {{{1
-
-" noremap <silent> <D-/> <Plug>CommentaryLine
-nmap <D-/> <Plug>CommentaryLine
-" FIXME: find out why this doesn't work
-" noremap <silent> <D-\> <Plug>Commentary
-nmap <D-\> <Plug>Commentary
+let g:SuperTabContextDefaultCompletionType = "<c-x><c-p>"
 
 " plugin: rooter {{{1
 
@@ -703,13 +680,13 @@ map <nop> <Plug>RooterChangeToRootDirectory
 " plugin: quickfixsigns {{{1
 
 " don't show quickfix vcsdiff signs
-let g:quickfixsigns_classes = ['qfl', 'loc', 'marks', 'breakpoints']
+let g:quickfixsigns_classes = ["qfl", "loc", "marks", "breakpoints"]
 " don't show quickfixsigns for special buffers like tagbar, unite, and anything starting with [
 " TODO: find a way to disable signs column for scratch/preview buffers without
 " also disabling it for new (unnamed) vim buffers
 " let g:quickfixsigns_blacklist_buffer = '^__.*__\|.\*Scratch.\*\|.\*unite.*\|\[.*$'
 let g:quickfixsigns_blacklist_buffer = '^__.*__\|^$\|.\*unite.*\|\[.*$'
-let g:quickfixsigns#marks#texthl = 'SignColumn'
+let g:quickfixsigns#marks#texthl = "SignColumn"
 let g:quickfixsigns_icons = {}
 
 " plugin: camelcase {{{1
@@ -730,7 +707,7 @@ let g:quickfixsigns_icons = {}
 
 " plugin: easytags {{{1
 
-let g:easytags_cmd = '/usr/local/bin/ctags'
+let g:easytags_cmd = "/usr/local/bin/ctags"
 
 " plugin: csscolor {{{1
 
@@ -738,7 +715,9 @@ let g:cssColorVimDoNotMessMyUpdatetime = 1
 
 " plugin: powerline {{{1
 
-let g:Powerline_symbols = 'fancy'
+let g:Powerline_symbols = "fancy"
+" let g:Powerline_theme = "skwp"
+" let g:Powerline_colorscheme = "skwp"
 
 " plugin: solarized {{{1
 
@@ -755,7 +734,7 @@ let g:pymode_folding = 0
 " let the run key correspond to the 'make' mapping
 let g:pymode_run_key = "<leader>m"
 " FIXME: disable this for now, autocomplete hangs vim
-let g:pymode_rope_vim_completion = 0
+" let g:pymode_rope_vim_completion = 0
 
 " plugin: unite {{{1
 let g:unite_split_rule = "aboveleft"
@@ -821,13 +800,13 @@ nnoremap <silent> <leader>H :QHelp<CR>
 " let g:jpythonfold_CustomFoldText = 1
 " let g:jpythonfold_Compact = 0
 
-function! GoToLastPosition() " {{{1
+function! s:GoToLastPosition() " {{{1
   if line("'\"") > 0 && line("'\"") <= line("$")
     execute "normal! g`\""
   endif
 endfunction
 
-function! ToggleAllFolds() " {{{1
+function! s:ToggleAllFolds() " {{{1
   if !&foldlevel
     setlocal foldlevel=99
   else
@@ -836,45 +815,64 @@ function! ToggleAllFolds() " {{{1
 endfunction
 
 " TODO: make these a new textobject plugin
-function! GoToStartOfLine() " {{{1
-  " save current cursor pos
-  let s:save_col = getpos(".")[2]
+function! s:GoToStartOfLine(...) " {{{1
+  if exists("a:1") && a:1 ==? "v"
+    normal! `>v`<
+  elseif exists("a:1") && a:1 ==? ""
+    normal! `>`<
+  endif
 
-  normal! _
+  let l:first_col = col(".")
 
-  let s:new_col = getpos(".")[2]
+  if getline(".") =~ "^ "
+    normal! _
+  else
+    normal! 0
+  endif
 
-  " if we haven't moved, and we're not at the beginning, go to the beginning
-  if s:save_col == s:new_col && s:new_col > 1
+  " if we haven't moved, and we're not at the start, go to 0
+  let l:current_col = col(".")
+  if l:current_col != 1 && l:first_col == l:current_col
     normal! 0
   endif
 endfunction
 
-function! GoToEndOfLine() " {{{1
-  " save current cursor pos
-  let s:save_col = getpos(".")[2]
+function! s:GoToEndOfLine(...) " {{{1
+  if exists("a:1") && a:1 ==? "v"
+    normal! `<v`>
+  elseif exists("a:1") && a:1 ==? ""
+    normal! `<`>
+  endif
 
-  normal! g_
+  let l:first_col = col(".")
 
-  let s:new_col = getpos(".")[2]
+  if getline(".") =~ " $"
+    normal! g_
+  else
+    normal! $
+  endif
 
-  " if we haven't moved, and we're not at the end, go to the end
-  if s:save_col == s:new_col && s:new_col < len(getline('.'))
+  " if we haven't moved, and we're not at the end, go to $
+  let l:current_col = col(".")
+  if l:current_col < len(getline(".")) && l:first_col == l:current_col
     normal! $
   endif
 endfunction
 
-" TODO: make a mapping for this
-function! ShowColorColumn() " {{{1
-  " show colorcolumn one char removed from 'textwidth', or at 81 chars by default
-  if empty(&textwidth)
-    setlocal colorcolumn=81
+function! s:ToggleColorColumn() " {{{1
+  " disable, if set. otherwise, show colorcolumn at 'textwidth', or at 81 chars by default
+  if &colorcolumn
+    let &l:colorcolumn = ""
   else
-    execute "setlocal colorcolumn=" . (&textwidth + 1)
+    if &textwidth
+      let &l:colorcolumn = &textwidth + 1
+    else
+      let &l:colorcolumn = 81
+    endif
   endif
 endfunction
 
-function! IsSpecialBuffer() " {{{1
+function! s:IsSpecialBuffer() " {{{1
   if &filetype ==? "tagbar" || &filetype ==? "nerdtree" || &filetype ==? "help" || &filetype ==? "qf" || &filetype ==? "man" || &filetype ==? "gitcommit" || &filetype ==? "preview" || &filetype ==? "unite" || bufname("") ==? "[Command Line]" || &buftype ==? "nofile"
     return 1
   endif
@@ -887,6 +885,15 @@ function! MyFoldText() " {{{1
   " so far, handles vim and python well. TODO: keep an eye out for other languages.
   let text = substitute(line, '\v^\s*"|^def |^function!? |"?\s*\{\{\{\d|:$', '', 'g')
   return "+-- " . substitute(text, '\v^\s+|\s+$', '', 'g') . " "
+endfunction
+
+function! Reinit() " {{{1
+  execute "source " . $MYVIMRC
+  source ~/.gvimrc
+  source $HOME/.vim/after/colors/solarized.vim
+  if exists("g:Powerline_loaded")
+    call Pl#Load()
+  endif
 endfunction
 
 " cheatsheet {{{1
