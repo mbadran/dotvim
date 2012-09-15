@@ -27,7 +27,7 @@ set showtabline=2
 if has("gui_macvim")
   set macmeta
 
-  set guifont=Meslo\ LG\ S\ DZ:h13'
+  set guifont=Meslo\ LG\ S\ DZ:h13
 
   " remove the right scrollbar for now (ugly in Lion)
   set guioptions-=r
@@ -48,8 +48,8 @@ if has("gui_macvim")
   nnoremap <D-9> 9gt
 
   " add peepopen to the file menu
-  anoremenu <silent> .305 File.PeepOpen :PeepOpen<CR>
-  macmenu File.PeepOpen key=<D-S-o>
+  " anoremenu <silent> .305 File.PeepOpen :PeepOpen<CR>
+  " macmenu File.PeepOpen key=<D-S-o>
 
   " repurpose cmd-w to close the tab, and cmd-d to close the buffer
   " macmenu File.Close key=<D-d>

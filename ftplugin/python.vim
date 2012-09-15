@@ -1,12 +1,19 @@
 " settings {{{1
 
+setlocal tabstop=4
+setlocal shiftwidth=4
+" make backspace in indent mode treat 4 spaces like a tab
+setlocal softtabstop=4
+setlocal expandtab
+
 " unset _ as a word delimiter
-setlocal iskeyword+=_
+" setlocal iskeyword+=_
 
 " undo pymode's silly setting
-setlocal relativenumber
+" setlocal relativenumber
 
 " abbreviations {{{1
+" TODO: consider using snipmate for this stuff
 
 inoreabbrev <buffer> ;;l % locals()
 inoreabbrev <buffer> ;;b #! /usr/bin/env python
@@ -23,5 +30,3 @@ inoreabbrev <buffer> ;;s self.
 "inoreabbrev <script> <buffer> ;;z yo there
 
 " mappings {{{1
-
-nnoremap <buffer> <leader>r :Pyrun<CR>

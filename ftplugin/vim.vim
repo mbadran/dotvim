@@ -7,4 +7,5 @@ setlocal foldmethod=marker
 
 " show help for the word under the cursor
 " noremap <F1> :tab help <C-r><C-w><CR>
-noremap K :tab help <C-r><C-w><CR>
+" nnoremap K :tab help <C-r><C-w><CR>
+nnoremap K :help <C-r><C-w><CR>
