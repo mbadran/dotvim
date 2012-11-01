@@ -12,6 +12,8 @@ try
 
   Bundle 'Lokaltog/vim-powerline'
   Bundle 'Shougo/neocomplcache'
+  " TODO: evaluate write.vim
+  Bundle 'Soares/write.vim'
   Bundle 'Valloric/MatchTagAlways'
   Bundle 'altercation/vim-colors-solarized'
   Bundle 'csexton/trailertrash.vim'
@@ -30,6 +32,7 @@ try
   Bundle 'mattn/ctrlp-register'
   " TODO: evaluate pastebin
   Bundle 'mattn/pastebin-vim'
+  Bundle 'mbadran/headlights'
   Bundle 'michaeljsmith/vim-indent-object'
   Bundle 'myusuf3/numbers.vim'
   " Bundle 'nathanaelkane/vim-indent-guides'
@@ -67,12 +70,14 @@ catch /E117/ | endtry    " no vundle
 
 " bundles: mine {{{1
 
-set runtimepath+=$HOME/.vim/mundle/headlights
 " TODO: improve and release
 set runtimepath+=$HOME/.vim/mundle/quicktrix
 set runtimepath+=$HOME/.vim/mundle/jpythonfold.vim
+" TODO: consider improving and releasing
 " set runtimepath+=$HOME/.vim/mundle/vimbits
 " set runtimepath+=$HOME/.vim/mundle/vimroom
+" this is done
+" set runtimepath+=$HOME/.vim/mundle/headlights
 
 " settings {{{1
 
