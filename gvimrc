@@ -16,7 +16,7 @@ set guioptions-=T
 set guioptions-=L
 
 " tab settings
-set guitablabel=%M\ %-13.13t\ %N
+set guitablabel=%-3(%N\ %M%)%-100t
 set guitabtooltip=%F\ (%n)
 
 " always show the tab bar
@@ -53,13 +53,13 @@ if has("gui_macvim")
 
   " repurpose cmd-w to close the tab, and cmd-d to close the buffer
   " macmenu File.Close key=<D-d>
-  anoremenu <silent> .328 File.Close\ Tab :call CloseTab()<CR>
+  anoremenu <silent> .328 File.Close\ Tab :call <SID>CloseTab()<CR>
   " macmenu File.Close\ Tab key=<D-w>
   macmenu File.Close\ Tab key=<D-d>
 
   " repurpose cmd-s to :update instead of saving every single time
   macmenu File.Save key=<nop>
-  anoremenu <silent> .339 File.Update :call UpdateBuffer()<CR>
+  anoremenu <silent> .339 File.Update :call <SID>UpdateBuffer()<CR>
   macmenu File.Update key=<D-s>
 
   " change go to file behaviour to go to a new tab, honouring MacVim's file
@@ -96,10 +96,11 @@ if has("gui_macvim")
   " current file (handled by supertab, and <C-N> is already mapped to 'complete')
   " inoremap <C-N> <C-X><C-N>
 
-  " macvim: commentary {{{1
+  " macvim: tcomment {{{1
 
-  nmap <D-/> <Plug>CommentaryLine
-  nmap <D-'> <Plug>Commentary
+  nmap <D-/> gcc
+  vmap <D-/> gc
+  nmap <D-\> gc
 
 " gvim {{{1
 
@@ -123,7 +124,7 @@ endif
 " trigger this action too, unfortunately)
 autocmd BufNew * if &showtabline && winnr("$") == 1 | tabmove | endif
 
-function! CloseTab() " {{{1
+function! s:CloseTab() " {{{1
   try
     tabclose!
   catch
@@ -131,7 +132,7 @@ function! CloseTab() " {{{1
   endtry
 endfunction
 
-function! UpdateBuffer() " {{{1
+function! s:UpdateBuffer() " {{{1
   " only save the buffer when there is something to save
   try
     update

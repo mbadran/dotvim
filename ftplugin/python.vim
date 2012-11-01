@@ -6,8 +6,8 @@ setlocal shiftwidth=4
 setlocal softtabstop=4
 setlocal expandtab
 
-" unset _ as a word delimiter
-" setlocal iskeyword+=_
+" unset _ as a word delimiter (this will allow jump-to-definition to work)
+setlocal iskeyword+=_
 
 " undo pymode's silly setting
 " setlocal relativenumber

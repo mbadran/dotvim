@@ -11,30 +11,25 @@ try
   " bundles: github {{{1
 
   Bundle 'Lokaltog/vim-powerline'
-  " i suspect this is slowing down vim
-  " Bundle 'Rykka/ColorV'
   Bundle 'Shougo/neocomplcache'
   Bundle 'Valloric/MatchTagAlways'
   Bundle 'altercation/vim-colors-solarized'
   Bundle 'csexton/trailertrash.vim'
   Bundle 'ervandew/supertab'
   Bundle 'fs111/pydoc.vim'
-  " conflicts with supertab -- reevaluate
-  " Bundle 'garbas/vim-snipmate'
   Bundle 'gmarik/sudo-gui.vim'
-  " Bundle 'gregsexton/MatchTag'
   Bundle 'hobbestigrou/vimtips-fortune'
-  " Bundle 'ivanov/vim-ipython'
   Bundle 'kana/vim-smartinput'
-  Bundle 'kana/vim-textobj-user'
-  Bundle 'kana/vim-textobj-fold'
-  Bundle 'kana/vim-textobj-lastpat'
+  " TODO: evaluate textobjects
+  " Bundle 'kana/vim-textobj-user'
+  " Bundle 'kana/vim-textobj-fold'
+  " Bundle 'kana/vim-textobj-lastpat'
   " Bundle 'kana/vim-textobj-function'
   Bundle 'kien/ctrlp.vim'
-  " required by snipmate
-  " Bundle 'MarcWeber/vim-addon-mw-utils'
   Bundle 'majutsushi/tagbar'
   Bundle 'mattn/ctrlp-register'
+  " TODO: evaluate pastebin
+  Bundle 'mattn/pastebin-vim'
   Bundle 'michaeljsmith/vim-indent-object'
   Bundle 'myusuf3/numbers.vim'
   " Bundle 'nathanaelkane/vim-indent-guides'
@@ -44,17 +39,14 @@ try
   " Bundle 'sjl/clam.vim'
   Bundle 'sjl/gundo.vim'
   Bundle 'sontek/rope-vim'
-  " i suspect this is slowing down vim
-  " Bundle 'skammer/vim-css-color'
+  Bundle 'skammer/vim-css-color'
   Bundle 'sukima/xmledit'
   " TODO: check out doc and convert filetype run commands to quickrun modules
   Bundle 'thinca/vim-quickrun'
+  Bundle 'tomtom/tcomment_vim'
   Bundle 'tomtom/quickfixsigns_vim'
-  " required by quickfixsigns and snipmate
+  " required by quickfixsigns
   Bundle 'tomtom/tlib_vim'
-  " TODO: find out if this does anything other than just define commands and autoread
-  " Bundle 'tony/vim-tail'
-  Bundle 'tpope/vim-commentary'
   Bundle 'tpope/vim-endwise'
   Bundle 'tpope/vim-eunuch'
   Bundle 'tpope/vim-fugitive'
@@ -62,12 +54,12 @@ try
   Bundle 'tpope/vim-repeat'
   Bundle 'tpope/vim-surround'
   Bundle 'tpope/vim-unimpaired'
-  Bundle 'tyru/regbuf.vim'
-  Bundle 'xolox/vim-easytags'
+  " Bundle 'xolox/vim-easytags'
 
   " bundles: vim-scripts {{{1
 
   Bundle 'AfterColors.vim'
+  Bundle 'CmdlineComplete'
   Bundle 'argtextobj.vim'
   Bundle 'closetag.vim'
 
@@ -80,7 +72,7 @@ set runtimepath+=$HOME/.vim/mundle/headlights
 set runtimepath+=$HOME/.vim/mundle/quicktrix
 set runtimepath+=$HOME/.vim/mundle/jpythonfold.vim
 " set runtimepath+=$HOME/.vim/mundle/vimbits
-set runtimepath+=$HOME/.vim/mundle/vimroom
+" set runtimepath+=$HOME/.vim/mundle/vimroom
 
 " settings {{{1
 
@@ -115,14 +107,12 @@ set confirm
 set visualbell
 set t_vb=
 
-" highlight the line the cursor is on
-set cursorline
-
 " enable the mouse in all modes
 set mouse=a
 
 " avoid most prompts to continue
-set cmdheight=3
+" set cmdheight=3
+set cmdheight=2
 
 " time out quickly on mappings
 set timeout
@@ -149,6 +139,7 @@ set shortmess+=I
 
 " keep the cursor in the middle of the window
 set scrolloff=999
+set sidescrolloff=999
 
 " put new :vsplits windows on the right
 set splitright
@@ -161,12 +152,6 @@ set incsearch
 
 " jump to matching brackets
 set showmatch
-
-" highlight the line the cursor is on in the current buffer
-if has("autocmd")
-  autocmd BufEnter,InsertLeave * setlocal cursorline
-  autocmd BufLeave,InsertEnter * setlocal nocursorline
-endif
 
 " use these file formats when reading and creating files
 set fileformats=unix,dos,mac
@@ -254,6 +239,9 @@ set pumheight=17
 " let the cursor move past the end of the line (helps with b movements)
 " set virtualedit=onemore
 
+" allow the cursor to go anywhere in block mode
+set virtualedit+=block
+
 " show more information while completing tags
 set showfulltag
 
@@ -329,7 +317,7 @@ set shiftround
 
 " autocmds {{{1
 
-if has('autocmd')
+if has("autocmd")
   augroup vimrc
     " reset all autocmds for quick re-sourcing
     autocmd!
@@ -347,8 +335,17 @@ if has('autocmd')
     autocmd BufReadPost * call <SID>GoToLastPosition()
 
     " automatically source vimrc and gvimrc upon saving
-    " autocmd BufWritePost vimrc,gvimrc source %|if exists("g:Powerline_loaded")|call Pl#Load()|endif
-    autocmd BufWritePost vimrc,gvimrc call <SID>Reinit()
+    " (allow nested autocommands for powerline to work)
+    autocmd BufWritePost vimrc,gvimrc nested source %
+
+    " resize splits when the window is resized
+    autocmd VimResized * wincmd = 
+    " highlight the line the cursor is on in the current buffer
+    if has("gui_running")
+      autocmd BufEnter,InsertLeave * setlocal cursorline
+      autocmd BufLeave,InsertEnter * setlocal nocursorline
+    endif
+
   augroup END
 endif
 
@@ -376,14 +373,14 @@ noremap ` '
 " side effect: operator-pending movements behave differently on unwrapped lines
 " use dgj and dgk instead of the handy dj and dk (annoying but consistent)
 " this is bad to ingrain into muscle memory, gets confusing when using vanilla vim
-" noremap j gj
-" noremap k gk
-" noremap 0 g0
-" noremap $ g$
-" noremap gj j
-" noremap gk k
-" noremap g0 0
-" noremap g$ $
+noremap j gj
+noremap k gk
+noremap 0 g0
+noremap $ g$
+noremap gj j
+noremap gk k
+noremap g0 0
+noremap g$ $
 
 " invoke command line mode with one key
 noremap <space> :
@@ -444,13 +441,21 @@ nnoremap <silent> <leader>vw :%s/\r//e<Bar>set fileformat=unix<CR>
 nnoremap <leader>vx :setlocal filetype=txt<CR>
 
 " follow the symlinks so we can check in changes
-nnoremap <silent> <leader>vv :execute "tabedit " . resolve($MYVIMRC)<CR>
-nnoremap <silent> <leader>vg :execute "tabedit " . resolve($MYGVIMRC)<CR>
-nnoremap <silent> <leader>vs :update<Bar>source %<CR>
-nnoremap <silent> <leader>vt :tabedit ~/Dropbox/todo/1_Life.taskpaper<CR>
-nnoremap <silent> <leader>vc :call <SID>ToggleColorColumn()<CR>
+nnoremap <silent> <leader>ev :execute "tabedit " . resolve($MYVIMRC)<CR>
+nnoremap <silent> <leader>eg :execute "tabedit " . resolve($MYGVIMRC)<CR>
 
-nnoremap <silent> <leader>b :buffers<CR>
+nnoremap <silent> <leader>eh :tabedit /etc/hosts<CR>
+nnoremap <silent> <leader>es :tabedit $HOME/.screenrc<CR>
+nnoremap <silent> <leader>ec :tabedit $HOME/.ssh/config<CR>
+
+nnoremap <silent> <leader>vs :update<Bar>source %<CR>
+" nnoremap <silent> <leader>vt :tabedit ~/Dropbox/todo/1_Life.taskpaper<CR>
+
+nnoremap <silent> <leader>c :call <SID>ToggleColorColumn()<CR>
+
+nnoremap <silent> <leader>l :call <SID>ToggleListChars()<CR>
+
+" nnoremap <silent> <leader>b :buffers<CR>
 
 nnoremap <leader>h :help<Space>
 
@@ -476,13 +481,13 @@ nnoremap * *<C-o>
 nnoremap # #<C-o>
 
 " show only the current buffer
-nnoremap <leader>o :silent only<CR>
+nnoremap <silent> <leader>o :silent only<CR>
 
 " fast make. that is all.
 nnoremap <silent> <leader>m :make<CR>
 
 " toggle case in Word
-nnoremap ,u g~iW
+" nnoremap ,u g~iW
 " toggle case till End (for sentence case)
 " nnoremap ,U g~E
 
@@ -493,12 +498,9 @@ nnoremap R gR
 " nnoremap <C-r> <nop>
 nnoremap U <C-r>
 
-" TODO: this can be HD. find a shorter shortcut?
-" nnoremap _ 0D
-
 " also map the following:
 " + and - for space.vim
-" TODO: map to important things: leader tab,
+" TODO: map to important things: leader tab, leader leader
 
 " TODO: consider using A-] (or C-|) to open in a horizontal split (i suspect i'll prefer vertical splits though)
 " nnoremap <C-\> :vsplit <CR>:exec("tselect ".expand("<cword>"))<CR>
@@ -516,13 +518,23 @@ nnoremap <A-]> :pop<CR>
 " unit tests)
 " nmap HH :silent !afplay ~/.vim/tools/succ_horns01.mp3 1>&-2>&-&<CR><C-l>
 
+" keep the cursor in place while joining lines
+nnoremap J mzJ`z
+
 " mappings: visual {{{1
 
 " reselect after an indent action (to facilitate repeat actions)
 vnoremap > >gv
 vnoremap < <gv
 
+vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
+vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
+
 " mappings: command {{{1
+
+" emacs bindings in command line mode
+cnoremap <C-a> <home>
+cnoremap <C-e> <end>
 
 " do a sudo write
 " cnoremap w!! w !sudo tee % > /dev/null
@@ -582,25 +594,25 @@ command! DiffOrig vertical new | set buftype=nofile | r # | 0d_ | diffthis | win
 
 " terminal {{{1
 
-if !has('gui_running')
+if !has("gui_running")
+  " plugins should be disabled
+
+  " set the terminal to 256 colors
   set t_Co=256
-  set background=dark
 
-  let g:loaded_fortune_vimtips = 1
+  " set background=dark
+  " colorscheme default
 
-  try
-    " colorscheme solarized
-    colorscheme jellybeans
-  catch /E185/
-    colorscheme zellner
-  endtry
-
+  " don't highlight the current line
   set nocursorline
+  " set the terminal's title to the filename
   set title
+  " show the cursor position
+  set ruler
 
-  if v:version > 702
-    set colorcolumn=81
-  endif
+  " if v:version > 702
+    " set colorcolumn=81
+  " endif
 endif
 
 " plugin: runtime {{{1
@@ -622,7 +634,7 @@ let g:headlights_show_functions = 1
 " let g:headlights_smart_menus = 0
 let g:headlights_show_highlights = 1
 " let g:headlights_unprefix_names = 0
-let g:headlights_run_on_startup = 1
+" let g:headlights_run_on_startup = 1
 " let g:headlights_spillover_menus = 1
 
 " plugin: syntastic {{{1
@@ -667,7 +679,7 @@ let g:quickfixsigns_classes = ["qfl", "loc", "marks", "breakpoints"]
 " let g:quickfixsigns_blacklist_buffer = '^__.*__\|.\*Scratch.\*\|.\*unite.*\|\[.*$'
 " let g:quickfixsigns_blacklist_buffer = '^__.*__\|^$\|.\*unite.*\|\[.*$'
 " let g:quickfixsigns_blacklist_buffer = '^__.*__\|^$\|.\*unite.*\|.*path.*\|\[.*$'
-let g:quickfixsigns_blacklist_buffer = '^__.*__\|^$\|^\*unite\|^regbuf\|ControlP\|\[.*$'
+let g:quickfixsigns_blacklist_buffer = '^__.*__\|^$\|^\*unite\|^regbuf\|ControlP\|^vimtips\|\[.*$'
 let g:quickfixsigns#marks#texthl = "SignColumn"
 let g:quickfixsigns_icons = {}
 
@@ -684,22 +696,19 @@ let g:easytags_cmd = "/usr/local/bin/ctags"
 " https://github.com/mbadran/dotvim/blob/8aff32cad3305f58f274540d6f198a4dcb19473d/vimrc
 let g:Powerline_symbols = "fancy"
 
-" let g:Powerline_theme = "skwp"
-" let g:Powerline_colorscheme = "skwp"
-
-" call Pl#Theme#RemoveSegment("fileencoding")
-" call Pl#Theme#RemoveSegment("fileformat")
-" call Pl#Theme#InsertSegment("pwd", "before", "filetype")
-" call Pl#Theme#InsertSegment("ws_marker", "after", "lineinfo")
-
+" move things around in the default theme
 call Pl#Theme#RemoveSegment("fileencoding")
 call Pl#Theme#RemoveSegment("fileformat")
 call Pl#Theme#RemoveSegment("filetype")
-call Pl#Theme#InsertSegment("filetype", "after", "fileinfo")
-" TODO: figure out how to move these
-" call Pl#Theme#RemoveSegment("currenttag")
-" call Pl#Theme#RemoveSegment("fullcurrenttag")
-call Pl#Theme#InsertSegment("pwd", "before", "scrollpercent")
+" call Pl#Theme#RemoveSegment("fugitive\:branch")
+call Pl#Theme#RemoveSegment("tagbar\:currenttag")
+call Pl#Theme#InsertSegment("fileformat", "after", "syntastic\:errors")
+call Pl#Theme#InsertSegment("filetype", "after", "fileformat")
+" call Pl#Theme#InsertSegment("fugitive\:branch", "before", "rvm\:string")
+" call Pl#Theme#InsertSegment("tagbar\:currenttag", "before", "fugitive\:branch")
+" call Pl#Theme#InsertSegment("pwd", "before", "tagbar\:currenttag")
+call Pl#Theme#InsertSegment("pwd", "before", "rvm\:string")
+" call Pl#Theme#InsertSegment("tagbar\:currenttag", "before", "pwd")
 call Pl#Theme#InsertSegment("ws_marker", "after", "lineinfo")
 
 " plugin: solarized {{{1
@@ -709,9 +718,6 @@ let g:solarized_menu = 0
 " plugin: neocomplcache {{{1
 let g:neocomplcache_enable_at_startup = 1
 let g:neocomplcache_source_disable = {"dictionary_complete": 1}
-
-" plugin: regbuf {{{1
-nnoremap <leader>R :RegbufOpen<CR>
 
 " plugin: fugitive {{{1
 nnoremap <leader>gg :Git<space>
@@ -736,7 +742,7 @@ nnoremap <silent> <leader>d :QTodo<CR>
 " nnoremap <leader>H :QHelp<Space>
 nnoremap <silent> <leader>g :QGrep<CR>
 nnoremap <silent> <leader>f :QFind<CR>
-nnoremap <silent> <leader>l :QLocate<CR>
+nnoremap <silent> <leader>e :QLocate<CR>
 nnoremap <silent> <leader>H :QHelp<CR>
 
 " plugin: jpythonfold {{{1
@@ -748,8 +754,26 @@ let g:jpythonfold_Compact = 0
 
 let g:ctrlp_switch_buffer = "ETVH"
 let g:ctrlp_max_height = 25
+" only for creating new files
+" let g:ctrlp_open_new_file = 't'
+" open all files in new tabs
+let g:ctrlp_open_multiple_files = 'tj'
+" don't prompt for options when opening tabs
+let g:ctrlp_arg_map = 0
+" reset mru files
+let g:ctrlp_mruf_max = 25
+let g:ctrlp_mruf_exclude = '.*vimrc\|.*/vim/runtime/doc.*\|/private/var/.*'
+
+" FIXME: i just want to open files in a new tab when i hit enter, why is that
+" so hard?
+" let g:ctrlp_prompt_mappings = {
+  " \ 'AcceptSelection("t")': ['<cr>']
+" \}
 
 nnoremap <silent> <leader>T :CtrlPBufTag<CR>
+nnoremap <silent> <leader>b :CtrlPBookmarkDir<CR>
+nnoremap <silent> <leader>u :CtrlPMRUFiles<CR>
+nnoremap <silent> <leader>R :CtrlPRegister<CR>
 
 " plugin: ipython {{{1
 
@@ -761,6 +785,15 @@ nnoremap <silent> <leader>T :CtrlPBufTag<CR>
 
 " nnoremap ! :Clam<space>
 " vnoremap ! :ClamVisual<space>
+
+" plugin: quickrun {{{1
+
+let g:quickrun_config = {}
+let g:quickrun_config.python = {"split": "botright", "running_mark": "Running...", "quickfix": "&errorformat"}
+
+" plugin: tlib {{{1
+
+nnoremap <silent> <leader>s :tabnew<Bar>TScratch!<CR>
 
 function! s:GoToLastPosition() " {{{1
   if line("'\"") > 0 && line("'\"") <= line("$")
@@ -840,6 +873,33 @@ function! s:IsSpecialBuffer() " {{{1
   return 0
 endfunction
 
+function! s:ToggleListChars() " {{{1
+  " optimised for solarized
+  " hide tildes by default, allow toggle for special chars
+  " TODO: convert this into a plugin that takes the highlight commands as input
+  " and then just call it from here (or any other colorscheme 'after' scripts)
+  " ,c for [list/special] characters
+  if exists('w:ListChars')
+    highlight NonText guifg=#002b36 ctermfg=8 guibg=#002b36 ctermbg=8
+    highlight SpecialKey guifg=#002b36 ctermfg=8 guibg=#002b36 ctermbg=8
+    set nolist
+    unlet w:ListChars
+  else
+    let w:ListChars = 1
+    highlight Nontext guifg=#ffffff ctermfg=white guibg=#002b36 ctermbg=8
+    highlight SpecialKey guifg=#ffffff ctermfg=white guibg=#002b36 ctermbg=8
+    set list
+  endif
+endfun
+
+function! s:VSetSearch() " {{{1
+  " Visual Mode */# from Scrooloose
+  let temp = @@
+  norm! gvy
+  let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
+  let @@ = temp
+endfunction
+
 function! MyFoldText() " {{{1
   " kiss -- don't show number of folded lines (unnecessary metadata)
   let line = getline(v:foldstart)
@@ -848,16 +908,10 @@ function! MyFoldText() " {{{1
   return "+-- " . substitute(text, '\v^\s+|\s+$', '', 'g') . " "
 endfunction
 
-function! s:Reinit() " {{{1
-  execute "source " . $MYVIMRC
-  source ~/.gvimrc
-  source $HOME/.vim/after/colors/solarized.vim
-  " if exists("g:Powerline_loaded")
-    " call Pl#Load()
-  " endif
-endfunction
-
 " cheatsheet {{{1
+
+" profiling vim
+" # vim --startuptime vim.log
 
 " '. goes to previously edited line
 " `. goes to previous column on previously edited line
@@ -976,6 +1030,9 @@ endfunction
 
 " todo {{{1
 
+" TODO: instead of using the tlib input list, create a ctrlp location list
+" plugin and invoke that alongside the quickfix or location list window
+
 " TODO: add cheatsheet items for everything you want to improve -- marks,
 " registers, etc. only way you'll learn if you have an immediate reference.
 " also: sessions, movement commands (as per the grok vim post), etc
@@ -983,8 +1040,6 @@ endfunction
 
 " TODO: add more omnicomplete keywords to the cheatsheet (such as c-x, c-k for
 " dictionary)
-
-" TODO: find a replacement for snipmate not from marcweber -- too heavy
 
 " TODO: add <unique> and hasmapto to mappings in your scripts
 " TODO: master undo trees (with potential visual plugin), registers, folds, macros (flash cards)
