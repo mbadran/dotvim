@@ -47,10 +47,6 @@ if has("gui_macvim")
   nnoremap <D-8> 8gt
   nnoremap <D-9> 9gt
 
-  " add peepopen to the file menu
-  " anoremenu <silent> .305 File.PeepOpen :PeepOpen<CR>
-  " macmenu File.PeepOpen key=<D-S-o>
-
   " repurpose cmd-w to close the tab, and cmd-d to close the buffer
   " macmenu File.Close key=<D-d>
   anoremenu <silent> .328 File.Close\ Tab :call <SID>CloseTab()<CR>
@@ -62,12 +58,8 @@ if has("gui_macvim")
   anoremenu <silent> .339 File.Update :call <SID>UpdateBuffer()<CR>
   macmenu File.Update key=<D-s>
 
-  " change go to file behaviour to go to a new tab, honouring MacVim's file
-  " opening preferences and registering with recent files history
-  nnoremap <silent> gf :silent !open -a MacVim <cfile><CR>
-
   " open urls in the default browser
-  nnoremap <silent> gb :silent !open <cfile><CR>
+  nnoremap <silent> gb :silent !open <cWORD><CR>
 
   " map omnicompletion shortcuts (corresponding to their <c-x><c-?> letter
   " (:help ins-completion)
@@ -95,6 +87,9 @@ if has("gui_macvim")
   " inoremap <C-L> <C-L>
   " current file (handled by supertab, and <C-N> is already mapped to 'complete')
   " inoremap <C-N> <C-X><C-N>
+
+  " sudo write for mac
+  nnoremap <silent> <leader>w :SudoWriteMacGUI<CR>
 
   " macvim: tcomment {{{1
 

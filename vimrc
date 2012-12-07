@@ -13,7 +13,7 @@ try
   Bundle 'Lokaltog/vim-powerline'
   Bundle 'Shougo/neocomplcache'
   " TODO: evaluate write.vim
-  Bundle 'Soares/write.vim'
+  " Bundle 'Soares/write.vim'
   Bundle 'Valloric/MatchTagAlways'
   Bundle 'altercation/vim-colors-solarized'
   Bundle 'csexton/trailertrash.vim'
@@ -21,6 +21,7 @@ try
   Bundle 'fs111/pydoc.vim'
   Bundle 'gmarik/sudo-gui.vim'
   Bundle 'hobbestigrou/vimtips-fortune'
+  " Bundle 'honza/writer.vim'
   Bundle 'kana/vim-smartinput'
   " TODO: evaluate textobjects
   " Bundle 'kana/vim-textobj-user'
@@ -28,6 +29,7 @@ try
   " Bundle 'kana/vim-textobj-lastpat'
   " Bundle 'kana/vim-textobj-function'
   Bundle 'kien/ctrlp.vim'
+  Bundle 'kien/rainbow_parentheses.vim'
   Bundle 'majutsushi/tagbar'
   Bundle 'mattn/ctrlp-register'
   " TODO: evaluate pastebin
@@ -37,14 +39,14 @@ try
   Bundle 'myusuf3/numbers.vim'
   " Bundle 'nathanaelkane/vim-indent-guides'
   Bundle 'rkitover/vimpager'
+  Bundle 'scrooloose/nerdtree'
   Bundle 'scrooloose/syntastic'
   Bundle 'sickill/vim-pasta'
-  " Bundle 'sjl/clam.vim'
+  Bundle 'sjl/clam.vim'
   Bundle 'sjl/gundo.vim'
   Bundle 'sontek/rope-vim'
   Bundle 'skammer/vim-css-color'
   Bundle 'sukima/xmledit'
-  " TODO: check out doc and convert filetype run commands to quickrun modules
   Bundle 'thinca/vim-quickrun'
   Bundle 'tomtom/tcomment_vim'
   Bundle 'tomtom/quickfixsigns_vim'
@@ -57,7 +59,9 @@ try
   Bundle 'tpope/vim-repeat'
   Bundle 'tpope/vim-surround'
   Bundle 'tpope/vim-unimpaired'
-  " Bundle 'xolox/vim-easytags'
+  " Bundle 'tyru/open-browser.vim'
+  Bundle 'xolox/vim-easytags'
+  " Bundle 'yesmeck/tips.vim'
 
   " bundles: vim-scripts {{{1
 
@@ -70,14 +74,13 @@ catch /E117/ | endtry    " no vundle
 
 " bundles: mine {{{1
 
+" set runtimepath+=$HOME/.vim/mundle/headlights
 " TODO: improve and release
 set runtimepath+=$HOME/.vim/mundle/quicktrix
 set runtimepath+=$HOME/.vim/mundle/jpythonfold.vim
 " TODO: consider improving and releasing
 " set runtimepath+=$HOME/.vim/mundle/vimbits
 " set runtimepath+=$HOME/.vim/mundle/vimroom
-" this is done
-" set runtimepath+=$HOME/.vim/mundle/headlights
 
 " settings {{{1
 
@@ -344,7 +347,8 @@ if has("autocmd")
     autocmd BufWritePost vimrc,gvimrc nested source %
 
     " resize splits when the window is resized
-    autocmd VimResized * wincmd = 
+    autocmd VimResized * if bufname("") != 'vimtips.~' | wincmd =  | endif
+
     " highlight the line the cursor is on in the current buffer
     if has("gui_running")
       autocmd BufEnter,InsertLeave * setlocal cursorline
@@ -487,8 +491,12 @@ nnoremap # #<C-o>
 
 " show only the current buffer
 nnoremap <silent> <leader>o :silent only<CR>
+nnoremap <silent> <leader>, :silent only<CR>
 
-" fast make. that is all.
+" show only the current tab
+nnoremap <silent> <leader>O :silent tabonly<CR>
+
+" fast make
 nnoremap <silent> <leader>m :make<CR>
 
 " toggle case in Word
@@ -520,11 +528,14 @@ nnoremap - <C-w>-
 nnoremap <A-]> :pop<CR>
 
 " TODO: make this into a function and map it after a successful run (for eg.
-" unit tests)
+" unit tests or quickrun (somehow))
 " nmap HH :silent !afplay ~/.vim/tools/succ_horns01.mp3 1>&-2>&-&<CR><C-l>
 
 " keep the cursor in place while joining lines
 nnoremap J mzJ`z
+
+" copy the current filename to the clipboard
+nnoremap <leader>F let @* = expand("%:p")
 
 " mappings: visual {{{1
 
@@ -625,7 +636,6 @@ endif
 runtime! macros/matchit.vim
 runtime! ftplugin/man.vim
 
-
 " plugin: headlights {{{1
 
 " let g:headlights_use_plugin_menu = 1
@@ -691,10 +701,6 @@ let g:quickfixsigns_icons = {}
 " plugin: easytags {{{1
 
 let g:easytags_cmd = "/usr/local/bin/ctags"
-
-" plugin: csscolor {{{1
-
-" let g:cssColorVimDoNotMessMyUpdatetime = 1
 
 " plugin: powerline {{{1
 
@@ -780,25 +786,32 @@ nnoremap <silent> <leader>b :CtrlPBookmarkDir<CR>
 nnoremap <silent> <leader>u :CtrlPMRUFiles<CR>
 nnoremap <silent> <leader>R :CtrlPRegister<CR>
 
-" plugin: ipython {{{1
-
-" let g:ipy_perform_mappings = 0
-
 " plugin: clam {{{1
 
-" let g:clam_winpos = 'botright'
+let g:clam_winpos = 'botright'
 
-" nnoremap ! :Clam<space>
-" vnoremap ! :ClamVisual<space>
+nnoremap ! :Clam<space>
+vnoremap ! :ClamVisual<space>
 
 " plugin: quickrun {{{1
 
 let g:quickrun_config = {}
-let g:quickrun_config.python = {"split": "botright", "running_mark": "Running...", "quickfix": "&errorformat"}
+let g:quickrun_config.html = {"exec": "bcat %s", "outputter": "null"}
+let g:quickrun_config.ruby = {"outputter": "error", "outputter/error/error": "quickfix", "outputter/error/success": "buffer"}
+let g:quickrun_config.markdown = {"exec": "open -a /Applications/Marked.app %s", "outputter": "null"}
+" let g:quickrun_config.java = {"exec" : "cd /Users/fpg/Documents/projects/nhccn/EpochTime;./build.sh", "running_mark": "Building...", "outputter": "error", "outputter/error/error": "buffer", "outputter/error/success": "message"}
+" use ant to make, using a build file above this (src) one
+"let b:makeprgvar='ant\ -f\ ' . expand('%:p:h") . '/../build.xml'
+" let b:makeprgvar='ant\ -f\ ' . '..\build.xml'
+" execute ':setlocal makeprg=' . b:makeprgvar
+" execute ":setlocal makeprg=" . b:makeprgvar
 
 " plugin: tlib {{{1
 
 nnoremap <silent> <leader>s :tabnew<Bar>TScratch!<CR>
+" plugin: nerdtree {{{1
+
+nnoremap <silent> <leader>n :NERDTree<CR>
 
 function! s:GoToLastPosition() " {{{1
   if line("'\"") > 0 && line("'\"") <= line("$")

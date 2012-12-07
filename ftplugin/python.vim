@@ -9,17 +9,13 @@ setlocal expandtab
 " unset _ as a word delimiter (this will allow jump-to-definition to work)
 setlocal iskeyword+=_
 
-" undo pymode's silly setting
-" setlocal relativenumber
-
 " abbreviations {{{1
-" TODO: consider using snipmate for this stuff
-
 inoreabbrev <buffer> ;;l % locals()
 inoreabbrev <buffer> ;;b #! /usr/bin/env python
 inoreabbrev <buffer> ;;i import 
 inoreabbrev <buffer> ;;s self.
 
+" TODO: reexamine these
 "noreabbrev <expr> c resolve("%:p:h") . "/"
 "inoreabbrev <expr> ;;k resolve("%:p:h") . "/"
 "inoreabbrev <buffer> ;;l resolve("%:p:h") . "/"

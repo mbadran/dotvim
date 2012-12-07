@@ -23,10 +23,6 @@ inoremap ? ?<C-g>u
 inoremap : :<C-g>u
 inoremap ; ;<C-g>u
 
-" run {{{1
-
-nnoremap <buffer> <silent> <leader>r :echomsg "Running in Marked..."<CR><Bar>:silent !open -a /Applications/Marked.app %<CR>
-
 " commands {{{1
 
 " complete from dictionary by default
