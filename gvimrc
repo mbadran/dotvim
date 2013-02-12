@@ -20,14 +20,18 @@ set guitablabel=%-3(%N\ %M%)%-100t
 set guitabtooltip=%F\ (%n)
 
 " always show the tab bar
-set showtabline=2
+" set showtabline=2
+
+" never show the tab bar
+set showtabline=0
 
 " macvim: settings {{{1
 
 if has("gui_macvim")
   set macmeta
 
-  set guifont=Meslo\ LG\ S\ DZ:h13
+  " set guifont=Meslo\ LG\ S\ DZ:h13
+  set guifont=Meslo\ LG\ S\ DZ\ Regular\ for\ Powerline:h14
 
   " remove the right scrollbar for now (ugly in Lion)
   set guioptions-=r

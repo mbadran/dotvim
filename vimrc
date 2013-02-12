@@ -1,25 +1,28 @@
 " mbadran's vimrc <github.com/mbadran/dotvim>
 
+" powerline {{{1
+set rtp+=~/Library/Python2.7/site-packages/powerline/bindings/vim
+
 " bundles: boilerplate {{{1
 set runtimepath+=$HOME/.vim/bundle/vundle/
 try
   call vundle#rc()
 
-  " let vundle manage vundle
-  Bundle 'gmarik/vundle'
-
   " bundles: github {{{1
 
-  Bundle 'Lokaltog/vim-powerline'
   Bundle 'Shougo/neocomplcache'
   " TODO: evaluate write.vim
   " Bundle 'Soares/write.vim'
   Bundle 'Valloric/MatchTagAlways'
   Bundle 'altercation/vim-colors-solarized'
+  Bundle 'avakhov/vim-yaml'
+  Bundle 'chreekat/vim-paren-crosshairs'
   Bundle 'csexton/trailertrash.vim'
   Bundle 'ervandew/supertab'
   Bundle 'fs111/pydoc.vim'
   Bundle 'gmarik/sudo-gui.vim'
+  " let vundle manage vundle
+  Bundle 'gmarik/vundle'
   Bundle 'hobbestigrou/vimtips-fortune'
   " Bundle 'honza/writer.vim'
   Bundle 'kana/vim-smartinput'
@@ -38,6 +41,7 @@ try
   Bundle 'michaeljsmith/vim-indent-object'
   Bundle 'myusuf3/numbers.vim'
   " Bundle 'nathanaelkane/vim-indent-guides'
+  Bundle 'nelstrom/vim-markdown-folding'
   Bundle 'rkitover/vimpager'
   Bundle 'scrooloose/nerdtree'
   Bundle 'scrooloose/syntastic'
@@ -60,6 +64,7 @@ try
   Bundle 'tpope/vim-surround'
   Bundle 'tpope/vim-unimpaired'
   " Bundle 'tyru/open-browser.vim'
+  Bundle 'wikitopian/hardmode'
   Bundle 'xolox/vim-easytags'
   " Bundle 'yesmeck/tips.vim'
 
@@ -94,7 +99,7 @@ syntax on
 
 " enable case insensitive search when using lowercase letters
 set ignorecase
-set smartcase
+" set smartcase
 
 " enable case insensitive keyword completion when ignorecase is on
 set infercase
@@ -120,7 +125,7 @@ set mouse=a
 
 " avoid most prompts to continue
 " set cmdheight=3
-set cmdheight=2
+" set cmdheight=2
 
 " time out quickly on mappings
 set timeout
@@ -131,7 +136,10 @@ set ttimeout
 set ttimeoutlen=200
 
 " keep all modified buffers visible
-set nohidden
+" set nohidden
+
+" allow modified buffers to be hidden
+set hidden
 
 " enhance command line completion
 set wildmenu
@@ -191,7 +199,7 @@ if v:version > 702
 
   " save undo files far away (put the full dir path in the filename)
   " (when the system restarts, undo files will be lost, which is OK
-  set undodir=$TEMP//,$TMP//,$TMPDIR//,.
+  set undodir=$TEMP//,$TMP//,$TMPDIR//,/tmp/.
   " set undodir=$HOME/.vim/undo//
 else
   " change to dir of the current file automatically
@@ -207,7 +215,7 @@ set backup
 " save backup files far away (put the full dir path in the filename)
 " // expands to full dir path, not just filename (doesn't work on windows)
 " (when the system restarts, backup files will be lost, which is OK
-set backupdir=$TEMP//,$TMP//,$TMPDIR//,.
+set backupdir=$TEMP//,$TMP//,$TMPDIR//,/tmp/.
 " set backupdir=$HOME/.vim/backup//
 
 " list all matches and complete till longest common string
@@ -236,10 +244,10 @@ set nojoinspaces
 set guicursor+=n:blinkon0
 
 " use the system clipboard as the default register
-set clipboard=unnamed
+" set clipboard=unnamed
 
 " only save tabs when making sessions
-set sessionoptions=tabpages
+" set sessionoptions=tabpages
 
 " limit the number of menu items for omnicompletion (temporary hack)
 set pumheight=17
@@ -298,12 +306,17 @@ set diffopt+=iwhite
 
 " make quickfix (and :sb* commands) switch to open windows and tabs
 " (this breaks :sbuffer -- use :vsp and :spl instead)
-set switchbuf=useopen,usetab
+" set switchbuf=useopen,usetab
+set switchbuf=useopen
 " make quickfix open new tabs (splits in <v7) instead of reusing the window
-set switchbuf+=split,newtab
+" set switchbuf+=split,newtab
+set switchbuf+=split
 
 " better line wraps
 set showbreak=↪
+
+" don't show the mode (tmux has got this)
+set noshowmode
 
 " indentation {{{1
 
@@ -343,17 +356,20 @@ if has("autocmd")
     autocmd BufReadPost * call <SID>GoToLastPosition()
 
     " automatically source vimrc and gvimrc upon saving
-    " (allow nested autocommands for powerline to work)
+    " (allow nested autocommands)
     autocmd BufWritePost vimrc,gvimrc nested source %
 
     " resize splits when the window is resized
-    autocmd VimResized * if bufname("") != 'vimtips.~' | wincmd =  | endif
+    autocmd VimResized * wincmd =
 
     " highlight the line the cursor is on in the current buffer
     if has("gui_running")
       autocmd BufEnter,InsertLeave * setlocal cursorline
       autocmd BufLeave,InsertEnter * setlocal nocursorline
     endif
+
+    " enable hardmode
+    autocmd VimEnter,BufNewFile,BufReadPost * silent call HardMode()
 
   augroup END
 endif
@@ -392,9 +408,9 @@ noremap g0 0
 noremap g$ $
 
 " invoke command line mode with one key
-noremap <space> :
+" noremap <space> :
 " invoke commandline window with two
-noremap <leader><space> q:i
+" noremap <leader><space> q:i
 
 " make searches 'very magic' by default
 noremap / /\v
@@ -425,10 +441,10 @@ nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
 " make the arrow keys rotate splits (and resize them equally)
-nnoremap <Left> <C-w>L<C-w>=
-nnoremap <Right> <C-w>H<C-w>=
-nnoremap <Up> <C-w>K<C-w>=
-nnoremap <Down> <C-w>J<C-w>=
+" nnoremap <Left> <C-w>L<C-w>=
+" nnoremap <Right> <C-w>H<C-w>=
+" nnoremap <Up> <C-w>K<C-w>=
+" nnoremap <Down> <C-w>J<C-w>=
 
 " repeat the last macro quickly
 nnoremap <leader>. @@
@@ -445,19 +461,25 @@ nnoremap <leader>. @@
 nnoremap <BS> %
 
 " unwindows
-nnoremap <silent> <leader>vw :%s/\r//e<Bar>set fileformat=unix<CR>
+nnoremap <silent> <leader>ew :%s/\r//e<Bar>set fileformat=unix<CR>
 
-nnoremap <leader>vx :setlocal filetype=txt<CR>
+nnoremap <leader>ex :setlocal filetype=txt<CR>
 
 " follow the symlinks so we can check in changes
-nnoremap <silent> <leader>ev :execute "tabedit " . resolve($MYVIMRC)<CR>
-nnoremap <silent> <leader>eg :execute "tabedit " . resolve($MYGVIMRC)<CR>
+" nnoremap <silent> <leader>ev :execute "tabedit " . resolve($MYVIMRC)<CR>
+nnoremap <silent> <leader>ev :execute "edit " . resolve($MYVIMRC)<CR>
+" nnoremap <silent> <leader>eg :execute "tabedit " . resolve($MYGVIMRC)<CR>
+nnoremap <silent> <leader>eg :execute "edit " . resolve($MYGVIMRC)<CR>
 
-nnoremap <silent> <leader>eh :tabedit /etc/hosts<CR>
-nnoremap <silent> <leader>es :tabedit $HOME/.screenrc<CR>
-nnoremap <silent> <leader>ec :tabedit $HOME/.ssh/config<CR>
+" nnoremap <silent> <leader>eh :tabedit /etc/hosts<CR>
+nnoremap <silent> <leader>eh :edit /etc/hosts<CR>
+" nnoremap <silent> <leader>es :tabedit $HOME/.screenrc<CR>
+" nnoremap <silent> <leader>et :tabedit $HOME/.tmux.conf<CR>
+nnoremap <silent> <leader>et :edit $HOME/.tmux.conf<CR>
+" nnoremap <silent> <leader>ec :tabedit $HOME/.ssh/config<CR>
+nnoremap <silent> <leader>ec :edit $HOME/.ssh/config<CR>
 
-nnoremap <silent> <leader>vs :update<Bar>source %<CR>
+nnoremap <silent> <leader>es :update<Bar>source %<CR>
 " nnoremap <silent> <leader>vt :tabedit ~/Dropbox/todo/1_Life.taskpaper<CR>
 
 nnoremap <silent> <leader>c :call <SID>ToggleColorColumn()<CR>
@@ -509,7 +531,7 @@ nnoremap R gR
 
 " easy redo (i never use U to replace)
 " nnoremap <C-r> <nop>
-nnoremap U <C-r>
+" nnoremap U <C-r>
 
 " also map the following:
 " + and - for space.vim
@@ -536,6 +558,22 @@ nnoremap J mzJ`z
 
 " copy the current filename to the clipboard
 nnoremap <leader>F let @* = expand("%:p")
+
+" map splits
+nnoremap <leader>s <C-W>s
+nnoremap <leader>v <C-W>v
+
+" update (write) buffer
+nnoremap <silent> <leader>w :update<CR>
+
+" close buffer
+nnoremap <silent> <leader>c :close<CR>
+
+" quit buffer
+nnoremap <silent> <leader>q :quit<CR>
+
+" edit a new buffer
+nnoremap <silent> <leader>n :enew<CR>
 
 " mappings: visual {{{1
 
@@ -580,7 +618,6 @@ command! DiffOrig vertical new | set buftype=nofile | r # | 0d_ | diffthis | win
 
 " TODO: pull these into a separate plugin
 
-
 " textobject: fold {{{1
 
 " vnoremap af :<C-U>silent! normal! [zV]z<CR>
@@ -614,10 +651,16 @@ if !has("gui_running")
   " plugins should be disabled
 
   " set the terminal to 256 colors
-  set t_Co=256
+  " set t_Co=256
 
-  " set background=dark
   " colorscheme default
+  " colorscheme jellybeans
+
+  " the solarized terminal color scheme should handle this
+  " let g:solarized_termcolors=256
+  " set background=dark
+  " colorscheme solarized
+  source ~/.vim/after/colors/solarized.vim
 
   " don't highlight the current line
   set nocursorline
@@ -705,22 +748,22 @@ let g:easytags_cmd = "/usr/local/bin/ctags"
 " plugin: powerline {{{1
 
 " https://github.com/mbadran/dotvim/blob/8aff32cad3305f58f274540d6f198a4dcb19473d/vimrc
-let g:Powerline_symbols = "fancy"
+" let g:Powerline_symbols = "fancy"
 
 " move things around in the default theme
-call Pl#Theme#RemoveSegment("fileencoding")
-call Pl#Theme#RemoveSegment("fileformat")
-call Pl#Theme#RemoveSegment("filetype")
-" call Pl#Theme#RemoveSegment("fugitive\:branch")
-call Pl#Theme#RemoveSegment("tagbar\:currenttag")
-call Pl#Theme#InsertSegment("fileformat", "after", "syntastic\:errors")
-call Pl#Theme#InsertSegment("filetype", "after", "fileformat")
-" call Pl#Theme#InsertSegment("fugitive\:branch", "before", "rvm\:string")
-" call Pl#Theme#InsertSegment("tagbar\:currenttag", "before", "fugitive\:branch")
-" call Pl#Theme#InsertSegment("pwd", "before", "tagbar\:currenttag")
-call Pl#Theme#InsertSegment("pwd", "before", "rvm\:string")
-" call Pl#Theme#InsertSegment("tagbar\:currenttag", "before", "pwd")
-call Pl#Theme#InsertSegment("ws_marker", "after", "lineinfo")
+" call Pl#Theme#RemoveSegment("fileencoding")
+" call Pl#Theme#RemoveSegment("fileformat")
+" call Pl#Theme#RemoveSegment("filetype")
+" " call Pl#Theme#RemoveSegment("fugitive\:branch")
+" call Pl#Theme#RemoveSegment("tagbar\:currenttag")
+" call Pl#Theme#InsertSegment("fileformat", "after", "syntastic\:errors")
+" call Pl#Theme#InsertSegment("filetype", "after", "fileformat")
+" " call Pl#Theme#InsertSegment("fugitive\:branch", "before", "rvm\:string")
+" " call Pl#Theme#InsertSegment("tagbar\:currenttag", "before", "fugitive\:branch")
+" " call Pl#Theme#InsertSegment("pwd", "before", "tagbar\:currenttag")
+" call Pl#Theme#InsertSegment("pwd", "before", "rvm\:string")
+" " call Pl#Theme#InsertSegment("tagbar\:currenttag", "before", "pwd")
+" call Pl#Theme#InsertSegment("ws_marker", "after", "lineinfo")
 
 " plugin: solarized {{{1
 
@@ -782,7 +825,8 @@ let g:ctrlp_mruf_exclude = '.*vimrc\|.*/vim/runtime/doc.*\|/private/var/.*'
 " \}
 
 nnoremap <silent> <leader>T :CtrlPBufTag<CR>
-nnoremap <silent> <leader>b :CtrlPBookmarkDir<CR>
+nnoremap <silent> <leader>b :CtrlPBuffer<CR>
+nnoremap <silent> <leader>k :CtrlPBookmarkDir<CR>
 nnoremap <silent> <leader>u :CtrlPMRUFiles<CR>
 nnoremap <silent> <leader>R :CtrlPRegister<CR>
 
@@ -808,10 +852,26 @@ let g:quickrun_config.markdown = {"exec": "open -a /Applications/Marked.app %s",
 
 " plugin: tlib {{{1
 
-nnoremap <silent> <leader>s :tabnew<Bar>TScratch!<CR>
+nnoremap <silent> <leader>S :tabnew<Bar>TScratch!<CR>
 " plugin: nerdtree {{{1
 
-nnoremap <silent> <leader>n :NERDTree<CR>
+let g:NERDTreeWinPos = "right"
+let g:NERDTreeShowBookmarks = 1
+let g:NERDTreeMinimalUI = 1
+let g:NERDTreeQuitOnOpen = 1
+
+" nnoremap <silent> <leader>f :NERDTreeToggle<CR>
+" nnoremap <silent> <leader>f :execute "NERDTreeToggle " . getcwd() . "<CR>"
+nnoremap <silent> <leader>f :call ToggleNERDTree()<CR>
+function! ToggleNERDTree() " {{{1
+  if exists("g:NERDTree_opened")
+    execute "NERDTreeClose"
+    unlet g:NERDTree_opened
+  else
+    execute "NERDTree " . getcwd()
+    let g:NERDTree_opened = 1
+  endif
+endfunction
 
 function! s:GoToLastPosition() " {{{1
   if line("'\"") > 0 && line("'\"") <= line("$")
@@ -898,14 +958,14 @@ function! s:ToggleListChars() " {{{1
   " and then just call it from here (or any other colorscheme 'after' scripts)
   " ,c for [list/special] characters
   if exists('w:ListChars')
-    highlight NonText guifg=#002b36 ctermfg=8 guibg=#002b36 ctermbg=8
-    highlight SpecialKey guifg=#002b36 ctermfg=8 guibg=#002b36 ctermbg=8
+    highlight NonText guifg=#002b36 ctermfg=234 guibg=#002b36 ctermbg=NONE
+    highlight SpecialKey guifg=#002b36 ctermfg=234 guibg=#002b36 ctermbg=NONE
     set nolist
     unlet w:ListChars
   else
     let w:ListChars = 1
-    highlight Nontext guifg=#ffffff ctermfg=white guibg=#002b36 ctermbg=8
-    highlight SpecialKey guifg=#ffffff ctermfg=white guibg=#002b36 ctermbg=8
+    highlight Nontext guifg=#ffffff ctermfg=red guibg=#002b36 ctermbg=NONE
+    highlight SpecialKey guifg=#ffffff ctermfg=red guibg=#002b36 ctermbg=NONE
     set list
   endif
 endfun
