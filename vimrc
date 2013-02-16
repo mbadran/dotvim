@@ -1,7 +1,7 @@
 " mbadran's vimrc <github.com/mbadran/dotvim>
 
 " powerline {{{1
-set rtp+=~/Library/Python2.7/site-packages/powerline/bindings/vim
+" set rtp+=~/Library/Python/2.7/lib/python/site-packages/powerline/bindings/vim
 
 " bundles: boilerplate {{{1
 set runtimepath+=$HOME/.vim/bundle/vundle/
@@ -10,43 +10,28 @@ try
 
   " bundles: github {{{1
 
+  Bundle 'Lokaltog/vim-powerline'
   Bundle 'Shougo/neocomplcache'
-  " TODO: evaluate write.vim
-  " Bundle 'Soares/write.vim'
   Bundle 'Valloric/MatchTagAlways'
   Bundle 'altercation/vim-colors-solarized'
   Bundle 'avakhov/vim-yaml'
   Bundle 'chreekat/vim-paren-crosshairs'
   Bundle 'csexton/trailertrash.vim'
-  Bundle 'ervandew/supertab'
   Bundle 'fs111/pydoc.vim'
   Bundle 'gmarik/sudo-gui.vim'
   " let vundle manage vundle
   Bundle 'gmarik/vundle'
-  Bundle 'hobbestigrou/vimtips-fortune'
-  " Bundle 'honza/writer.vim'
   Bundle 'kana/vim-smartinput'
-  " TODO: evaluate textobjects
-  " Bundle 'kana/vim-textobj-user'
-  " Bundle 'kana/vim-textobj-fold'
-  " Bundle 'kana/vim-textobj-lastpat'
-  " Bundle 'kana/vim-textobj-function'
   Bundle 'kien/ctrlp.vim'
-  Bundle 'kien/rainbow_parentheses.vim'
   Bundle 'majutsushi/tagbar'
   Bundle 'mattn/ctrlp-register'
-  " TODO: evaluate pastebin
-  Bundle 'mattn/pastebin-vim'
   Bundle 'mbadran/headlights'
-  Bundle 'michaeljsmith/vim-indent-object'
   Bundle 'myusuf3/numbers.vim'
-  " Bundle 'nathanaelkane/vim-indent-guides'
   Bundle 'nelstrom/vim-markdown-folding'
   Bundle 'rkitover/vimpager'
   Bundle 'scrooloose/nerdtree'
   Bundle 'scrooloose/syntastic'
   Bundle 'sickill/vim-pasta'
-  Bundle 'sjl/clam.vim'
   Bundle 'sjl/gundo.vim'
   Bundle 'sontek/rope-vim'
   Bundle 'skammer/vim-css-color'
@@ -61,19 +46,16 @@ try
   Bundle 'tpope/vim-fugitive'
   Bundle 'tpope/vim-markdown'
   Bundle 'tpope/vim-repeat'
+  Bundle 'tpope/vim-sensible'
   Bundle 'tpope/vim-surround'
   Bundle 'tpope/vim-unimpaired'
-  " Bundle 'tyru/open-browser.vim'
   Bundle 'wikitopian/hardmode'
   Bundle 'xolox/vim-easytags'
-  " Bundle 'yesmeck/tips.vim'
 
   " bundles: vim-scripts {{{1
 
   Bundle 'AfterColors.vim'
   Bundle 'CmdlineComplete'
-  Bundle 'argtextobj.vim'
-  Bundle 'closetag.vim'
 
 catch /E117/ | endtry    " no vundle
 
@@ -99,19 +81,12 @@ syntax on
 
 " enable case insensitive search when using lowercase letters
 set ignorecase
-" set smartcase
 
 " enable case insensitive keyword completion when ignorecase is on
 set infercase
 
-" allow backspacing over autoindent, line breaks, and start of insert action
-set backspace=indent,eol,start
-
 " go to the first non-blank of the line instead of the start (where possible)
 set nostartofline
-
-" always display the status line
-set laststatus=2
 
 " don't fail commands because of unsaved changes
 set confirm
@@ -131,21 +106,8 @@ set mouse=a
 set timeout
 set timeoutlen=500
 
-" time out even more quickly on keycodes
-set ttimeout
-set ttimeoutlen=200
-
-" keep all modified buffers visible
-" set nohidden
-
 " allow modified buffers to be hidden
 set hidden
-
-" enhance command line completion
-set wildmenu
-
-" show partial commands at the bottom
-set showcmd
 
 " highlight search matches
 set hlsearch
@@ -163,20 +125,8 @@ set splitright
 " put new :split windows below
 set splitbelow
 
-" search as you type
-set incsearch
-
-" jump to matching brackets
-set showmatch
-
-" use these file formats when reading and creating files
-set fileformats=unix,dos,mac
-
 " wrap long lines
 set linebreak
-
-" update open files when they're changed externally
-set autoread
 
 " automatically save before certain commands
 set autowriteall
@@ -193,14 +143,6 @@ if v:version > 702
 
   " change to dir of the current file automatically
   set autochdir
-
-  " allow persistent undos across sessions
-  set undofile
-
-  " save undo files far away (put the full dir path in the filename)
-  " (when the system restarts, undo files will be lost, which is OK
-  set undodir=$TEMP//,$TMP//,$TMPDIR//,/tmp/.
-  " set undodir=$HOME/.vim/undo//
 else
   " change to dir of the current file automatically
     lcd %:p:h
@@ -212,18 +154,9 @@ set noswapfile
 " enable backups
 set backup
 
-" save backup files far away (put the full dir path in the filename)
-" // expands to full dir path, not just filename (doesn't work on windows)
-" (when the system restarts, backup files will be lost, which is OK
-set backupdir=$TEMP//,$TMP//,$TMPDIR//,/tmp/.
-" set backupdir=$HOME/.vim/backup//
-
 " list all matches and complete till longest common string
 " (tab twice to cycle through)
 set wildmode=list:longest,list:full
-
-" specify the symbols for unprintable chars
-set listchars=tab:▸\ ,eol:¬,trail:·,nbsp:○,extends:→,precedes:←
 
 " specify the language for spelling corrections
 set spelllang=en_au
@@ -243,17 +176,8 @@ set nojoinspaces
 " stop cursor from blinking in normal mode
 set guicursor+=n:blinkon0
 
-" use the system clipboard as the default register
-" set clipboard=unnamed
-
-" only save tabs when making sessions
-" set sessionoptions=tabpages
-
 " limit the number of menu items for omnicompletion (temporary hack)
 set pumheight=17
-
-" let the cursor move past the end of the line (helps with b movements)
-" set virtualedit=onemore
 
 " allow the cursor to go anywhere in block mode
 set virtualedit+=block
@@ -265,10 +189,6 @@ set showfulltag
 " setting to 1 for now -- too much noise
 set report=1
 
-" retain more history items
-" set history=100
-set history=1000
-
 " match angle brackets too
 set matchpairs+=<:>
 
@@ -276,7 +196,6 @@ set matchpairs+=<:>
 set noequalalways
 
 " speed up background operations
-"set updatetime=1000
 " slow it down for easytags
 set updatetime=4000
 
@@ -291,9 +210,6 @@ set grepprg=ack\ -H\ --nocolor\ --nogroup\ --column
 " set grepformat=%f:%l:%c:%m,%f:%l%c%m,%f %l%c%m
 set grepformat=%f:%l:%c:%m
 
-" disable modelines for security reasons
-set nomodeline
-
 " use custom text for folds
 set foldtext=MyFoldText()
 
@@ -306,11 +222,9 @@ set diffopt+=iwhite
 
 " make quickfix (and :sb* commands) switch to open windows and tabs
 " (this breaks :sbuffer -- use :vsp and :spl instead)
-" set switchbuf=useopen,usetab
-set switchbuf=useopen
+set switchbuf=useopen,usetab
 " make quickfix open new tabs (splits in <v7) instead of reusing the window
-" set switchbuf+=split,newtab
-set switchbuf+=split
+set switchbuf+=split,newtab
 
 " better line wraps
 set showbreak=↪
@@ -326,9 +240,6 @@ set autoindent
 
 " insert spaces instead of tabs
 set expandtab
-
-" indent/outdent to nearest tabstops
-set shiftround
 
 " FIXME: these interfere with filetype settings, i only want them to apply to
 " files with no filetype
@@ -422,9 +333,6 @@ noremap <silent> <leader>/ q/:setlocal filetype=vim nonumber norelativenumber<CR
 noremap <silent> <leader>? q?:setlocal filetype=vim nonumber norelativenumber<CR>i\v
 
 " mappings: normal {{{1
-
-" make Y behave like D and C, not yy
-nnoremap Y y$
 
 " toggle folds more easily
 nnoremap <CR> za
@@ -605,6 +513,10 @@ cnoremap <expr> ;;p expand("%:p:h") . "/"
 " calculate expression
 inoremap <C-B> <C-O>yiW<End>=<C-R>=<C-R>0<CR>
 
+" simulate supertab functionality (without supertab)
+inoremap <Tab> <C-n>
+inoremap <S-Tab> <C-p>
+
 " mappings: operator-pending {{{1
 
 " abbreviations {{{1
@@ -664,19 +576,13 @@ if !has("gui_running")
 
   " don't highlight the current line
   set nocursorline
+
   " set the terminal's title to the filename
   set title
-  " show the cursor position
-  set ruler
-
-  " if v:version > 702
-    " set colorcolumn=81
-  " endif
 endif
 
 " plugin: runtime {{{1
 
-runtime! macros/matchit.vim
 runtime! ftplugin/man.vim
 
 " plugin: headlights {{{1
@@ -748,22 +654,22 @@ let g:easytags_cmd = "/usr/local/bin/ctags"
 " plugin: powerline {{{1
 
 " https://github.com/mbadran/dotvim/blob/8aff32cad3305f58f274540d6f198a4dcb19473d/vimrc
-" let g:Powerline_symbols = "fancy"
+let g:Powerline_symbols = "fancy"
 
 " move things around in the default theme
-" call Pl#Theme#RemoveSegment("fileencoding")
-" call Pl#Theme#RemoveSegment("fileformat")
-" call Pl#Theme#RemoveSegment("filetype")
-" " call Pl#Theme#RemoveSegment("fugitive\:branch")
-" call Pl#Theme#RemoveSegment("tagbar\:currenttag")
-" call Pl#Theme#InsertSegment("fileformat", "after", "syntastic\:errors")
-" call Pl#Theme#InsertSegment("filetype", "after", "fileformat")
-" " call Pl#Theme#InsertSegment("fugitive\:branch", "before", "rvm\:string")
-" " call Pl#Theme#InsertSegment("tagbar\:currenttag", "before", "fugitive\:branch")
-" " call Pl#Theme#InsertSegment("pwd", "before", "tagbar\:currenttag")
-" call Pl#Theme#InsertSegment("pwd", "before", "rvm\:string")
-" " call Pl#Theme#InsertSegment("tagbar\:currenttag", "before", "pwd")
-" call Pl#Theme#InsertSegment("ws_marker", "after", "lineinfo")
+call Pl#Theme#RemoveSegment("fileencoding")
+call Pl#Theme#RemoveSegment("fileformat")
+call Pl#Theme#RemoveSegment("filetype")
+" call Pl#Theme#RemoveSegment("fugitive\:branch")
+call Pl#Theme#RemoveSegment("tagbar\:currenttag")
+call Pl#Theme#InsertSegment("fileformat", "after", "syntastic\:errors")
+call Pl#Theme#InsertSegment("filetype", "after", "fileformat")
+" call Pl#Theme#InsertSegment("fugitive\:branch", "before", "rvm\:string")
+" call Pl#Theme#InsertSegment("tagbar\:currenttag", "before", "fugitive\:branch")
+" call Pl#Theme#InsertSegment("pwd", "before", "tagbar\:currenttag")
+call Pl#Theme#InsertSegment("pwd", "before", "rvm\:string")
+" call Pl#Theme#InsertSegment("tagbar\:currenttag", "before", "pwd")
+call Pl#Theme#InsertSegment("ws_marker", "after", "lineinfo")
 
 " plugin: solarized {{{1
 
