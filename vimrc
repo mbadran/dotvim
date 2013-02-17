@@ -482,31 +482,15 @@ nnoremap <silent> <leader>q :quit<CR>
 
 " edit a new buffer
 nnoremap <silent> <leader>n :enew<CR>
+:close
 
-" mappings: visual {{{1
 
-" reselect after an indent action (to facilitate repeat actions)
-vnoremap > >gv
-vnoremap < <gv
 
-vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
-vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
 
-" mappings: command {{{1
 
-" emacs bindings in command line mode
-cnoremap <C-a> <home>
-cnoremap <C-e> <end>
 
-" do a sudo write
-" cnoremap w!! w !sudo tee % > /dev/null
-cnoremap w!! silent SudoWriteMacGUI
 
-" fix searches
-cnoremap %s/ %s/\v
-cnoremap %g/ %g/\v
 
-cnoremap <expr> ;;p expand("%:p:h") . "/"
 
 " mappings: insert {{{1
 
