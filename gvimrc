@@ -93,7 +93,7 @@ if has("gui_macvim")
   " inoremap <C-N> <C-X><C-N>
 
   " sudo write for mac
-  nnoremap <silent> <leader>w :SudoWriteMacGUI<CR>
+  nnoremap <silent> <leader>W :SudoWriteMacGUI<CR>
 
   " macvim: tcomment {{{1
 

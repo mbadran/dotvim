@@ -27,6 +27,7 @@ try
   Bundle 'mattn/ctrlp-register'
   Bundle 'mbadran/headlights'
   Bundle 'myusuf3/numbers.vim'
+  Bundle 'nanotech/jellybeans.vim'
   Bundle 'nelstrom/vim-markdown-folding'
   Bundle 'rkitover/vimpager'
   Bundle 'scrooloose/nerdtree'
@@ -72,7 +73,6 @@ set runtimepath+=$HOME/.vim/mundle/jpythonfold.vim
 " settings {{{1
 
 let g:mapleader = ','
-let g:maplocalleader = '_'
 
 filetype indent plugin on
 
@@ -97,10 +97,6 @@ set t_vb=
 
 " enable the mouse in all modes
 set mouse=a
-
-" avoid most prompts to continue
-" set cmdheight=3
-" set cmdheight=2
 
 " time out quickly on mappings
 set timeout
@@ -206,6 +202,7 @@ set iskeyword+=$,%,#
 set iskeyword-=_
 
 " set grep options
+" TODO: switch back to grep
 set grepprg=ack\ -H\ --nocolor\ --nogroup\ --column
 " set grepformat=%f:%l:%c:%m,%f:%l%c%m,%f %l%c%m
 set grepformat=%f:%l:%c:%m
@@ -214,7 +211,6 @@ set grepformat=%f:%l:%c:%m
 set foldtext=MyFoldText()
 
 " ignore files with these extensions when completing filenames
-" set suffixes+=.class,.exe,.o,.obj,.dat,.dll,.aux,.pdf,.gch
 set suffixes+=.pdf
 
 " ignore whitespace for diff
@@ -226,10 +222,10 @@ set switchbuf=useopen,usetab
 " make quickfix open new tabs (splits in <v7) instead of reusing the window
 set switchbuf+=split,newtab
 
-" better line wraps
+" better line wrap signs
 set showbreak=↪
 
-" don't show the mode (tmux has got this)
+" don't show the mode (powerline has got this)
 set noshowmode
 
 " indentation {{{1
@@ -241,12 +237,6 @@ set autoindent
 " insert spaces instead of tabs
 set expandtab
 
-" FIXME: these interfere with filetype settings, i only want them to apply to
-" files with no filetype
-" set tabstop=4
-" set softtabstop=4
-" set shiftwidth=4
-
 " autocmds {{{1
 
 if has("autocmd")
@@ -256,9 +246,6 @@ if has("autocmd")
 
     " configure command line buffers
     autocmd FileType * if bufname("") ==? "[Command Line]" | setlocal nonumber norelativenumber | endif
-
-    " enable omnicompletion by default
-    autocmd FileType * if empty(&omnifunc) | setlocal omnifunc=syntaxcomplete#Complete | endif
 
     " automatically close the preview window
     autocmd CursorMovedI,InsertLeave * if !pumvisible() | silent! pclose | endif
@@ -287,20 +274,6 @@ endif
 
 " mappings: all {{{1
 
-" go to end of previous Word with a single key
-noremap M gE
-
-" go to beginning and end of line more easily
-" nnoremap <silent> H :call <SID>GoToStartOfLine()<CR>
-" nnoremap <silent> L :call <SID>GoToEndOfLine()<CR>
-" onoremap <silent> H :call <SID>GoToStartOfLine()<CR>
-" onoremap <silent> L :call <SID>GoToEndOfLine()<CR>
-" vnoremap <silent> H :<C-u>call <SID>GoToStartOfLine(visualmode())<CR>
-" vnoremap <silent> L :<C-u>call <SID>GoToEndOfLine(visualmode())<CR>
-" this is bad to ingrain into muscle memory, gets confusing when using vanilla vim
-" noremap H 0
-" noremap L $
-
 " swap mark commands
 noremap ' `
 noremap ` '
@@ -317,11 +290,6 @@ noremap gj j
 noremap gk k
 noremap g0 0
 noremap g$ $
-
-" invoke command line mode with one key
-" noremap <space> :
-" invoke commandline window with two
-" noremap <leader><space> q:i
 
 " make searches 'very magic' by default
 noremap / /\v
@@ -348,12 +316,6 @@ nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
-" make the arrow keys rotate splits (and resize them equally)
-" nnoremap <Left> <C-w>L<C-w>=
-" nnoremap <Right> <C-w>H<C-w>=
-" nnoremap <Up> <C-w>K<C-w>=
-" nnoremap <Down> <C-w>J<C-w>=
-
 " repeat the last macro quickly
 nnoremap <leader>. @@
 
@@ -366,51 +328,33 @@ nnoremap <leader>. @@
 " nnoremap <Tab> %
 " vnoremap <Tab> %
 
-nnoremap <BS> %
+" nnoremap <BS> %
 
 " unwindows
 nnoremap <silent> <leader>ew :%s/\r//e<Bar>set fileformat=unix<CR>
 
+" txtify
 nnoremap <leader>ex :setlocal filetype=txt<CR>
 
 " follow the symlinks so we can check in changes
-" nnoremap <silent> <leader>ev :execute "tabedit " . resolve($MYVIMRC)<CR>
 nnoremap <silent> <leader>ev :execute "edit " . resolve($MYVIMRC)<CR>
-" nnoremap <silent> <leader>eg :execute "tabedit " . resolve($MYGVIMRC)<CR>
 nnoremap <silent> <leader>eg :execute "edit " . resolve($MYGVIMRC)<CR>
 
-" nnoremap <silent> <leader>eh :tabedit /etc/hosts<CR>
 nnoremap <silent> <leader>eh :edit /etc/hosts<CR>
-" nnoremap <silent> <leader>es :tabedit $HOME/.screenrc<CR>
-" nnoremap <silent> <leader>et :tabedit $HOME/.tmux.conf<CR>
 nnoremap <silent> <leader>et :edit $HOME/.tmux.conf<CR>
-" nnoremap <silent> <leader>ec :tabedit $HOME/.ssh/config<CR>
 nnoremap <silent> <leader>ec :edit $HOME/.ssh/config<CR>
 
 nnoremap <silent> <leader>es :update<Bar>source %<CR>
-" nnoremap <silent> <leader>vt :tabedit ~/Dropbox/todo/1_Life.taskpaper<CR>
 
 nnoremap <silent> <leader>c :call <SID>ToggleColorColumn()<CR>
 
 nnoremap <silent> <leader>l :call <SID>ToggleListChars()<CR>
-
-" nnoremap <silent> <leader>b :buffers<CR>
 
 nnoremap <leader>h :help<Space>
 
 " don't use ex mode, do formatting instead
 nnoremap Q gqip
 vnoremap Q gq
-
-" toggle between paste and nopaste modes (i don't use this ATM)
-nnoremap <leader>P :setlocal invpaste paste?<CR>
-
-" toggle wrap
-nnoremap <leader>W :setlocal invwrap wrap?<CR>
-
-" show the paste registers
-" nnoremap <leader>R :registers<CR>
-" nnoremap <leader>R :RegbufOpen<CR>
 
 " reselect text that was just pasted
 nnoremap <leader>v V`]
@@ -420,38 +364,20 @@ nnoremap * *<C-o>
 nnoremap # #<C-o>
 
 " show only the current buffer
-nnoremap <silent> <leader>o :silent only<CR>
 nnoremap <silent> <leader>, :silent only<CR>
-
-" show only the current tab
-nnoremap <silent> <leader>O :silent tabonly<CR>
 
 " fast make
 nnoremap <silent> <leader>m :make<CR>
 
-" toggle case in Word
-" nnoremap ,u g~iW
-" toggle case till End (for sentence case)
-" nnoremap ,U g~E
-
 " enter virtual replace mode by default, handy for replacing an identical number of chars
 nnoremap R gR
 
-" easy redo (i never use U to replace)
-" nnoremap <C-r> <nop>
-" nnoremap U <C-r>
-
-" also map the following:
-" + and - for space.vim
-" TODO: map to important things: leader tab, leader leader
+" TODO: map to important things: space, shift space, leader tab, leader leader
 
 " TODO: consider using A-] (or C-|) to open in a horizontal split (i suspect i'll prefer vertical splits though)
 " nnoremap <C-\> :vsplit <CR>:exec("tselect ".expand("<cword>"))<CR>
 nnoremap <C-\> <C-w><C-]><C-w>L
 nnoremap <A-\> <C-w><C-]>
-
-nnoremap + <C-w>+
-nnoremap - <C-w>-
 
 " jump to the previous tag in the stack (opposite of C-])
 " TODO: find a better mapping for this
@@ -468,38 +394,51 @@ nnoremap J mzJ`z
 nnoremap <leader>F let @* = expand("%:p")
 
 " map splits
-nnoremap <leader>s <C-W>s
-nnoremap <leader>v <C-W>v
+nnoremap <leader>s :split<CR>
+nnoremap <leader>v :vsplit<CR>
 
 " update (write) buffer
 nnoremap <silent> <leader>w :update<CR>
 
 " close buffer
-nnoremap <silent> <leader>c :close<CR>
+" nnoremap <silent> <leader>c :close<CR>
+nnoremap <silent> <leader>c :bdelete<CR>
 
 " quit buffer
 nnoremap <silent> <leader>q :quit<CR>
 
 " edit a new buffer
 nnoremap <silent> <leader>n :enew<CR>
-:close
 
+" mappings: visual {{{1
 
+" reselect after an indent action (to facilitate repeat actions)
+vnoremap > >gv
+vnoremap < <gv
 
+vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
+vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
 
+" mappings: command {{{1
 
+" emacs bindings in command line mode
+cnoremap <C-a> <home>
+cnoremap <C-e> <end>
 
+" do a sudo write
+" cnoremap w!! w !sudo tee % > /dev/null
+cnoremap w!! silent SudoWriteMacGUI
 
+" fix searches
+cnoremap %s/ %s/\v
+cnoremap %g/ %g/\v
 
+cnoremap <expr> ;;p expand("%:p:h") . "/"
 
 " mappings: insert {{{1
 
 " calculate expression
 inoremap <C-B> <C-O>yiW<End>=<C-R>=<C-R>0<CR>
-
-" simulate supertab functionality (without supertab)
-inoremap <Tab> <C-n>
-inoremap <S-Tab> <C-p>
 
 " mappings: operator-pending {{{1
 
@@ -512,51 +451,15 @@ cabbrev grep silent grep
 
 command! DiffOrig vertical new | set buftype=nofile | r # | 0d_ | diffthis | wincmd p | diffthis
 
-" TODO: pull these into a separate plugin
-
-" textobject: fold {{{1
-
-" vnoremap af :<C-U>silent! normal! [zV]z<CR>
-" onoremap af :normal! Vaf<CR>
-
-" TODO: reconsider these (y u no use?) also, some clash with text-object plugins
-" textobject: square {{{1
-
-" vnoremap iq i[
-" vnoremap aq a[
-" onoremap iq i[
-" onoremap aq a[
-
-" textobject: curly {{{1
-
-" vnoremap ic i{
-" vnoremap ac a{
-" onoremap ic i{
-" onoremap ac a{
-
-" textobject: angle {{{1
-
-" vnoremap ia i<
-" vnoremap aa a<
-" onoremap ia i<
-" onoremap aa a<
-
 " terminal {{{1
 
 if !has("gui_running")
   " plugins should be disabled
 
   " set the terminal to 256 colors
-  " set t_Co=256
+  set t_Co=256
 
-  " colorscheme default
-  " colorscheme jellybeans
-
-  " the solarized terminal color scheme should handle this
-  " let g:solarized_termcolors=256
-  " set background=dark
-  " colorscheme solarized
-  source ~/.vim/after/colors/solarized.vim
+  colorscheme jellybeans
 
   " don't highlight the current line
   set nocursorline
@@ -610,13 +513,6 @@ let g:tagbar_ctags_bin = "/usr/local/bin/ctags"
 
 nnoremap <silent> <leader>t :TagbarToggle<CR>
 
-" plugin: supertab {{{1
-
-" do context aware completion
-let g:SuperTabDefaultCompletionType = 'context'
-" fall back to current/local file completion (instead of the 'complete' option)
-let g:SuperTabContextDefaultCompletionType = "<c-x><c-p>"
-
 " plugin: quickfixsigns {{{1
 
 " don't show quickfix vcsdiff signs
@@ -662,6 +558,10 @@ let g:solarized_menu = 0
 " plugin: neocomplcache {{{1
 let g:neocomplcache_enable_at_startup = 1
 let g:neocomplcache_source_disable = {"dictionary_complete": 1}
+
+" use tab and shift-tab for completion
+inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
 
 " plugin: fugitive {{{1
 nnoremap <leader>gg :Git<space>
@@ -719,13 +619,6 @@ nnoremap <silent> <leader>b :CtrlPBuffer<CR>
 nnoremap <silent> <leader>k :CtrlPBookmarkDir<CR>
 nnoremap <silent> <leader>u :CtrlPMRUFiles<CR>
 nnoremap <silent> <leader>R :CtrlPRegister<CR>
-
-" plugin: clam {{{1
-
-let g:clam_winpos = 'botright'
-
-nnoremap ! :Clam<space>
-vnoremap ! :ClamVisual<space>
 
 " plugin: quickrun {{{1
 
@@ -885,31 +778,15 @@ endfunction
 " `. goes to previous column on previously edited line
 " gi goes to previous column on previously edited line, putting you in insert
 " mode.
-"
-" U -- undo all changes on the line
+
 " ctrl-w ] will open the tag/function/method in a split -- better than jumping
 " back and forth, especially when you still want to see the invoking code
-"
+
 " <C-x><C-k> to invoke spelling dictionary
-"
+
 " select the just pasted text: V`]
-"
-" W - beginning of next word defined by only space boundaries
-" E - end of current/next word defined by only space boundaries
-" B - beginning of current/previous defined by only space boundaries
 
-" mode() tells you the mode
-"
 " %s/pattern//gn number of occurrences of pattern
-
-"g; and g, to cycle back and forth through your last edits
-
-" g<c-g> shows you doc stats, g2<c-g> shows you file stats -- file name, line number, col number, etc
-" ge goes to the end of the previous word (isn't be the same or faster?
-" gE goes to the end of the previous 'full' word
-" if you just want to go to the end of the previous word, ge or gE is the way
-" to go. otherwise, if you want to jump a few words, it's faster and easier to
-" just use 'b', then 'e' or 'E' once you reach the word you want.
 
 " ex commands are awesome: g/setlocal/ normal I"
 " http://blog.sanctum.geek.nz/using-more-of-ex/
@@ -937,8 +814,6 @@ endfunction
 
 " gv - repeat the last selection
 
-" g; and g, to jump around (look up using help)
-
 " learn more about the :g command -- for example, to do actions or run script
 " snippets on specific lines, the same way you used to with beanshell. see
 " also the tip about using the /norm ex command with :g to run normal mode
@@ -951,8 +826,6 @@ endfunction
 " is very handy, especially when you consider that you can put local settings
 " (&l:), any global vars (with completion!), any custom expressions, maths --
 " whatever.
-
-" x is dl -- X is dh
 
 " ]p to paste with indentation
 
@@ -1025,19 +898,4 @@ endfunction
 
 " TODO: set up visual mappings as well as normal ones for your plugins
 
-" TODO: figure out if any ftplugins use this localleader (help :maplocalleader)
-
 " TODO: work more with the spelling correction engine (:help dictionary)
-
-" TODO: report the omnicomplete glitch on the vim mailing list. steps to
-" reproduce:
-" 1. open a new window
-" 2. set ft=python omnifunc=pythoncomplete#Complete splitright
-" 4. vsplit anewsplit
-" 5. <c-w><c-h>
-" 6. i (to go into insert mode)
-" 7. type: list.<c-x><c-o>
-" 8. observe the completion options overlapping the omnicomplete description buffer (you may have to make your window shorter)
-"
-" the items should not overlap. this glitch doesn't occur in the right split,
-" which you can observe).
