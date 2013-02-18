@@ -47,6 +47,7 @@ try
   Bundle 'tpope/vim-fugitive'
   Bundle 'tpope/vim-markdown'
   Bundle 'tpope/vim-repeat'
+  Bundle 'tpope/vim-scriptease'
   Bundle 'tpope/vim-sensible'
   Bundle 'tpope/vim-surround'
   Bundle 'tpope/vim-unimpaired'
@@ -88,7 +89,7 @@ set infercase
 " go to the first non-blank of the line instead of the start (where possible)
 set nostartofline
 
-" don't fail commands because of unsaved changes
+" ask for confirmation instead of failing commands
 set confirm
 
 " don't beep or flash
@@ -103,7 +104,7 @@ set timeout
 set timeoutlen=500
 
 " allow modified buffers to be hidden
-set hidden
+" set hidden
 
 " highlight search matches
 set hlsearch
@@ -130,7 +131,7 @@ set autowriteall
 " let h and l traverse lines too
 set whichwrap+=h,l
 
-" substitute globally by default (use /g flag for first match only)
+" substitute all matches in a line instead of just the first (use /g flag for first match only)
 set gdefault
 
 if v:version > 702
@@ -166,7 +167,7 @@ set dictionary+=/usr/share/dict/words
 " specify the fill characters
 set fillchars=vert:\\,fold:·
 
-" add only one space when joining lines
+" add only one space when joining sentences
 set nojoinspaces
 
 " stop cursor from blinking in normal mode
@@ -225,7 +226,7 @@ set switchbuf+=split,newtab
 " better line wrap signs
 set showbreak=↪
 
-" don't show the mode (powerline has got this)
+" don't show the mode (powerline has got this handled)
 set noshowmode
 
 " indentation {{{1
@@ -372,7 +373,7 @@ nnoremap <silent> <leader>m :make<CR>
 " enter virtual replace mode by default, handy for replacing an identical number of chars
 nnoremap R gR
 
-" TODO: map to important things: space, shift space, leader tab, leader leader
+" TODO: map to important things: space, shift space, leader space, leader tab, leader leader
 
 " TODO: consider using A-] (or C-|) to open in a horizontal split (i suspect i'll prefer vertical splits though)
 " nnoremap <C-\> :vsplit <CR>:exec("tselect ".expand("<cword>"))<CR>
@@ -401,14 +402,16 @@ nnoremap <leader>v :vsplit<CR>
 nnoremap <silent> <leader>w :update<CR>
 
 " close buffer
-" nnoremap <silent> <leader>c :close<CR>
-nnoremap <silent> <leader>c :bdelete<CR>
+nnoremap <silent> <leader>c :close<CR>
 
 " quit buffer
 nnoremap <silent> <leader>q :quit<CR>
 
 " edit a new buffer
 nnoremap <silent> <leader>n :enew<CR>
+
+" convert buffer to a scratch file (if you don't care about saving it)
+nnoremap <silent> <leader>S :setlocal buftype=nofile bufhidden=hide<CR>
 
 " mappings: visual {{{1
 
@@ -635,7 +638,8 @@ let g:quickrun_config.markdown = {"exec": "open -a /Applications/Marked.app %s",
 
 " plugin: tlib {{{1
 
-nnoremap <silent> <leader>S :tabnew<Bar>TScratch!<CR>
+" nnoremap <silent> <leader>S :tabnew<Bar>TScratch!<CR>
+
 " plugin: nerdtree {{{1
 
 let g:NERDTreeWinPos = "right"
