@@ -10,6 +10,7 @@ try
 
   " bundles: github {{{1
 
+  " Bundle 'scrooloose/nerdtree'
   Bundle 'Lokaltog/vim-powerline'
   Bundle 'Shougo/neocomplcache'
   Bundle 'Valloric/MatchTagAlways'
@@ -19,27 +20,27 @@ try
   Bundle 'csexton/trailertrash.vim'
   Bundle 'fs111/pydoc.vim'
   Bundle 'gmarik/sudo-gui.vim'
-  " let vundle manage vundle
   Bundle 'gmarik/vundle'
   Bundle 'kana/vim-smartinput'
   Bundle 'kien/ctrlp.vim'
   Bundle 'majutsushi/tagbar'
   Bundle 'mattn/ctrlp-register'
   Bundle 'mbadran/headlights'
+  Bundle 'mbadran/jpythonfold.vim'
+  Bundle 'mbadran/quicktrix'
   Bundle 'myusuf3/numbers.vim'
   Bundle 'nanotech/jellybeans.vim'
   Bundle 'nelstrom/vim-markdown-folding'
   Bundle 'rkitover/vimpager'
-  Bundle 'scrooloose/nerdtree'
   Bundle 'scrooloose/syntastic'
   Bundle 'sickill/vim-pasta'
   Bundle 'sjl/gundo.vim'
-  Bundle 'sontek/rope-vim'
   Bundle 'skammer/vim-css-color'
+  Bundle 'sontek/rope-vim'
   Bundle 'sukima/xmledit'
   Bundle 'thinca/vim-quickrun'
-  Bundle 'tomtom/tcomment_vim'
   Bundle 'tomtom/quickfixsigns_vim'
+  Bundle 'tomtom/tcomment_vim'
   " required by quickfixsigns
   Bundle 'tomtom/tlib_vim'
   Bundle 'tpope/vim-endwise'
@@ -60,16 +61,6 @@ try
   Bundle 'CmdlineComplete'
 
 catch /E117/ | endtry    " no vundle
-
-" bundles: mine {{{1
-
-" set runtimepath+=$HOME/.vim/mundle/headlights
-" TODO: improve and release
-set runtimepath+=$HOME/.vim/mundle/quicktrix
-set runtimepath+=$HOME/.vim/mundle/jpythonfold.vim
-" TODO: consider improving and releasing
-" set runtimepath+=$HOME/.vim/mundle/vimbits
-" set runtimepath+=$HOME/.vim/mundle/vimroom
 
 " settings {{{1
 
@@ -187,7 +178,7 @@ set showfulltag
 set report=1
 
 " match angle brackets too
-set matchpairs+=<:>
+" set matchpairs+=<:>
 
 " don't make windows the same size
 set noequalalways
@@ -386,10 +377,11 @@ nnoremap <A-]> :pop<CR>
 
 " TODO: make this into a function and map it after a successful run (for eg.
 " unit tests or quickrun (somehow))
-" nmap HH :silent !afplay ~/.vim/tools/succ_horns01.mp3 1>&-2>&-&<CR><C-l>
+nnoremap <silent> HH :silent !afplay ~/.vim/tools/succ_horns01.mp3<CR>
 
 " keep the cursor in place while joining lines
-nnoremap J mzJ`z
+" keeps introducing Z marks everywhere
+" nnoremap J mZJ`Z
 
 " copy the current filename to the clipboard
 nnoremap <leader>F let @* = expand("%:p")
@@ -611,19 +603,17 @@ let g:ctrlp_arg_map = 0
 let g:ctrlp_mruf_max = 25
 let g:ctrlp_mruf_exclude = '.*vimrc\|.*/vim/runtime/doc.*\|/private/var/.*'
 
-" FIXME: i just want to open files in a new tab when i hit enter, why is that
-" so hard?
-" let g:ctrlp_prompt_mappings = {
-  " \ 'AcceptSelection("t")': ['<cr>']
-" \}
-
 nnoremap <silent> <leader>T :CtrlPBufTag<CR>
-nnoremap <silent> <leader>b :CtrlPBuffer<CR>
 nnoremap <silent> <leader>k :CtrlPBookmarkDir<CR>
-nnoremap <silent> <leader>u :CtrlPMRUFiles<CR>
-nnoremap <silent> <leader>R :CtrlPRegister<CR>
+nnoremap <silent> <leader>b :CtrlPBuffer<CR>
+" nnoremap <silent> <leader>u :CtrlPMRUFiles<CR>
+nnoremap <silent> <space> :CtrlPMixed<CR>
+" nnoremap <silent> <leader><space> :CtrlPMRUFiles<CR>
+nnoremap <silent> <leader>r :CtrlPRegister<CR>
 
 " plugin: quickrun {{{1
+
+" TODO: change the default mapping to ,R
 
 let g:quickrun_config = {}
 let g:quickrun_config.html = {"exec": "bcat %s", "outputter": "null"}
@@ -649,7 +639,11 @@ let g:NERDTreeQuitOnOpen = 1
 
 " nnoremap <silent> <leader>f :NERDTreeToggle<CR>
 " nnoremap <silent> <leader>f :execute "NERDTreeToggle " . getcwd() . "<CR>"
-nnoremap <silent> <leader>f :call ToggleNERDTree()<CR>
+" nnoremap <silent> <leader>f :call ToggleNERDTree()<CR>
+
+" try out netrw for a while (it's ubiquitous)
+nnoremap <silent> <leader>f :Vexplore<CR>
+
 function! ToggleNERDTree() " {{{1
   if exists("g:NERDTree_opened")
     execute "NERDTreeClose"
