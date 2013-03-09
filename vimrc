@@ -1,7 +1,7 @@
 " mbadran's vimrc <github.com/mbadran/dotvim>
 
 " powerline {{{1
-" set rtp+=~/Library/Python/2.7/lib/python/site-packages/powerline/bindings/vim
+" set runtimepath+=~/Library/Python/2.7/lib/python/site-packages/powerline/bindings/vim
 
 " bundles: boilerplate {{{1
 set runtimepath+=$HOME/.vim/bundle/vundle/
@@ -10,7 +10,7 @@ try
 
   " bundles: github {{{1
 
-  " Bundle 'scrooloose/nerdtree'
+  Bundle 'Glench/Vim-Jinja2-Syntax'
   Bundle 'Lokaltog/vim-powerline'
   Bundle 'Shougo/neocomplcache'
   Bundle 'Valloric/MatchTagAlways'
@@ -24,19 +24,22 @@ try
   Bundle 'kana/vim-smartinput'
   Bundle 'kien/ctrlp.vim'
   Bundle 'majutsushi/tagbar'
+  Bundle 'mattn/ctrlp-git'
+  Bundle 'mattn/ctrlp-mark'
   Bundle 'mattn/ctrlp-register'
   Bundle 'mbadran/headlights'
   Bundle 'mbadran/jpythonfold.vim'
-  Bundle 'mbadran/quicktrix'
+  " Bundle 'mbadran/quicktrix'
   Bundle 'myusuf3/numbers.vim'
   Bundle 'nanotech/jellybeans.vim'
   Bundle 'nelstrom/vim-markdown-folding'
   Bundle 'rkitover/vimpager'
+  Bundle 'scrooloose/nerdtree'
   Bundle 'scrooloose/syntastic'
   Bundle 'sickill/vim-pasta'
   Bundle 'sjl/gundo.vim'
   Bundle 'skammer/vim-css-color'
-  Bundle 'sontek/rope-vim'
+  " Bundle 'sontek/rope-vim'
   Bundle 'sukima/xmledit'
   Bundle 'thinca/vim-quickrun'
   Bundle 'tomtom/quickfixsigns_vim'
@@ -52,6 +55,7 @@ try
   Bundle 'tpope/vim-sensible'
   Bundle 'tpope/vim-surround'
   Bundle 'tpope/vim-unimpaired'
+  Bundle 'vim-ruby/vim-ruby'
   Bundle 'wikitopian/hardmode'
   Bundle 'xolox/vim-easytags'
 
@@ -65,11 +69,6 @@ catch /E117/ | endtry    " no vundle
 " settings {{{1
 
 let g:mapleader = ','
-
-filetype indent plugin on
-
-" enable syntax highlighting
-syntax on
 
 " enable case insensitive search when using lowercase letters
 set ignorecase
@@ -222,10 +221,6 @@ set noshowmode
 
 " indentation {{{1
 
-" default indentation settings
-" match the current indent for new lines
-set autoindent
-
 " insert spaces instead of tabs
 set expandtab
 
@@ -342,7 +337,7 @@ nnoremap <silent> <leader>c :call <SID>ToggleColorColumn()<CR>
 
 nnoremap <silent> <leader>l :call <SID>ToggleListChars()<CR>
 
-nnoremap <leader>h :help<Space>
+nnoremap <leader>h :help<SPACE>
 
 " don't use ex mode, do formatting instead
 nnoremap Q gqip
@@ -404,6 +399,17 @@ nnoremap <silent> <leader>n :enew<CR>
 
 " convert buffer to a scratch file (if you don't care about saving it)
 nnoremap <silent> <leader>S :setlocal buftype=nofile bufhidden=hide<CR>
+
+" automatically correct the spelling to the first option
+" NOTE: z= shows the spelling correction menu, [s and ]s navigate misspellings
+nnoremap <leader>z z=1<CR><CR>
+
+" FIXME, can't get FIXME to work
+" TODO: consider making a very lightweight plugin for this (and grep, and
+" locate, and find, and last search, and new search, and help, etc. but keep
+" it very lightweight with just a few options, but all configurable)
+" nnoremap <leader>d :vimgrep /TODO\|FIXME/j %<BAR>:cwindow<CR>
+nnoremap <leader>d :vimgrep /TODO/j %<BAR>:botright cwindow 20<CR>:wincmd k<CR>
 
 " mappings: visual {{{1
 
@@ -485,18 +491,12 @@ let g:headlights_show_highlights = 1
 
 " plugin: syntastic {{{1
 
-" this needs to be set here for some reason
 let g:syntastic_enable_signs = 1
 let g:syntastic_auto_loc_list = 1
 " all python syntax errors are reported as warnings, for some reason. bad.
 " let g:syntastic_quiet_warnings = 1
 
 " plugin: tagbar {{{1
-
-" TODO: fix the &tags setting so that it points to an exuberant tags file for
-" each individual file alone (see if you can reuse easytag's file). then, you can
-" use tselect to narrow it down. you could also combine it by showing tagbar
-" at the same time
 
 let g:tagbar_left = 1
 let g:tagbar_compact = 1
@@ -510,15 +510,10 @@ nnoremap <silent> <leader>t :TagbarToggle<CR>
 
 " plugin: quickfixsigns {{{1
 
-" don't show quickfix vcsdiff signs
-let g:quickfixsigns_classes = ["qfl", "loc", "marks", "breakpoints"]
 " don't show quickfixsigns for special buffers like tagbar, unite, and anything starting with [
 " TODO: find a way to disable signs column for scratch/preview buffers without
 " also disabling it for new (unnamed) vim buffers
-" let g:quickfixsigns_blacklist_buffer = '^__.*__\|.\*Scratch.\*\|.\*unite.*\|\[.*$'
-" let g:quickfixsigns_blacklist_buffer = '^__.*__\|^$\|.\*unite.*\|\[.*$'
-" let g:quickfixsigns_blacklist_buffer = '^__.*__\|^$\|.\*unite.*\|.*path.*\|\[.*$'
-let g:quickfixsigns_blacklist_buffer = '^__.*__\|^$\|^\*unite\|^regbuf\|ControlP\|^vimtips\|\[.*$'
+let g:quickfixsigns_blacklist_buffer = '^__.*__\|^$\|ControlP\|^NetrwTreeListing\|\[.*$'
 let g:quickfixsigns#marks#texthl = "SignColumn"
 let g:quickfixsigns_icons = {}
 
@@ -559,13 +554,13 @@ inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
 
 " plugin: fugitive {{{1
-nnoremap <leader>gg :Git<space>
+nnoremap <leader>gg :Git<SPACE>
 nnoremap <silent> <leader>gc :Gcommit %<CR>
 nnoremap <silent> <leader>gC :Gcommit<CR>
-nnoremap <silent> <leader>gp :Git push<bar>silent only<CR>
+nnoremap <silent> <leader>gp :Git push<BAR>silent only<CR>
 nnoremap <silent> <leader>gl :Glog<CR>
 nnoremap <silent> <leader>gd :Gdiff<CR>
-nnoremap <silent> <leader>gD :silent only<bar>:diffoff<CR>
+nnoremap <silent> <leader>gD :silent only<BAR>:diffoff<CR>
 nnoremap <silent> <leader>gs :Gstatus<CR>
 nnoremap <silent> <leader>gb :Gblame<CR>
 nnoremap <silent> <leader>gw :Gwrite<CR>
@@ -574,15 +569,15 @@ nnoremap <silent> <leader>gw :Gwrite<CR>
 " let g:quicktrix_orientation = "bottom"
 " let g:quicktrix_steal_focus = 0
 
-nnoremap <silent> <leader>d :QTodo<CR>
-" nnoremap <leader>g :QGrep<Space>
-" nnoremap <leader>f :QFind<Space>
-" nnoremap <leader>l :QLocate<Space>
-" nnoremap <leader>H :QHelp<Space>
-nnoremap <silent> <leader>g :QGrep<CR>
-nnoremap <silent> <leader>f :QFind<CR>
-nnoremap <silent> <leader>e :QLocate<CR>
-nnoremap <silent> <leader>H :QHelp<CR>
+" nnoremap <silent> <leader>d :QTodo<CR>
+" " nnoremap <leader>g :QGrep<SPACE>
+" " nnoremap <leader>f :QFind<SPACE>
+" " nnoremap <leader>l :QLocate<SPACE>
+" " nnoremap <leader>H :QHelp<SPACE>
+" nnoremap <silent> <leader>g :QGrep<CR>
+" nnoremap <silent> <leader>f :QFind<CR>
+" nnoremap <silent> <leader>e :QLocate<CR>
+" nnoremap <silent> <leader>H :QHelp<CR>
 
 " plugin: jpythonfold {{{1
 
@@ -604,11 +599,15 @@ let g:ctrlp_mruf_max = 25
 let g:ctrlp_mruf_exclude = '.*vimrc\|.*/vim/runtime/doc.*\|/private/var/.*'
 
 nnoremap <silent> <leader>T :CtrlPBufTag<CR>
-nnoremap <silent> <leader>k :CtrlPBookmarkDir<CR>
-nnoremap <silent> <leader>b :CtrlPBuffer<CR>
-" nnoremap <silent> <leader>u :CtrlPMRUFiles<CR>
-nnoremap <silent> <space> :CtrlPMixed<CR>
-" nnoremap <silent> <leader><space> :CtrlPMRUFiles<CR>
+" nnoremap <silent> <leader>k :CtrlPBookmarkDir<CR>
+" nnoremap <silent> <leader>f :CtrlPCurWD<CR>
+nnoremap <silent> <leader>f :CtrlPCurFile<CR>
+nnoremap <silent> <leader>u :CtrlPMRUFiles<CR>
+" nnoremap <silent> <SPACE> :CtrlPMixed<CR>
+nnoremap <silent> <SPACE> :CtrlPBuffer<CR>
+" nnoremap <silent> <leader><SPACE> :CtrlPMRUFiles<CR>
+" nnoremap <silent> <leader>d :CtrlPCurWD<CR>
+nnoremap <silent> <S-SPACE> :CtrlPMixed<CR>
 nnoremap <silent> <leader>r :CtrlPRegister<CR>
 
 " plugin: quickrun {{{1
@@ -619,30 +618,38 @@ let g:quickrun_config = {}
 let g:quickrun_config.html = {"exec": "bcat %s", "outputter": "null"}
 let g:quickrun_config.ruby = {"outputter": "error", "outputter/error/error": "quickfix", "outputter/error/success": "buffer"}
 let g:quickrun_config.markdown = {"exec": "open -a /Applications/Marked.app %s", "outputter": "null"}
-" let g:quickrun_config.java = {"exec" : "cd /Users/fpg/Documents/projects/nhccn/EpochTime;./build.sh", "running_mark": "Building...", "outputter": "error", "outputter/error/error": "buffer", "outputter/error/success": "message"}
 " use ant to make, using a build file above this (src) one
 "let b:makeprgvar='ant\ -f\ ' . expand('%:p:h") . '/../build.xml'
 " let b:makeprgvar='ant\ -f\ ' . '..\build.xml'
 " execute ':setlocal makeprg=' . b:makeprgvar
 " execute ":setlocal makeprg=" . b:makeprgvar
 
-" plugin: tlib {{{1
+" plugin: netrw {{{1
 
-" nnoremap <silent> <leader>S :tabnew<Bar>TScratch!<CR>
+" nnoremap <silent> <leader>x :Vexplore<CR>
+
+" use tree mode as default view
+" TODO: currently buggy, fix after next vim update
+" let g:netrw_liststyle=3
+
+" open file in previous buffer
+let g:netrw_browse_split=4
+
+" show preview window in a vertical split
+let g:netrw_preview=1
+
+" make sure previewed files use 70% of the space
+let g:netrw_winsize=30
 
 " plugin: nerdtree {{{1
 
-let g:NERDTreeWinPos = "right"
 let g:NERDTreeShowBookmarks = 1
 let g:NERDTreeMinimalUI = 1
 let g:NERDTreeQuitOnOpen = 1
 
-" nnoremap <silent> <leader>f :NERDTreeToggle<CR>
-" nnoremap <silent> <leader>f :execute "NERDTreeToggle " . getcwd() . "<CR>"
-" nnoremap <silent> <leader>f :call ToggleNERDTree()<CR>
-
-" try out netrw for a while (it's ubiquitous)
-nnoremap <silent> <leader>f :Vexplore<CR>
+" nnoremap <silent> <leader>x :NERDTreeToggle<CR>
+" nnoremap <silent> <leader>x :execute "NERDTreeToggle " . getcwd() . "<CR>"
+nnoremap <silent> <leader>x :call ToggleNERDTree()<CR>
 
 function! ToggleNERDTree() " {{{1
   if exists("g:NERDTree_opened")
@@ -780,8 +787,6 @@ endfunction
 " ctrl-w ] will open the tag/function/method in a split -- better than jumping
 " back and forth, especially when you still want to see the invoking code
 
-" <C-x><C-k> to invoke spelling dictionary
-
 " select the just pasted text: V`]
 
 " %s/pattern//gn number of occurrences of pattern
@@ -869,25 +874,9 @@ endfunction
 
 " todo {{{1
 
-" TODO: instead of using the tlib input list, create a ctrlp location list
-" plugin and invoke that alongside the quickfix or location list window
-
-" TODO: add cheatsheet items for everything you want to improve -- marks,
-" registers, etc. only way you'll learn if you have an immediate reference.
-" also: sessions, movement commands (as per the grok vim post), etc
-" also: c-r shortcuts in insert mode, refomratting, etc. see list in todos.
-
-" TODO: add more omnicomplete keywords to the cheatsheet (such as c-x, c-k for
-" dictionary)
+" TODO: look up c-r shortcuts in insert mode
 
 " TODO: add <unique> and hasmapto to mappings in your scripts
-" TODO: master undo trees (with potential visual plugin), registers, folds, macros (flash cards)
-" TODO: use splits more
-" TODO: use marks more
-" TODO: use registers more
-" TODO: use snippets more
-" TODO: master completion mode (for eg. file completion, dictionary & others)
-" TODO: try to edit files remotely from within macvim using ssh
 
 " TODO: review this:
 "In order to make custom mappings easier and prevent overwritting existing
@@ -895,5 +884,3 @@ endfunction
 "for its mappings.
 
 " TODO: set up visual mappings as well as normal ones for your plugins
-
-" TODO: work more with the spelling correction engine (:help dictionary)
