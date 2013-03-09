@@ -22,8 +22,3 @@ inoremap ! !<C-g>u
 inoremap ? ?<C-g>u
 inoremap : :<C-g>u
 inoremap ; ;<C-g>u
-
-" commands {{{1
-
-" complete from dictionary by default
-" call SuperTabSetDefaultCompletionType('<c-x><c-k>')
