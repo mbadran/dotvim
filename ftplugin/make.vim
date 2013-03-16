@@ -1,3 +1,3 @@
-" settings {{{1
+" indentation {{{1
 
 setlocal noexpandtab

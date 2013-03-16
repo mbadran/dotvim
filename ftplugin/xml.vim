@@ -1,4 +1,4 @@
-" settings {{{1
+" indentation {{{1
 
 setlocal tabstop=2 shiftwidth=2
 

@@ -255,7 +255,6 @@ if has("autocmd")
 
     " enable hardmode
     autocmd VimEnter,BufNewFile,BufReadPost * silent call HardMode()
-
   augroup END
 endif
 
@@ -351,7 +350,7 @@ nnoremap * *<C-o>
 nnoremap # #<C-o>
 
 " show only the current buffer
-nnoremap <silent> <leader>, :silent only<CR>
+nnoremap <silent> <leader>o :silent only<CR>
 
 " fast make
 nnoremap <silent> <leader>m :make<CR>
@@ -389,7 +388,7 @@ nnoremap <leader>v :vsplit<CR>
 nnoremap <silent> <leader>w :update<CR>
 
 " close buffer
-nnoremap <silent> <leader>c :close<CR>
+" nnoremap <silent> <leader>c :close<CR>
 
 " quit buffer
 nnoremap <silent> <leader>q :quit<CR>
@@ -601,13 +600,16 @@ let g:ctrlp_mruf_exclude = '.*vimrc\|.*/vim/runtime/doc.*\|/private/var/.*'
 nnoremap <silent> <leader>T :CtrlPBufTag<CR>
 " nnoremap <silent> <leader>k :CtrlPBookmarkDir<CR>
 " nnoremap <silent> <leader>f :CtrlPCurWD<CR>
-nnoremap <silent> <leader>f :CtrlPCurFile<CR>
-nnoremap <silent> <leader>u :CtrlPMRUFiles<CR>
+" nnoremap <silent> <leader>f :CtrlPCurFile<CR>
+nnoremap <silent> <S-SPACE> :CtrlPCurFile<CR>
+" nnoremap <silent> <leader>u :CtrlPMRUFiles<CR>
+" nnoremap <silent> <leader><SPACE> :CtrlPMRUFiles<CR>
+nnoremap <silent> <C-SPACE> :CtrlPMRUFiles<CR>
 " nnoremap <silent> <SPACE> :CtrlPMixed<CR>
 nnoremap <silent> <SPACE> :CtrlPBuffer<CR>
 " nnoremap <silent> <leader><SPACE> :CtrlPMRUFiles<CR>
 " nnoremap <silent> <leader>d :CtrlPCurWD<CR>
-nnoremap <silent> <S-SPACE> :CtrlPMixed<CR>
+" nnoremap <silent> <S-SPACE> :CtrlPMixed<CR>
 nnoremap <silent> <leader>r :CtrlPRegister<CR>
 
 " plugin: quickrun {{{1
@@ -649,7 +651,14 @@ let g:NERDTreeQuitOnOpen = 1
 
 " nnoremap <silent> <leader>x :NERDTreeToggle<CR>
 " nnoremap <silent> <leader>x :execute "NERDTreeToggle " . getcwd() . "<CR>"
-nnoremap <silent> <leader>x :call ToggleNERDTree()<CR>
+" nnoremap <silent> <leader>x :call ToggleNERDTree()<CR>
+nnoremap <silent> <leader><leader> :call ToggleNERDTree()<CR>
+
+" plugin: tcomment {{{1
+
+nmap <leader>c gcc
+vmap <leader>c gc
+nmap <leader>C gc
 
 function! ToggleNERDTree() " {{{1
   if exists("g:NERDTree_opened")

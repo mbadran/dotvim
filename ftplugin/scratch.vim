@@ -1,3 +1,4 @@
 " settings {{{1
 
-setlocal nonumber norelativenumber
+setlocal nonumber
+setlocal norelativenumber

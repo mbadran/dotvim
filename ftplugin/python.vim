@@ -1,13 +1,15 @@
 " settings {{{1
 
+" unset _ as a word delimiter (this will allow jump-to-definition to work)
+setlocal iskeyword+=_
+
+" indentation {{{1
+
+setlocal expandtab
 setlocal tabstop=4
 setlocal shiftwidth=4
 " make backspace in indent mode treat 4 spaces like a tab
 setlocal softtabstop=4
-setlocal expandtab
-
-" unset _ as a word delimiter (this will allow jump-to-definition to work)
-setlocal iskeyword+=_
 
 " abbreviations {{{1
 inoreabbrev <buffer> ;;l % locals()

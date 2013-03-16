@@ -97,9 +97,9 @@ if has("gui_macvim")
 
   " macvim: tcomment {{{1
 
-  nmap <D-/> gcc
-  vmap <D-/> gc
-  nmap <D-\> gc
+  " nmap <D-/> gcc
+  " vmap <D-/> gc
+  " nmap <D-\\> gc
 
 " gvim {{{1
 

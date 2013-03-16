@@ -1,7 +1,13 @@
 " settings {{{1
 
-setlocal tabstop=2 softtabstop=2 shiftwidth=2 expandtab
 setlocal foldmethod=marker
+
+" indentation {{{1
+
+setlocal expandtab
+setlocal tabstop=2
+setlocal softtabstop=2
+setlocal shiftwidth=2
 
 " mappings {{{1
 
