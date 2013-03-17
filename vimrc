@@ -163,8 +163,9 @@ set nojoinspaces
 " stop cursor from blinking in normal mode
 set guicursor+=n:blinkon0
 
-" limit the number of menu items for omnicompletion (temporary hack)
-set pumheight=17
+" limit the number of menu items for omnicomplete (temporary hack)
+" TODO: temporarily disable
+" set pumheight=17
 
 " allow the cursor to go anywhere in block mode
 set virtualedit+=block
@@ -193,7 +194,7 @@ set iskeyword+=$,%,#
 set iskeyword-=_
 
 " set grep options
-" TODO: switch back to grep
+" TODO: review ack vs grep again
 set grepprg=ack\ -H\ --nocolor\ --nogroup\ --column
 " set grepformat=%f:%l:%c:%m,%f:%l%c%m,%f %l%c%m
 set grepformat=%f:%l:%c:%m
@@ -303,7 +304,7 @@ nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
 " repeat the last macro quickly
-nnoremap <leader>. @@
+" nnoremap <leader>. @@
 
 " use <Tab> for % matching and <C-p> for jumping forwards
 " (because <Tab> and <C-i> are the same as far as Vim is concerned)
@@ -350,7 +351,7 @@ nnoremap * *<C-o>
 nnoremap # #<C-o>
 
 " show only the current buffer
-nnoremap <silent> <leader>o :silent only<CR>
+nnoremap <silent> <leader><TAB> :silent only<CR>
 
 " fast make
 nnoremap <silent> <leader>m :make<CR>
@@ -358,24 +359,15 @@ nnoremap <silent> <leader>m :make<CR>
 " enter virtual replace mode by default, handy for replacing an identical number of chars
 nnoremap R gR
 
-" TODO: map to important things: space, shift space, leader space, leader tab, leader leader
-
-" TODO: consider using A-] (or C-|) to open in a horizontal split (i suspect i'll prefer vertical splits though)
-" nnoremap <C-\> :vsplit <CR>:exec("tselect ".expand("<cword>"))<CR>
-nnoremap <C-\> <C-w><C-]><C-w>L
-nnoremap <A-\> <C-w><C-]>
+" jump to the tag in a new horizontal split
+nnoremap <C-\> <C-w><C-]>
 
 " jump to the previous tag in the stack (opposite of C-])
-" TODO: find a better mapping for this
 nnoremap <A-]> :pop<CR>
 
-" TODO: make this into a function and map it after a successful run (for eg.
-" unit tests or quickrun (somehow))
-nnoremap <silent> HH :silent !afplay ~/.vim/tools/succ_horns01.mp3<CR>
-
 " keep the cursor in place while joining lines
-" keeps introducing Z marks everywhere
-" nnoremap J mZJ`Z
+" NOTE: this overwrites the Z mark (a function can be used to remember the cursor instead)
+nnoremap <silent> J mZJ`Z:delmark Z<CR>
 
 " copy the current filename to the clipboard
 nnoremap <leader>F let @* = expand("%:p")
@@ -401,7 +393,11 @@ nnoremap <silent> <leader>S :setlocal buftype=nofile bufhidden=hide<CR>
 
 " automatically correct the spelling to the first option
 " NOTE: z= shows the spelling correction menu, [s and ]s navigate misspellings
-nnoremap <leader>z z=1<CR><CR>
+nnoremap <leader>z 1z=
+
+" show the omnicomplete spelling menu
+" TODO: investigate using neocomplcache for spelling corrections
+nnoremap <leader>Z ea<C-X><C-S>
 
 " FIXME, can't get FIXME to work
 " TODO: consider making a very lightweight plugin for this (and grep, and
@@ -510,7 +506,7 @@ nnoremap <silent> <leader>t :TagbarToggle<CR>
 " plugin: quickfixsigns {{{1
 
 " don't show quickfixsigns for special buffers like tagbar, unite, and anything starting with [
-" TODO: find a way to disable signs column for scratch/preview buffers without
+" FIXME: find a way to disable signs column for scratch/preview buffers without
 " also disabling it for new (unnamed) vim buffers
 let g:quickfixsigns_blacklist_buffer = '^__.*__\|^$\|ControlP\|^NetrwTreeListing\|\[.*$'
 let g:quickfixsigns#marks#texthl = "SignColumn"
@@ -551,6 +547,10 @@ let g:neocomplcache_source_disable = {"dictionary_complete": 1}
 " use tab and shift-tab for completion
 inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
+
+" close the popup when backspacing a character
+inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
+inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
 
 " plugin: fugitive {{{1
 nnoremap <leader>gg :Git<SPACE>
@@ -614,8 +614,6 @@ nnoremap <silent> <leader>r :CtrlPRegister<CR>
 
 " plugin: quickrun {{{1
 
-" TODO: change the default mapping to ,R
-
 let g:quickrun_config = {}
 let g:quickrun_config.html = {"exec": "bcat %s", "outputter": "null"}
 let g:quickrun_config.ruby = {"outputter": "error", "outputter/error/error": "quickfix", "outputter/error/success": "buffer"}
@@ -626,12 +624,14 @@ let g:quickrun_config.markdown = {"exec": "open -a /Applications/Marked.app %s",
 " execute ':setlocal makeprg=' . b:makeprgvar
 " execute ":setlocal makeprg=" . b:makeprgvar
 
+nmap <leader>R <Plug>(quickrun)
+
 " plugin: netrw {{{1
 
 " nnoremap <silent> <leader>x :Vexplore<CR>
 
 " use tree mode as default view
-" TODO: currently buggy, fix after next vim update
+" currently buggy, enable after next vim update
 " let g:netrw_liststyle=3
 
 " open file in previous buffer
@@ -778,7 +778,7 @@ endfunction
 function! MyFoldText() " {{{1
   " kiss -- don't show number of folded lines (unnecessary metadata)
   let line = getline(v:foldstart)
-  " so far, handles vim and python well. TODO: keep an eye out for other languages.
+  " so far, handles vim and python well. keep an eye out for other languages.
   let text = substitute(line, '\v^\s*"|^def |^function!? |"?\s*\{\{\{\d|:$', '', 'g')
   return "+-- " . substitute(text, '\v^\s+|\s+$', '', 'g') . " "
 endfunction
@@ -881,6 +881,9 @@ endfunction
 " then you can source ~/.vimrc and check that everything works in a cross
 " platform way
 
+" <C-y> closes an omnicomplete menu
+" <C-e> cancels an omnicomplete menu and reverts any changes
+
 " todo {{{1
 
 " TODO: look up c-r shortcuts in insert mode
@@ -891,5 +894,8 @@ endfunction
 "In order to make custom mappings easier and prevent overwritting existing
 "ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
 "for its mappings.
+" http://stackoverflow.com/questions/13688022/what-is-the-reason-to-parenthesize-plug-map-names
 
 " TODO: set up visual mappings as well as normal ones for your plugins
+
+" TODO: use unimpaired mappings instead of defining your own
