@@ -22,6 +22,7 @@ try
   Bundle 'gmarik/sudo-gui.vim'
   Bundle 'gmarik/vundle'
   Bundle 'kana/vim-smartinput'
+  Bundle 'kbarrette/mediummode'
   Bundle 'kien/ctrlp.vim'
   Bundle 'majutsushi/tagbar'
   Bundle 'mattn/ctrlp-git'
@@ -30,6 +31,7 @@ try
   Bundle 'mbadran/headlights'
   Bundle 'mbadran/jpythonfold.vim'
   " Bundle 'mbadran/quicktrix'
+  Bundle 'mhinz/vim-startify'
   Bundle 'myusuf3/numbers.vim'
   Bundle 'nanotech/jellybeans.vim'
   Bundle 'nelstrom/vim-markdown-folding'
@@ -39,13 +41,13 @@ try
   Bundle 'sickill/vim-pasta'
   Bundle 'sjl/gundo.vim'
   Bundle 'skammer/vim-css-color'
-  " Bundle 'sontek/rope-vim'
   Bundle 'sukima/xmledit'
   Bundle 'thinca/vim-quickrun'
   Bundle 'tomtom/quickfixsigns_vim'
   Bundle 'tomtom/tcomment_vim'
   " required by quickfixsigns
   Bundle 'tomtom/tlib_vim'
+  Bundle 'tpope/vim-dispatch'
   Bundle 'tpope/vim-endwise'
   Bundle 'tpope/vim-eunuch'
   Bundle 'tpope/vim-fugitive'
@@ -53,11 +55,12 @@ try
   Bundle 'tpope/vim-repeat'
   Bundle 'tpope/vim-scriptease'
   Bundle 'tpope/vim-sensible'
+  Bundle 'tpope/vim-sleuth'
   Bundle 'tpope/vim-surround'
   Bundle 'tpope/vim-unimpaired'
   Bundle 'vim-ruby/vim-ruby'
-  Bundle 'wikitopian/hardmode'
   Bundle 'xolox/vim-easytags'
+  Bundle 'Yggdroot/indentLine'
 
   " bundles: vim-scripts {{{1
 
@@ -164,7 +167,7 @@ set nojoinspaces
 set guicursor+=n:blinkon0
 
 " limit the number of menu items for omnicomplete (temporary hack)
-" TODO: temporarily disable
+" temporarily disabled
 " set pumheight=17
 
 " allow the cursor to go anywhere in block mode
@@ -220,6 +223,9 @@ set showbreak=↪
 " don't show the mode (powerline has got this handled)
 set noshowmode
 
+" give more space for messages
+set cmdheight=2
+
 " indentation {{{1
 
 " insert spaces instead of tabs
@@ -255,7 +261,7 @@ if has("autocmd")
     endif
 
     " enable hardmode
-    autocmd VimEnter,BufNewFile,BufReadPost * silent call HardMode()
+    " autocmd VimEnter,BufNewFile,BufReadPost * silent call HardMode()
   augroup END
 endif
 
@@ -423,7 +429,7 @@ cnoremap <C-e> <end>
 
 " do a sudo write
 " cnoremap w!! w !sudo tee % > /dev/null
-cnoremap w!! silent SudoWriteMacGUI
+" cnoremap w!! SudoWriteMacGUI
 
 " fix searches
 cnoremap %s/ %s/\v
@@ -462,6 +468,13 @@ if !has("gui_running")
 
   " set the terminal's title to the filename
   set title
+
+  " enable the menu (for headlights and otherwise)
+  runtime! menu.vim
+  set wildmenu
+  set cpoptions-=<
+  set wildcharm=<C-Z>
+  map <leader><SPACE> :emenu <C-Z>
 endif
 
 " plugin: runtime {{{1
@@ -581,7 +594,7 @@ nnoremap <silent> <leader>gw :Gwrite<CR>
 " plugin: jpythonfold {{{1
 
 " let g:jpythonfold_CustomFoldText = 1
-let g:jpythonfold_Compact = 0
+" let g:jpythonfold_Compact = 1
 
 " plugin: ctrlp {{{1
 
@@ -652,7 +665,7 @@ let g:NERDTreeQuitOnOpen = 1
 " nnoremap <silent> <leader>x :NERDTreeToggle<CR>
 " nnoremap <silent> <leader>x :execute "NERDTreeToggle " . getcwd() . "<CR>"
 " nnoremap <silent> <leader>x :call ToggleNERDTree()<CR>
-nnoremap <silent> <leader><leader> :call ToggleNERDTree()<CR>
+nnoremap <silent> <leader><leader> :call <SID>ToggleNERDTreeCWD()<CR>
 
 " plugin: tcomment {{{1
 
@@ -660,7 +673,15 @@ nmap <leader>c gcc
 vmap <leader>c gc
 nmap <leader>C gc
 
-function! ToggleNERDTree() " {{{1
+" plugin: startify {{{1
+
+let g:startify_show_files_number = 17
+let g:startify_empty_buffer_key = "n"
+let g:startify_bookmarks = [ "~/", "~/.vim/", "~/Desktop/", "~/Documents/", "~/Documents/orchestration/", "~/Google\ Drive/projects/", "~/Google\ Drive/projects/hda/" ]
+" let g:startify_custom_indices = ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+let g:startify_custom_indices = [ "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "w", "r", "t", "y", "u", "o", "p" ]
+
+function! s:ToggleNERDTreeCWD() " {{{1
   if exists("g:NERDTree_opened")
     execute "NERDTreeClose"
     unlet g:NERDTree_opened
@@ -681,50 +702,6 @@ function! s:ToggleAllFolds() " {{{1
     setlocal foldlevel=99
   else
     setlocal foldlevel=0
-  endif
-endfunction
-
-function! s:GoToStartOfLine(...) " {{{1
-  if exists("a:1") && a:1 ==? "v"
-    normal! `>v`<
-  elseif exists("a:1") && a:1 ==? ""
-    normal! `>`<
-  endif
-
-  let l:first_col = col(".")
-
-  if getline(".") =~ "^ "
-    normal! _
-  else
-    normal! 0
-  endif
-
-  " if we haven't moved, and we're not at the start, go to 0
-  let l:current_col = col(".")
-  if l:current_col != 1 && l:first_col == l:current_col
-    normal! 0
-  endif
-endfunction
-
-function! s:GoToEndOfLine(...) " {{{1
-  if exists("a:1") && a:1 ==? "v"
-    normal! `<v`>
-  elseif exists("a:1") && a:1 ==? ""
-    normal! `<`>
-  endif
-
-  let l:first_col = col(".")
-
-  if getline(".") =~ " $"
-    normal! g_
-  else
-    normal! $
-  endif
-
-  " if we haven't moved, and we're not at the end, go to $
-  let l:current_col = col(".")
-  if l:current_col < len(getline(".")) && l:first_col == l:current_col
-    normal! $
   endif
 endfunction
 
@@ -776,10 +753,12 @@ function! s:VSetSearch() " {{{1
 endfunction
 
 function! MyFoldText() " {{{1
-  " kiss -- don't show number of folded lines (unnecessary metadata)
+  " so far, handles vim and python well. TODO: test folding with other languages.
+  " hides number of folded lines and strips other unnecessary metadata
   let line = getline(v:foldstart)
-  " so far, handles vim and python well. keep an eye out for other languages.
-  let text = substitute(line, '\v^\s*"|^def |^function!? |"?\s*\{\{\{\d|:$', '', 'g')
+  " let text = substitute(line, '\v^\s*"|^def |^function!? |"?\s*\{\{\{\d|:$', '', 'g')
+  " let text = substitute(line, '\v^\s*"|^def |^function\zs!\ze? |"?\s*\{\{\{\d|:$', '', 'g')
+  let text = substitute(line, '\v^\s*"|^def |"?\s*\{\{\{\d|:$', '', 'g')
   return "+-- " . substitute(text, '\v^\s+|\s+$', '', 'g') . " "
 endfunction
 
@@ -856,7 +835,7 @@ endfunction
 " gU<motion> -- UPPERCASE
 
 " :map <keys> -- find the mapping corresponding to <keys>
-"
+
 " folding
 "za toggles a fold opened and closed!
 "zf#j  creates a fold from the cursor down  #  lines.
@@ -874,23 +853,21 @@ endfunction
 "[z move to start of open fold.
 "]z move to end of open fold.
 
-" use the following command to debug:
 " vim -N -u NONE -U NONE
-" this will let you call vim in nocompatible mode, with no vimrc and no gvimrc
-" settings
-" then you can source ~/.vimrc and check that everything works in a cross
-" platform way
+" for debugging, this command will let you call vim in nocompatible mode, with
+" no vimrc and no gvimrc settings then you can source ~/.vimrc and check that
+" everything works in a cross platform way
 
 " <C-y> closes an omnicomplete menu
 " <C-e> cancels an omnicomplete menu and reverts any changes
 
+" use CTRL_R " to paste the contents of the unnamed register (or any other
+" register) into the command line. these mappings work with insert mode too,
+" but i tend to just use command mode for pastes.
+
 " todo {{{1
 
-" TODO: look up c-r shortcuts in insert mode
-
 " TODO: add <unique> and hasmapto to mappings in your scripts
-
-" TODO: review this:
 "In order to make custom mappings easier and prevent overwritting existing
 "ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
 "for its mappings.
@@ -898,4 +875,5 @@ endfunction
 
 " TODO: set up visual mappings as well as normal ones for your plugins
 
-" TODO: use unimpaired mappings instead of defining your own
+" TODO: use unimpaired mappings instead of defining your own (eg. list chars
+" and others)
