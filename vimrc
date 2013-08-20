@@ -1,8 +1,5 @@
 " mbadran's vimrc <github.com/mbadran/dotvim>
 
-" powerline {{{1
-" set runtimepath+=~/Library/Python/2.7/lib/python/site-packages/powerline/bindings/vim
-
 " bundles: boilerplate {{{1
 set runtimepath+=$HOME/.vim/bundle/vundle/
 try
@@ -11,20 +8,22 @@ try
   " bundles: github {{{1
 
   Bundle 'Glench/Vim-Jinja2-Syntax'
-  Bundle 'Lokaltog/vim-powerline'
+  " Bundle 'Lokaltog/vim-powerline'
   Bundle 'Shougo/neocomplcache'
   Bundle 'Valloric/MatchTagAlways'
   Bundle 'altercation/vim-colors-solarized'
   Bundle 'avakhov/vim-yaml'
+  Bundle 'bling/vim-airline'
   Bundle 'chreekat/vim-paren-crosshairs'
   Bundle 'csexton/trailertrash.vim'
-  Bundle 'fs111/pydoc.vim'
+  " barely use this
+  " Bundle 'fs111/pydoc.vim'
   Bundle 'gmarik/sudo-gui.vim'
   Bundle 'gmarik/vundle'
   Bundle 'kana/vim-smartinput'
-  Bundle 'kbarrette/mediummode'
   Bundle 'kien/ctrlp.vim'
-  Bundle 'majutsushi/tagbar'
+  " barely use this
+  " Bundle 'majutsushi/tagbar'
   Bundle 'mattn/ctrlp-git'
   Bundle 'mattn/ctrlp-mark'
   Bundle 'mattn/ctrlp-register'
@@ -32,7 +31,6 @@ try
   Bundle 'mbadran/jpythonfold.vim'
   " Bundle 'mbadran/quicktrix'
   Bundle 'mhinz/vim-startify'
-  Bundle 'myusuf3/numbers.vim'
   Bundle 'nanotech/jellybeans.vim'
   Bundle 'nelstrom/vim-markdown-folding'
   Bundle 'rkitover/vimpager'
@@ -40,9 +38,12 @@ try
   Bundle 'scrooloose/syntastic'
   Bundle 'sickill/vim-pasta'
   Bundle 'sjl/gundo.vim'
-  Bundle 'skammer/vim-css-color'
+  " barely use this
+  " Bundle 'skammer/vim-css-color'
   Bundle 'sukima/xmledit'
-  Bundle 'thinca/vim-quickrun'
+  Bundle 'takac/vim-hardtime'
+  " barely use this
+  " Bundle 'thinca/vim-quickrun'
   Bundle 'tomtom/quickfixsigns_vim'
   Bundle 'tomtom/tcomment_vim'
   " required by quickfixsigns
@@ -59,8 +60,10 @@ try
   Bundle 'tpope/vim-surround'
   Bundle 'tpope/vim-unimpaired'
   Bundle 'vim-ruby/vim-ruby'
-  Bundle 'xolox/vim-easytags'
-  Bundle 'Yggdroot/indentLine'
+  " TODO: reenable after this bundle is fixed
+  " Bundle 'xolox/vim-easytags'
+  "  slows down vim dramatically
+  " Bundle 'Yggdroot/indentLine'
 
   " bundles: vim-scripts {{{1
 
@@ -71,7 +74,8 @@ catch /E117/ | endtry    " no vundle
 
 " settings {{{1
 
-let g:mapleader = ','
+" let g:mapleader = ','
+let g:mapleader = ' '
 
 " enable case insensitive search when using lowercase letters
 set ignorecase
@@ -79,7 +83,7 @@ set ignorecase
 " enable case insensitive keyword completion when ignorecase is on
 set infercase
 
-" go to the first non-blank of the line instead of the start (where possible)
+" where possible, go to the first non-blank of the line instead of the start (eg. with gg and G)
 set nostartofline
 
 " ask for confirmation instead of failing commands
@@ -143,6 +147,14 @@ set noswapfile
 
 " enable backups
 set backup
+
+" allow persistent undos across sessions
+set undofile
+
+" save undo and backup files far away (and put the full dir path in the filename)
+" (when the system restarts, undo files will be lost, which is OK
+set undodir=$TEMP//,$TMP//,$TMPDIR//,/tmp/.
+set backupdir=$TEMP//,$TMP//,$TMPDIR//,/tmp/.
 
 " list all matches and complete till longest common string
 " (tab twice to cycle through)
@@ -220,7 +232,7 @@ set switchbuf+=split,newtab
 " better line wrap signs
 set showbreak=↪
 
-" don't show the mode (powerline has got this handled)
+" don't show the mode (airline has got this handled)
 set noshowmode
 
 " give more space for messages
@@ -259,9 +271,6 @@ if has("autocmd")
       autocmd BufEnter,InsertLeave * setlocal cursorline
       autocmd BufLeave,InsertEnter * setlocal nocursorline
     endif
-
-    " enable hardmode
-    " autocmd VimEnter,BufNewFile,BufReadPost * silent call HardMode()
   augroup END
 endif
 
@@ -529,25 +538,26 @@ let g:quickfixsigns_icons = {}
 
 let g:easytags_cmd = "/usr/local/bin/ctags"
 
-" plugin: powerline {{{1
+" plugin: airline {{{1
 
-" https://github.com/mbadran/dotvim/blob/8aff32cad3305f58f274540d6f198a4dcb19473d/vimrc
-let g:Powerline_symbols = "fancy"
+" use fancy unicode symbols
+let g:airline_left_sep = '»'
+let g:airline_left_sep = '▶'
+let g:airline_right_sep = '«'
+let g:airline_right_sep = '◀'
+let g:airline_linecolumn_prefix = '␊ '
+let g:airline_linecolumn_prefix = '␤ '
+let g:airline_linecolumn_prefix = '¶ '
+let g:airline_branch_prefix = '⎇ '
+let g:airline_paste_symbol = 'ρ'
+let g:airline_paste_symbol = 'Þ'
+let g:airline_paste_symbol = '∥'
+let g:airline_whitespace_symbol = 'Ξ'
 
-" move things around in the default theme
-call Pl#Theme#RemoveSegment("fileencoding")
-call Pl#Theme#RemoveSegment("fileformat")
-call Pl#Theme#RemoveSegment("filetype")
-" call Pl#Theme#RemoveSegment("fugitive\:branch")
-call Pl#Theme#RemoveSegment("tagbar\:currenttag")
-call Pl#Theme#InsertSegment("fileformat", "after", "syntastic\:errors")
-call Pl#Theme#InsertSegment("filetype", "after", "fileformat")
-" call Pl#Theme#InsertSegment("fugitive\:branch", "before", "rvm\:string")
-" call Pl#Theme#InsertSegment("tagbar\:currenttag", "before", "fugitive\:branch")
-" call Pl#Theme#InsertSegment("pwd", "before", "tagbar\:currenttag")
-call Pl#Theme#InsertSegment("pwd", "before", "rvm\:string")
-" call Pl#Theme#InsertSegment("tagbar\:currenttag", "before", "pwd")
-call Pl#Theme#InsertSegment("ws_marker", "after", "lineinfo")
+" replace tagbar and ft with current working directory
+let g:airline_section_x = "%{getcwd()}"
+" replace fenc and ff with ft and ff if ff is not unix
+let g:airline_section_y = "%{&filetype}%{&fileformat=='unix'?'':'  '.toupper(&fileformat).'!'}"
 
 " plugin: solarized {{{1
 
@@ -610,51 +620,9 @@ let g:ctrlp_arg_map = 0
 let g:ctrlp_mruf_max = 25
 let g:ctrlp_mruf_exclude = '.*vimrc\|.*/vim/runtime/doc.*\|/private/var/.*'
 
-nnoremap <silent> <leader>T :CtrlPBufTag<CR>
-" nnoremap <silent> <leader>k :CtrlPBookmarkDir<CR>
-" nnoremap <silent> <leader>f :CtrlPCurWD<CR>
-" nnoremap <silent> <leader>f :CtrlPCurFile<CR>
-nnoremap <silent> <S-SPACE> :CtrlPCurFile<CR>
-" nnoremap <silent> <leader>u :CtrlPMRUFiles<CR>
-" nnoremap <silent> <leader><SPACE> :CtrlPMRUFiles<CR>
-nnoremap <silent> <C-SPACE> :CtrlPMRUFiles<CR>
-" nnoremap <silent> <SPACE> :CtrlPMixed<CR>
-nnoremap <silent> <SPACE> :CtrlPBuffer<CR>
-" nnoremap <silent> <leader><SPACE> :CtrlPMRUFiles<CR>
-" nnoremap <silent> <leader>d :CtrlPCurWD<CR>
-" nnoremap <silent> <S-SPACE> :CtrlPMixed<CR>
+nnoremap <silent> <C-Space> :CtrlPMRUFiles<CR>
+nnoremap <silent> <S-Space> :CtrlPBuffer<CR>
 nnoremap <silent> <leader>r :CtrlPRegister<CR>
-
-" plugin: quickrun {{{1
-
-let g:quickrun_config = {}
-let g:quickrun_config.html = {"exec": "bcat %s", "outputter": "null"}
-let g:quickrun_config.ruby = {"outputter": "error", "outputter/error/error": "quickfix", "outputter/error/success": "buffer"}
-let g:quickrun_config.markdown = {"exec": "open -a /Applications/Marked.app %s", "outputter": "null"}
-" use ant to make, using a build file above this (src) one
-"let b:makeprgvar='ant\ -f\ ' . expand('%:p:h") . '/../build.xml'
-" let b:makeprgvar='ant\ -f\ ' . '..\build.xml'
-" execute ':setlocal makeprg=' . b:makeprgvar
-" execute ":setlocal makeprg=" . b:makeprgvar
-
-nmap <leader>R <Plug>(quickrun)
-
-" plugin: netrw {{{1
-
-" nnoremap <silent> <leader>x :Vexplore<CR>
-
-" use tree mode as default view
-" currently buggy, enable after next vim update
-" let g:netrw_liststyle=3
-
-" open file in previous buffer
-let g:netrw_browse_split=4
-
-" show preview window in a vertical split
-let g:netrw_preview=1
-
-" make sure previewed files use 70% of the space
-let g:netrw_winsize=30
 
 " plugin: nerdtree {{{1
 
@@ -662,9 +630,6 @@ let g:NERDTreeShowBookmarks = 1
 let g:NERDTreeMinimalUI = 1
 let g:NERDTreeQuitOnOpen = 1
 
-" nnoremap <silent> <leader>x :NERDTreeToggle<CR>
-" nnoremap <silent> <leader>x :execute "NERDTreeToggle " . getcwd() . "<CR>"
-" nnoremap <silent> <leader>x :call ToggleNERDTree()<CR>
 nnoremap <silent> <leader><leader> :call <SID>ToggleNERDTreeCWD()<CR>
 
 " plugin: tcomment {{{1
@@ -681,12 +646,23 @@ let g:startify_bookmarks = [ "~/", "~/.vim/", "~/Desktop/", "~/Documents/", "~/D
 " let g:startify_custom_indices = ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
 let g:startify_custom_indices = [ "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "w", "r", "t", "y", "u", "o", "p" ]
 
+" plugin: hardtime {{{1
+
+let g:hardtime_default_on = 1
+
+let g:list_of_visual_keys = [ "h", "j", "k", "l",
+                 \ "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
+
+let g:list_of_normal_keys = [ "h", "j", "k", "l",
+                 \ "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
+
 function! s:ToggleNERDTreeCWD() " {{{1
+  " because NERDTreeToggle doesn't change the cwd if NERDTree is open
   if exists("g:NERDTree_opened")
     execute "NERDTreeClose"
     unlet g:NERDTree_opened
   else
-    execute "NERDTree " . getcwd()
+    execute "NERDTree"
     let g:NERDTree_opened = 1
   endif
 endfunction
