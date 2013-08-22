@@ -8,7 +8,6 @@ try
   " bundles: github {{{1
 
   Bundle 'Glench/Vim-Jinja2-Syntax'
-  " Bundle 'Lokaltog/vim-powerline'
   Bundle 'Shougo/neocomplcache'
   Bundle 'Valloric/MatchTagAlways'
   Bundle 'altercation/vim-colors-solarized'
@@ -16,14 +15,10 @@ try
   Bundle 'bling/vim-airline'
   Bundle 'chreekat/vim-paren-crosshairs'
   Bundle 'csexton/trailertrash.vim'
-  " barely use this
-  " Bundle 'fs111/pydoc.vim'
   Bundle 'gmarik/sudo-gui.vim'
   Bundle 'gmarik/vundle'
   Bundle 'kana/vim-smartinput'
   Bundle 'kien/ctrlp.vim'
-  " barely use this
-  " Bundle 'majutsushi/tagbar'
   Bundle 'mattn/ctrlp-git'
   Bundle 'mattn/ctrlp-mark'
   Bundle 'mattn/ctrlp-register'
@@ -34,16 +29,14 @@ try
   Bundle 'nanotech/jellybeans.vim'
   Bundle 'nelstrom/vim-markdown-folding'
   Bundle 'rkitover/vimpager'
+  Bundle 'rking/ag.vim'
   Bundle 'scrooloose/nerdtree'
   Bundle 'scrooloose/syntastic'
+  Bundle 'Shougo/unite.vim'
   Bundle 'sickill/vim-pasta'
   Bundle 'sjl/gundo.vim'
-  " barely use this
-  " Bundle 'skammer/vim-css-color'
   Bundle 'sukima/xmledit'
   Bundle 'takac/vim-hardtime'
-  " barely use this
-  " Bundle 'thinca/vim-quickrun'
   Bundle 'tomtom/quickfixsigns_vim'
   Bundle 'tomtom/tcomment_vim'
   " required by quickfixsigns
@@ -60,10 +53,6 @@ try
   Bundle 'tpope/vim-surround'
   Bundle 'tpope/vim-unimpaired'
   Bundle 'vim-ruby/vim-ruby'
-  " TODO: reenable after this bundle is fixed
-  " Bundle 'xolox/vim-easytags'
-  "  slows down vim dramatically
-  " Bundle 'Yggdroot/indentLine'
 
   " bundles: vim-scripts {{{1
 
@@ -193,7 +182,7 @@ set showfulltag
 set report=1
 
 " match angle brackets too
-" set matchpairs+=<:>
+set matchpairs+=<:>
 
 " don't make windows the same size
 set noequalalways
@@ -209,10 +198,10 @@ set iskeyword+=$,%,#
 set iskeyword-=_
 
 " set grep options
-" TODO: review ack vs grep again
-set grepprg=ack\ -H\ --nocolor\ --nogroup\ --column
+" TODO: review ack vs grep vs ag
+" set grepprg=ack\ -H\ --nocolor\ --nogroup\ --column
 " set grepformat=%f:%l:%c:%m,%f:%l%c%m,%f %l%c%m
-set grepformat=%f:%l:%c:%m
+" set grepformat=%f:%l:%c:%m
 
 " use custom text for folds
 set foldtext=MyFoldText()
@@ -419,7 +408,7 @@ nnoremap <leader>Z ea<C-X><C-S>
 " locate, and find, and last search, and new search, and help, etc. but keep
 " it very lightweight with just a few options, but all configurable)
 " nnoremap <leader>d :vimgrep /TODO\|FIXME/j %<BAR>:cwindow<CR>
-nnoremap <leader>d :vimgrep /TODO/j %<BAR>:botright cwindow 20<CR>:wincmd k<CR>
+nnoremap <silent> <leader>d :vimgrep /TODO/j %<BAR>:botright cwindow 20<CR>:wincmd k<CR>
 
 " mappings: visual {{{1
 
@@ -427,8 +416,8 @@ nnoremap <leader>d :vimgrep /TODO/j %<BAR>:botright cwindow 20<CR>:wincmd k<CR>
 vnoremap > >gv
 vnoremap < <gv
 
-vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
-vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
+vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><C-o>
+vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><C-o>
 
 " mappings: command {{{1
 
@@ -641,10 +630,21 @@ nmap <leader>C gc
 " plugin: startify {{{1
 
 let g:startify_show_files_number = 17
-let g:startify_empty_buffer_key = "n"
-let g:startify_bookmarks = [ "~/", "~/.vim/", "~/Desktop/", "~/Documents/", "~/Documents/orchestration/", "~/Google\ Drive/projects/", "~/Google\ Drive/projects/hda/" ]
-" let g:startify_custom_indices = ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
-let g:startify_custom_indices = [ "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "w", "r", "t", "y", "u", "o", "p" ]
+" let g:startify_empty_buffer_key = "n"
+let g:startify_bookmarks = [ "~/Google\ Drive/projects/hda/", "~/Google\ Drive/projects/", "~/Documents/", "~/Desktop/" ]
+let g:startify_custom_indices = [ "a", "d", "f", "g", "h", "j", "k", "l", ";", "w", "r", "t", "y", "u", "o", "p", "1", "2", "3", "4", "5", "6", "7", "8", "9" ]
+let g:startify_list_order = [ 'bookmarks', 'sessions', 'files' ]
+let g:startify_files_number = 20
+let g:startify_skiplist = [
+  \ $MYVIMRC,
+  \ $HOME . '/.vim/gvimrc',
+  \ 'COMMIT_EDITMSG',
+  \ $VIMRUNTIME . '/doc',
+  \ 'bundle/.*/doc',
+  \ '/private/etc/hosts',
+  \ $HOME . '/.ssh/config',
+  \ '.*/.git/index'
+  \ ]
 
 " plugin: hardtime {{{1
 
@@ -755,7 +755,7 @@ endfunction
 
 " %s/pattern//gn number of occurrences of pattern
 
-" ex commands are awesome: g/setlocal/ normal I"
+" ex commands: g/setlocal/ normal I"
 " http://blog.sanctum.geek.nz/using-more-of-ex/
 
 " http://henrik.nyh.se/2011/01/textmate-to-vim-with-training-wheels
@@ -767,7 +767,7 @@ endfunction
 " cis
 " d(
 " d2(
-"
+
 " f<char> -> then -> c; or c, to d; d, to delete to that line operation mark
 
 " gP pastes the text before the current char, and leaves the cursor on the
@@ -840,16 +840,3 @@ endfunction
 " use CTRL_R " to paste the contents of the unnamed register (or any other
 " register) into the command line. these mappings work with insert mode too,
 " but i tend to just use command mode for pastes.
-
-" todo {{{1
-
-" TODO: add <unique> and hasmapto to mappings in your scripts
-"In order to make custom mappings easier and prevent overwritting existing
-"ones, delimitMate uses the |<Plug>| + |hasmapto()| (|usr_41.txt|) construct
-"for its mappings.
-" http://stackoverflow.com/questions/13688022/what-is-the-reason-to-parenthesize-plug-map-names
-
-" TODO: set up visual mappings as well as normal ones for your plugins
-
-" TODO: use unimpaired mappings instead of defining your own (eg. list chars
-" and others)
