@@ -19,6 +19,7 @@ try
   Bundle 'gmarik/vundle'
   Bundle 'kana/vim-smartinput'
   Bundle 'kien/ctrlp.vim'
+  Bundle 'majutsushi/tagbar'
   Bundle 'mattn/ctrlp-git'
   Bundle 'mattn/ctrlp-mark'
   Bundle 'mattn/ctrlp-register'
@@ -41,6 +42,7 @@ try
   Bundle 'tomtom/tcomment_vim'
   " required by quickfixsigns
   Bundle 'tomtom/tlib_vim'
+  " TODO: review
   Bundle 'tpope/vim-dispatch'
   Bundle 'tpope/vim-endwise'
   Bundle 'tpope/vim-eunuch'
@@ -53,6 +55,8 @@ try
   Bundle 'tpope/vim-surround'
   Bundle 'tpope/vim-unimpaired'
   Bundle 'vim-ruby/vim-ruby'
+  Bundle 'xolox/vim-misc'
+  Bundle 'xolox/vim-easytags'
 
   " bundles: vim-scripts {{{1
 
@@ -188,8 +192,7 @@ set matchpairs+=<:>
 set noequalalways
 
 " speed up background operations
-" slow it down for easytags
-set updatetime=4000
+set updatetime=1000
 
 " unset these as word delimiters
 set iskeyword+=$,%,#
@@ -260,6 +263,9 @@ if has("autocmd")
       autocmd BufEnter,InsertLeave * setlocal cursorline
       autocmd BufLeave,InsertEnter * setlocal nocursorline
     endif
+
+    " don't change the cursorline for startify windows
+    autocmd FileType startify setlocal nocursorline
   augroup END
 endif
 
@@ -526,27 +532,50 @@ let g:quickfixsigns_icons = {}
 " plugin: easytags {{{1
 
 let g:easytags_cmd = "/usr/local/bin/ctags"
+let g:easytags_updatetime_warn = 0
 
 " plugin: airline {{{1
 
 " use fancy unicode symbols
-let g:airline_left_sep = '»'
 let g:airline_left_sep = '▶'
-let g:airline_right_sep = '«'
 let g:airline_right_sep = '◀'
-let g:airline_linecolumn_prefix = '␊ '
-let g:airline_linecolumn_prefix = '␤ '
-let g:airline_linecolumn_prefix = '¶ '
+let g:airline_left_alt_sep = '·'
+let g:airline_right_alt_sep = '·'
+" let g:airline_linecolumn_prefix = '␊'
+" let g:airline_linecolumn_prefix = '␤'
+" let g:airline_linecolumn_prefix = '¶'
+" let g:airline_linecolumn_prefix = ''
+" let g:airline_linecolumn_prefix = '⭡'
 let g:airline_branch_prefix = '⎇ '
-let g:airline_paste_symbol = 'ρ'
 let g:airline_paste_symbol = 'Þ'
-let g:airline_paste_symbol = '∥'
 let g:airline_whitespace_symbol = 'Ξ'
+" let g:airline_readonly_symbol = '⭤'
+let g:airline_readonly_symbol = ''
 
-" replace tagbar and ft with current working directory
-let g:airline_section_x = "%{getcwd()}"
-" replace fenc and ff with ft and ff if ff is not unix
-let g:airline_section_y = "%{&filetype}%{&fileformat=='unix'?'':'  '.toupper(&fileformat).'!'}"
+" show buffer and tab titles
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#fnamemod = ':t'
+
+" show a custom header
+let g:startify_custom_footer = [ '', '   ' . strftime('%A, %d %B, %X') ]
+
+" replace branch with current dir (may differ from file dir)
+let g:airline_section_b = "%{getcwd()}"
+
+" replace readonly with readonly, non-unix ff, and non-utf-8 fenc
+let g:airline_section_gutter = " %#airline_file#%{airline#util#wrap(airline#parts#readonly(),0)}%{&fileformat=='unix'?'':&fileformat}%{&fileencoding=='utf-8'?'':'   '.&fileencoding}%="
+
+" replace fenc and ff with branch
+let g:airline_section_y = "%{airline#extensions#branch#get_head()}"
+
+" shuffle line position details and use virtual columns
+" let g:airline_section_z = "%3p%% %3v %3l"
+" let g:airline_section_z = "%3p%% %{g:airline_symbols.linenr} %3l:%3c"
+" let g:airline_section_z = "%3p%% %{g:airline_symbols.linenr} %3c %{g:airline_symbols.linenr} %3l"
+" let g:airline_section_z = "%3p%% %3c %{g:airline_symbols.linenr} %3l"
+" let g:airline_section_z = "%3p%% %3v %{g:airline_symbols.linenr} %3l"
+" let g:airline_section_z = "%3p%% %{g:airline_right_alt_sep} %3v %{g:airline_right_alt_sep} %3l"
+let g:airline_section_z = "%3p%% %3v %{g:airline_right_alt_sep} %3l"
 
 " plugin: solarized {{{1
 
@@ -629,12 +658,11 @@ nmap <leader>C gc
 
 " plugin: startify {{{1
 
-let g:startify_show_files_number = 17
-" let g:startify_empty_buffer_key = "n"
 let g:startify_bookmarks = [ "~/Google\ Drive/projects/hda/", "~/Google\ Drive/projects/", "~/Documents/", "~/Desktop/" ]
-let g:startify_custom_indices = [ "a", "d", "f", "g", "h", "j", "k", "l", ";", "w", "r", "t", "y", "u", "o", "p", "1", "2", "3", "4", "5", "6", "7", "8", "9" ]
+let g:startify_custom_indices = [ "a", "d", "f", "g", "h", "j", "k", "l", ";", "w", "r", "y", "u", "o", "p", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
 let g:startify_list_order = [ 'bookmarks', 'sessions', 'files' ]
-let g:startify_files_number = 20
+let g:startify_files_number = 21
+let g:startify_enable_special = 0
 let g:startify_skiplist = [
   \ $MYVIMRC,
   \ $HOME . '/.vim/gvimrc',
@@ -643,7 +671,8 @@ let g:startify_skiplist = [
   \ 'bundle/.*/doc',
   \ '/private/etc/hosts',
   \ $HOME . '/.ssh/config',
-  \ '.*/.git/index'
+  \ '.*/.git/index',
+  \ '\.DS_Store'
   \ ]
 
 " plugin: hardtime {{{1
