@@ -20,7 +20,7 @@ set guitablabel=%-3(%N\ %M%)%-100t
 set guitabtooltip=%F\ (%n)
 
 " never show the tab bar
-set showtabline=0
+" set showtabline=0
 
 " macvim: settings {{{1
 
