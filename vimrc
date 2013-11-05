@@ -124,6 +124,9 @@ set whichwrap+=h,l
 " substitute all matches in a line instead of just the first (use /g flag for first match only)
 set gdefault
 
+" show line numbers
+set number
+
 if v:version > 702
   " show line numbers relative to the cursor position
   set relativenumber
@@ -658,10 +661,10 @@ nmap <leader>C gc
 
 " plugin: startify {{{1
 
-let g:startify_bookmarks = [ "~/Google\ Drive/projects/hda/", "~/Google\ Drive/projects/", "~/Documents/", "~/Desktop/" ]
+let g:startify_bookmarks = [ "~/Google\ Drive/projects/hda/request_scripts/search.php", "~/Google\ Drive/projects/hda/request_scripts", "~/Google\ Drive/projects/hda/", "~/Google\ Drive/projects/", "~/Documents/", "~/Desktop/" ]
 let g:startify_custom_indices = [ "a", "d", "f", "g", "h", "j", "k", "l", ";", "w", "r", "y", "u", "o", "p", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
 let g:startify_list_order = [ 'bookmarks', 'sessions', 'files' ]
-let g:startify_files_number = 21
+let g:startify_files_number = 19
 let g:startify_enable_special = 0
 let g:startify_skiplist = [
   \ $MYVIMRC,
