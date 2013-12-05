@@ -28,7 +28,8 @@ if has("gui_macvim")
   set macmeta
 
   " set guifont=Meslo\ LG\ S\ DZ:h13
-  set guifont=Meslo\ LG\ S\ DZ\ Regular\ for\ Powerline:h14
+  " set guifont=Meslo\ LG\ S\ DZ\ Regular\ for\ Powerline:h14
+  set guifont=Menlo:h12
 
   " remove the right scrollbar for now (ugly in Lion)
   set guioptions-=r

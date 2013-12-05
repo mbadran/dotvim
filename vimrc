@@ -547,20 +547,17 @@ let g:airline_right_alt_sep = '·'
 " let g:airline_linecolumn_prefix = '␊'
 " let g:airline_linecolumn_prefix = '␤'
 " let g:airline_linecolumn_prefix = '¶'
-" let g:airline_linecolumn_prefix = ''
-" let g:airline_linecolumn_prefix = '⭡'
+" " let g:airline_linecolumn_prefix = ''
+" " let g:airline_linecolumn_prefix = '⭡'
 let g:airline_branch_prefix = '⎇ '
 let g:airline_paste_symbol = 'Þ'
 let g:airline_whitespace_symbol = 'Ξ'
-" let g:airline_readonly_symbol = '⭤'
-let g:airline_readonly_symbol = ''
+" " let g:airline_readonly_symbol = '⭤'
+" let g:airline_readonly_symbol = ''
 
 " show buffer and tab titles
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#fnamemod = ':t'
-
-" show a custom header
-let g:startify_custom_footer = [ '', '   ' . strftime('%A, %d %B, %X') ]
 
 " replace branch with current dir (may differ from file dir)
 let g:airline_section_b = "%{getcwd()}"
@@ -660,6 +657,9 @@ vmap <leader>c gc
 nmap <leader>C gc
 
 " plugin: startify {{{1
+
+" show a custom header
+let g:startify_custom_footer = [ '', '   ' . strftime('%A, %d %B, %X') ]
 
 let g:startify_bookmarks = [ "~/Google\ Drive/projects/hda/request_scripts/search.php", "~/Google\ Drive/projects/hda/request_scripts", "~/Google\ Drive/projects/hda/", "~/Google\ Drive/projects/", "~/Documents/", "~/Desktop/" ]
 let g:startify_custom_indices = [ "a", "d", "f", "g", "h", "j", "k", "l", ";", "w", "r", "y", "u", "o", "p", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
