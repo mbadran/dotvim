@@ -1,48 +1,42 @@
 " mbadran's vimrc <github.com/mbadran/dotvim>
 
 " bundles: boilerplate {{{1
-set runtimepath+=$HOME/.vim/bundle/vundle/
+set runtimepath+=$HOME/.vim/bundle/Vundle.vim/
 try
   call vundle#rc()
 
   " bundles: github {{{1
 
   Bundle 'Glench/Vim-Jinja2-Syntax'
-  Bundle 'Shougo/neocomplcache'
   Bundle 'Valloric/MatchTagAlways'
+  Bundle 'VundleVim/Vundle.vim'
   Bundle 'altercation/vim-colors-solarized'
   Bundle 'avakhov/vim-yaml'
   Bundle 'bling/vim-airline'
   Bundle 'chreekat/vim-paren-crosshairs'
   Bundle 'csexton/trailertrash.vim'
+  Bundle 'fatih/vim-go'
   Bundle 'gmarik/sudo-gui.vim'
-  Bundle 'gmarik/vundle'
   Bundle 'kana/vim-smartinput'
-  Bundle 'kien/ctrlp.vim'
   Bundle 'majutsushi/tagbar'
-  Bundle 'mattn/ctrlp-git'
-  Bundle 'mattn/ctrlp-mark'
-  Bundle 'mattn/ctrlp-register'
-  Bundle 'mbadran/headlights'
+  " Bundle 'mbadran/headlights'
   Bundle 'mbadran/jpythonfold.vim'
-  " Bundle 'mbadran/quicktrix'
-  Bundle 'mhinz/vim-startify'
+  " doesn't work well on the terminal
+  " Bundle 'mhinz/vim-startify'
   Bundle 'nanotech/jellybeans.vim'
   Bundle 'nelstrom/vim-markdown-folding'
   Bundle 'rkitover/vimpager'
-  Bundle 'rking/ag.vim'
-  Bundle 'scrooloose/nerdtree'
-  Bundle 'scrooloose/syntastic'
-  Bundle 'Shougo/unite.vim'
+  " Bundle 'scrooloose/nerdtree'
+  Bundle 'benekastah/neomake'
+  " Bundle 'Shougo/deoplete.vim'
   Bundle 'sickill/vim-pasta'
-  Bundle 'sjl/gundo.vim'
+  " Bundle 'sjl/gundo.vim'
   Bundle 'sukima/xmledit'
   Bundle 'takac/vim-hardtime'
   Bundle 'tomtom/quickfixsigns_vim'
   Bundle 'tomtom/tcomment_vim'
   " required by quickfixsigns
   Bundle 'tomtom/tlib_vim'
-  " TODO: review
   Bundle 'tpope/vim-dispatch'
   Bundle 'tpope/vim-endwise'
   Bundle 'tpope/vim-eunuch'
@@ -549,8 +543,8 @@ let g:airline_right_alt_sep = '·'
 " let g:airline_linecolumn_prefix = '¶'
 " " let g:airline_linecolumn_prefix = ''
 " " let g:airline_linecolumn_prefix = '⭡'
-let g:airline_branch_prefix = '⎇ '
-let g:airline_paste_symbol = 'Þ'
+" let g:airline_symbols.branch = '⎇ '
+" let g:airline_symbols.paste = 'Þ'
 let g:airline_whitespace_symbol = 'Ξ'
 " " let g:airline_readonly_symbol = '⭤'
 " let g:airline_readonly_symbol = ''
@@ -561,6 +555,7 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 
 " replace branch with current dir (may differ from file dir)
 let g:airline_section_b = "%{getcwd()}"
+let g:airline_section_c = "%t"
 
 " replace readonly with readonly, non-unix ff, and non-utf-8 fenc
 let g:airline_section_gutter = " %#airline_file#%{airline#util#wrap(airline#parts#readonly(),0)}%{&fileformat=='unix'?'':&fileformat}%{&fileencoding=='utf-8'?'':'   '.&fileencoding}%="
@@ -575,7 +570,7 @@ let g:airline_section_y = "%{airline#extensions#branch#get_head()}"
 " let g:airline_section_z = "%3p%% %3c %{g:airline_symbols.linenr} %3l"
 " let g:airline_section_z = "%3p%% %3v %{g:airline_symbols.linenr} %3l"
 " let g:airline_section_z = "%3p%% %{g:airline_right_alt_sep} %3v %{g:airline_right_alt_sep} %3l"
-let g:airline_section_z = "%3p%% %3v %{g:airline_right_alt_sep} %3l"
+" let g:airline_section_z = "%3p%% %3v %{g:airline_right_alt_sep} %3l"
 
 " plugin: solarized {{{1
 
